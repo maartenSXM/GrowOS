@@ -1,2 +1,2 @@
 # growOS
-Operating system, and User Interface that runs on the growBoard by Westlake Horticulture.
+Embedded Operating System and User Interface that runs on the ESPS2 Based growBoard by Westlake Horticulture.
