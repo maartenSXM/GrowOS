@@ -1,5 +1,9 @@
 # Prerequisites
 *.d
+.DS_STORE
+
+#directories
+/build
 
 # Compiled Object files
 *.slo
