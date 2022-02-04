@@ -21,6 +21,7 @@
 #include "esp_event.h"
 #include "nvs_flash.h"
 
+#include "passwords.h"
 #include "icons.h"                              //Bitmap images
 
 #include "Adafruit_GFX.h"
@@ -34,6 +35,22 @@
 #include "UTFTGLUE.h"                         //Brings in MCUFRIEND_kbv.h, and ADAFRUIT_GFX.h - enables more flexibility and compatibility for LCD graphics functions
 #include "TouchScreen.h"                      //Adafruit touch Library
 #include "DHT.h"                              //TEMP & HUMID Sensor
+
+
+//Include WiFi library
+#if defined(ESP32)
+#include <WiFi.h>
+#elif defined(ESP8266)
+#include <ESP8266WiFi.h>
+#endif
+#include "soc/soc.h"           // Disable brownout problems
+#include "soc/rtc_cntl_reg.h"  // Disable brownout problems
+#include "driver/rtc_io.h"
+#include <SPIFFS.h>
+#include <FS.h>
+#include <Firebase_ESP_Client.h>
+//Provide the token generation process info.
+#include <addons/TokenHelper.h>
 
 extern const char *TAG;
 
@@ -137,6 +154,9 @@ extern UTFTGLUE tft;
 extern TouchScreen ts;
 extern TSPoint tp;                                                        //the coordinates are stored here during a touch
 extern DHT dht;
+
+extern char SSIDName[33];
+extern char PasswordAP[65];
 
 extern uint32_t cx, cy, cz;
 extern uint32_t rx[8], ry[8];
@@ -272,4 +292,4 @@ extern bool enSaveToFlash;
 
 extern char buf[40];
 
-#endif
+#endif //COMMON_H

@@ -12,7 +12,7 @@
 #include "rtc.h"
 #include "schedule.h"
 #include "timerFanControl.h"
-#include "wifi.h"
+#include "wifi_Funcs.h"
 
 extern "C" {
     void app_main(void);

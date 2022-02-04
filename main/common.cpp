@@ -7,6 +7,9 @@ TouchScreen ts(1, 2, 3, 4, 290);                                    //re-initial
 TSPoint  tp;                                                       //the coordinates are stored here during a touch
 DHT dht(DHTPIN, DHTTYPE);                                           //init DHT sensor
 
+char SSIDName[33];
+char PasswordAP[65];
+
 uint8_t XM = 1;
 uint8_t XP = 8;
 uint8_t YP = 2;
