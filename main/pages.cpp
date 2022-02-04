@@ -62,9 +62,11 @@ void pageRouter(){
     case 5:
       newTimeslotPage();
       break;
-    case -5:
+    case 6:
       maxTimeSlotsPage();
       break;
+    case 8:
+      deviceInfoPage();
     //unknown currentPage value.... build home screen
     default:
       currentPage = 0;
@@ -255,6 +257,46 @@ void settingPage(){
     tft.drawBitmap8(430, 10, home50x50, 50, 50, OPBOX_GREEN, 1);     //home button icon top right
   }
   //below is what gets updated on the setting page every loop repetition
+}
+
+void deviceInfoPage(){
+  uint8_t yHeight = 20;
+  uint8_t derived_mac_addr[6] = {0};
+  uint8_t base_mac_addr[6] = {0};
+  char buff[55];
+  strcpy(buff, "");
+  esp_efuse_mac_get_default(base_mac_addr);
+  sprintf(buff, "base MAC: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x", base_mac_addr[0], base_mac_addr[1], base_mac_addr[2],
+          base_mac_addr[3], base_mac_addr[4], base_mac_addr[5]);
+  centerPrintCustomFont(buff, yHeight, WHITE, BLACK, 2);
+  
+  yHeight += 20;
+  strcpy(buff, "");
+  esp_read_mac(derived_mac_addr, ESP_MAC_WIFI_STA);
+  sprintf(buff, "WIFI_STA MAC: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x", derived_mac_addr[0], derived_mac_addr[1], derived_mac_addr[2],
+             derived_mac_addr[3], derived_mac_addr[4], derived_mac_addr[5]);
+  centerPrintCustomFont(buff, yHeight, WHITE, BLACK, 2);
+
+  yHeight += 20;
+  strcpy(buff, "");
+  esp_read_mac(derived_mac_addr, ESP_MAC_WIFI_SOFTAP);
+  sprintf(buff, "WIFI_STA MAC: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x", derived_mac_addr[0], derived_mac_addr[1], derived_mac_addr[2],
+             derived_mac_addr[3], derived_mac_addr[4], derived_mac_addr[5]);
+  centerPrintCustomFont(buff, yHeight, WHITE, BLACK, 2);
+  
+  yHeight += 20;
+  strcpy(buff, "");
+  esp_read_mac(derived_mac_addr, ESP_MAC_BT);
+  sprintf(buff, "WIFI_STA MAC: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x", derived_mac_addr[0], derived_mac_addr[1], derived_mac_addr[2],
+             derived_mac_addr[3], derived_mac_addr[4], derived_mac_addr[5]);
+  centerPrintCustomFont(buff, yHeight, WHITE, BLACK, 2);
+
+  yHeight += 20;
+  strcpy(buff, "");
+  esp_read_mac(derived_mac_addr, ESP_MAC_ETH);
+  sprintf(buff, "WIFI_STA MAC: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x", derived_mac_addr[0], derived_mac_addr[1], derived_mac_addr[2],
+             derived_mac_addr[3], derived_mac_addr[4], derived_mac_addr[5]);
+  centerPrintCustomFont(buff, yHeight, WHITE, BLACK, 2);
 }
 
 //This is a special page, it does not follow the templatePage()

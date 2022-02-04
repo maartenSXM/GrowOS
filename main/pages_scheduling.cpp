@@ -387,7 +387,7 @@ void weeksSelectPage(){
 }
 
 void maxTimeSlotsPage(){
-  currentPage = -5;
+  currentPage = 6;
   
   Adafruit_GFX_Button okBtn;
   okBtn.initButtonUL(&tft, xCenter-30, yDisp-31, 60, 30, DARKGREY, BLACK, WHITE, "Okay", 2);
