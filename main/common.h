@@ -36,21 +36,17 @@
 #include "TouchScreen.h"                      //Adafruit touch Library
 #include "DHT.h"                              //TEMP & HUMID Sensor
 
-
-//Include WiFi library
-#if defined(ESP32)
-#include <WiFi.h>
-#elif defined(ESP8266)
-#include <ESP8266WiFi.h>
-#endif
-#include "soc/soc.h"           // Disable brownout problems
-#include "soc/rtc_cntl_reg.h"  // Disable brownout problems
+#include <WiFi.h>                             //Include WiFi library
+#include <WiFiClient.h>
+#include <WiFiAP.h>
+#include "soc/soc.h"                          // Disable brownout problems
+#include "soc/rtc_cntl_reg.h"                 // Disable brownout problems
 #include "driver/rtc_io.h"
 #include <SPIFFS.h>
 #include <FS.h>
 #include <Firebase_ESP_Client.h>
-//Provide the token generation process info.
-#include <addons/TokenHelper.h>
+#include <addons/TokenHelper.h>               //Provide the token generation process info.
+#include <HTTPUpdate.h>                       //for firmware update
 
 extern const char *TAG;
 
@@ -87,7 +83,7 @@ extern uint8_t XP;
 extern uint8_t YP;
 extern uint8_t YM;
 
-/***** SOFTWARE CONFIG *****/
+/***** GENERAL SOFTWARE CONFIG *****/
 //#define Serial SerialUSB                              //native uses SerialUSB
 //#define DEBUG                                         //for serial debugging and other
 //#define DEBUGTOUCH                                    //shows boxes around items that can be touched
@@ -106,9 +102,18 @@ extern uint8_t YM;
 //RTCDue rtc(XTAL);     // Select the HW Slowclock source
 #endif
 
-#ifdef saveToFlash
-enSaveToFlash = true;
-#endif
+extern uint8_t ESP32_BASE_MAC_ADDRESS[6];
+
+/***** WIFI CONFIG *****/
+extern char SSIDName[33];
+extern char PasswordAP[65];
+extern IPAddress esp32IP;
+extern char hostName[33];
+
+/***** FIREBASE *****/
+//See passwords.h for more
+extern char FIREBASE_FILE_PHOTO_PATH[65];
+
 
 #define DEFAULT_SCAN_LIST_SIZE CONFIG_EXAMPLE_SCAN_LIST_SIZE
 
@@ -154,9 +159,6 @@ extern UTFTGLUE tft;
 extern TouchScreen ts;
 extern TSPoint tp;                                                        //the coordinates are stored here during a touch
 extern DHT dht;
-
-extern char SSIDName[33];
-extern char PasswordAP[65];
 
 extern uint32_t cx, cy, cz;
 extern uint32_t rx[8], ry[8];

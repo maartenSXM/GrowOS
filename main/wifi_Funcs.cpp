@@ -1,5 +1,18 @@
 #include "wifi_Funcs.h"
 
+void initialProvision(){
+    // Set WiFi to station mode and disconnect from an AP if it was previously connected
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+    delay(50);
+
+    // WiFi.scanNetworks will return the number of networks found
+    int n = WiFi.scanNetworks();
+    Serial.println("scan done");
+
+    initialWifiSetupPage(n);                                        //send n so we can inform number of networks avail
+}
+
 void print_auth_mode(int authmode)
 {
     switch (authmode) {

@@ -65,8 +65,13 @@ void pageRouter(){
     case 6:
       maxTimeSlotsPage();
       break;
+    case 7:
+      splashPage();
+      break;
     case 8:
       deviceInfoPage();
+    case 9:
+      initialWifiSetupPage();
     //unknown currentPage value.... build home screen
     default:
       currentPage = 0;
@@ -262,12 +267,10 @@ void settingPage(){
 void deviceInfoPage(){
   uint8_t yHeight = 20;
   uint8_t derived_mac_addr[6] = {0};
-  uint8_t base_mac_addr[6] = {0};
   char buff[55];
-  strcpy(buff, "");
-  esp_efuse_mac_get_default(base_mac_addr);
-  sprintf(buff, "base MAC: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x", base_mac_addr[0], base_mac_addr[1], base_mac_addr[2],
-          base_mac_addr[3], base_mac_addr[4], base_mac_addr[5]);
+
+  sprintf(buff, "base MAC: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x", ESP32_BASE_MAC_ADDRESS[0], ESP32_BASE_MAC_ADDRESS[1], ESP32_BASE_MAC_ADDRESS[2],
+          ESP32_BASE_MAC_ADDRESS[3], ESP32_BASE_MAC_ADDRESS[4], ESP32_BASE_MAC_ADDRESS[5]);
   centerPrintCustomFont(buff, yHeight, WHITE, BLACK, 2);
   
   yHeight += 20;
@@ -301,6 +304,7 @@ void deviceInfoPage(){
 
 //This is a special page, it does not follow the templatePage()
 void splashPage(){
+  currentPage = 7;
   /*
   header file/prototype for draw functions
   drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w,int16_t h, uint16_t color),
@@ -311,22 +315,51 @@ void splashPage(){
   //tft.drawBitmap8(50, 50, sun50x50, 50, 50, BLUE);  // for 8bit monochrome bit map works. draws from top left of image
   //tft.drawBitmap8(200, 200, sun50x50, 50, 50, GREEN, 2.4); 
   */
-  tft.fillScreen(BLACK);
   Adafruit_GFX_Button enterButton;
-  tft.drawRGBBitmap(xCenter-240/2, yCenter-110/2, opbox_logo_white_blackBG240x110, 240, 110);     //These are not scalable
 
-  //Draw button and set as not pressed
-  tft.setFont(NULL);
-  enterButton.initButton(&tft,  xCenter, yCenter+60, 100, 40, OPBOX_GREEN, BLACK, WHITE, "ENTER", 2);
-  enterButton.drawButton(false);
-  //wait for button to be touched
-  while( !(touchIsPressed() && enterButton.contains(tp.x,tp.y))) {}
-  //draw button as pressed
-  enterButton.drawButton(true);
-  //wait for release
-  while(touchIsPressed() && enterButton.contains(tp.x,tp.y)) {}
-  //draw button as not pressed after release
-  enterButton.drawButton(false);
+
+  if(checkTPOnly){                                        //only checking for updating when a button is pressed on the page
+    if(touchIsPressed() && enterButton.contains(tp.x,tp.y)){
+      enterButton.drawButton(true); 
+      //wait for release
+      while(touchIsPressed() && enterButton.contains(tp.x,tp.y)) {}
+      //draw button as not pressed after release
+      enterButton.drawButton(false);
+    }
+    return;                                                                 
+  }
+
+  if(!updatePageOnly && !reDrawStuff){                    //only runs if we are building page from scratch, enters here if you call the page function directly without going through updatePage()
+    tft.fillScreen(BLACK);                                //Clear screen to remove previous artifacts
+    tft.drawRGBBitmap(xCenter-240/2, yCenter-110/2, opbox_logo_white_blackBG240x110, 240, 110);
+    reDrawStuff = true;
+  }
+
+  if(reDrawStuff){     
+    //Draw button and set as not pressed
+    tft.setFont(NULL);
+    enterButton.initButton(&tft,  xCenter, yCenter+60, 100, 40, OPBOX_GREEN, BLACK, WHITE, "ENTER", 2);
+    enterButton.drawButton(false);                                         
+
+  } //below sets/updates rest of page every time the main loop repeats
+
+}
+
+void initialWifiSetupPage(int n){
+  if(checkTPOnly){                                                        //only checking for updating when a button is pressed on the page
+
+    return;                                                                 
+  }
+
+  if(!updatePageOnly && !reDrawStuff){                                    //only runs if we are building page from scratch, enters here if you call the page function directly without going through updatePage()
+    tft.fillScreen(BLACK);                                                //Clear screen to remove previous artifacts
+
+    reDrawStuff = true;
+  }
+
+  if(reDrawStuff){
+
+  }//below sets/updates rest of page every time the main loop repeats 
 }
 
 //THIS IS AN EXAMPLE FUNCTION

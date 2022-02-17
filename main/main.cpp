@@ -13,6 +13,8 @@
 #include "schedule.h"
 #include "timerFanControl.h"
 #include "wifi_Funcs.h"
+#include "firebase_Funcs.h"
+#include "esp32SystemAPIHandler.h"
 
 extern "C" {
     void app_main(void);
@@ -42,6 +44,8 @@ void app_main(void)
   delay(500);
 
   initializeLCD();
+  initialize_esp32_system_variables();
+  initialize_firebase_variables();
   
   dht.begin();
 
@@ -51,19 +55,28 @@ void app_main(void)
     setupBUMODE();
   }
   
+  
+
+
   //Reports the cause of the last processor reset. Reading this RSTC_SR does not reset this field.
   // 0 = fresh 1 = backup mode reset 2 = watchdog , 3 = software, 4 = User/NSRT
   //uint32_t resetStatus = (RSTC->RSTC_SR & RSTC_SR_RSTTYP_Msk) >> RSTC_SR_RSTTYP_Pos;
   //For fresh starts only
   //if((resetStatus != 1) || (dueFlashStorage.read(0) == 255)) {
+  bool firstBoot = true;
+
+  if(firstBoot){
+    splashPage(); 
+    initialProvision();
+  }
   if(false){
     //rtc.begin();
-    //rtc.setTime(15, 59, 50);       //(hours,min,sec) Mil time
+    //rtc.setTime(15, 59, 50);      //(hours,min,sec) Mil time
     //rtc.setDate(1, 3, 2021);      //day,month,year
-    splashPage();                 //Welcome to opbox
+    splashPage();                   //Welcome to CyberGrow!
     //configureTimePage();
-    setNutrientDate();            //sets nutrient date as today.
-    defaultDailySchedule();       //initialize the default schedule
+    setNutrientDate();              //sets nutrient date as today.
+    defaultDailySchedule();         //initialize the default schedule
   }
   //This will run if coming out of backup mode or non first start
   else {
@@ -92,7 +105,21 @@ Serial.println(F("Setup Complete"));
 }
 
 void loop(){ 
-    while(1){
-    delay(1000);
-    wifi_scan();
-}}
+  while(1){
+#ifdef DEBUG
+  Serial.println("*****New Loop*****\nTime: " + String(currentTime.hour) + ":" + String(currentTime.minute) + " " + String(currentTime.second));
+  debugSchedule();
+#endif
+  //is lcd pressed? if yes -> handle the button and come back
+  waitForTouch(900);       //wait for a touch for n milliseconds
+  
+  //check the time, and do scheduled tasks
+  checkSlot();
+
+  //rebuild pages with new variable data such as time and external device settings, Note: this function will not build pages from scratch, it sets the bool "updatePageOnly"
+  updatePage();
+
+  //check if lcd has not been touched in a while
+  lcdTimeout();
+  }
+}

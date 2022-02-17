@@ -7,8 +7,16 @@ TouchScreen ts(1, 2, 3, 4, 290);                                    //re-initial
 TSPoint  tp;                                                       //the coordinates are stored here during a touch
 DHT dht(DHTPIN, DHTTYPE);                                           //init DHT sensor
 
-char SSIDName[33];
-char PasswordAP[65];
+uint8_t ESP32_BASE_MAC_ADDRESS[6];
+
+/***** WIFI CONFIG *****/
+char SSIDName[] = {' '};
+char PasswordAP[] = {' '};
+IPAddress esp32IP;
+char hostName[] = {' '};
+
+/***** FIREBASE *****/
+char FIREBASE_FILE_PHOTO_PATH[65] = {' '};
 
 uint8_t XM = 1;
 uint8_t XP = 8;
@@ -112,6 +120,11 @@ bool reDrawStuff = false;
 
 bool enBUMODE = false;
 bool gotPWROFF_INT = false;
+
 bool enSaveToFlash = false;
+#ifdef saveToFlash
+enSaveToFlash = true;
+#endif
+
 
 char buf[40];

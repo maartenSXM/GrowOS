@@ -5,7 +5,6 @@
 #include "lcd.h"
 #include "schedule.h"
 
-
 bool touchIsPressed();
 bool awaitingButtonRelease(Adafruit_GFX_Button *btn);
 int countDeviceOnTime(const int devI);
@@ -23,6 +22,7 @@ void pageRouter();
 void disablePageLimits();
 void deviceInfoPage();
 void touchPage();
+void initialWifiSetupPage(int n = -1);
 void splashPage();
 void templatePage();
 
