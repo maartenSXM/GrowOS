@@ -15,6 +15,8 @@ char PasswordAP[] = {' '};
 IPAddress esp32IP;
 char hostName[] = {' '};
 
+WebServer server(80);
+
 /***** FIREBASE *****/
 char FIREBASE_FILE_PHOTO_PATH[65] = {' '};
 
