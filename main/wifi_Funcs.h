@@ -2,7 +2,9 @@
 #define WIFI_FUNCS_H_
 
 #include "common.h"
-#include "pages.h"
+
+extern const char* loginIndex;
+extern const char* serverIndex;
 
 void initialProvision();
 void print_auth_mode(int authmode);

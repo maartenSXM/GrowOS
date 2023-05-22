@@ -1,21 +1,6 @@
 //file: main.c or main.cpp
 #include "common.h"                        //Most config and global vars
 
-#include "backupMode.h"
-#include "buttons.h"
-#include "flashStorage.h"
-#include "gpio.h"
-#include "helperFuncs.h"
-#include "lcd.h"
-#include "pages_scheduling.h"
-#include "pages.h"
-#include "rtc.h"
-#include "schedule.h"
-#include "timerFanControl.h"
-#include "wifi_Funcs.h"
-#include "firebase_Funcs.h"
-#include "esp32SystemAPIHandler.h"
-
 extern "C" {
     void app_main(void);
 }

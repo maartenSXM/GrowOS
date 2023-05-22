@@ -48,6 +48,22 @@
 #include <addons/TokenHelper.h>               //Provide the token generation process info.
 #include <HTTPUpdate.h>                       //for firmware update
 
+/***** main src headers *****/
+#include "backupMode.h"
+#include "buttons.h"
+#include "flashStorage.h"
+#include "gpio.h"
+#include "helperFuncs.h"
+#include "lcd.h"
+#include "pages_scheduling.h"
+#include "pages.h"
+#include "rtc.h"
+#include "schedule.h"
+#include "timerFanControl.h"
+#include "wifi_Funcs.h"
+#include "firebase_Funcs.h"
+#include "esp32SystemAPIHandler.h"
+
 extern const char *TAG;
 
 /***** HARDWARE CONFIG *****/
@@ -109,6 +125,8 @@ extern char SSIDName[33];
 extern char PasswordAP[65];
 extern IPAddress esp32IP;
 extern char hostName[33];
+
+extern WebServer server;
 
 /***** FIREBASE *****/
 //See passwords.h for more
