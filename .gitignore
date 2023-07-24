@@ -6,9 +6,9 @@ passwords.h
 .DS_STORE
 
 #directories
-./build/**
-build/**
 /build/**
+
+
 
 # Compiled Object files
 *.slo
