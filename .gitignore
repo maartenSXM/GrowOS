@@ -8,6 +8,7 @@ passwords.h
 #directories
 ./build/**
 build/**
+/build/**
 
 # Compiled Object files
 *.slo
