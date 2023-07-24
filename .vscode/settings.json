@@ -1,3 +1,4 @@
 {
-    "idf.adapterTargetName": "esp32s2"
+    "idf.adapterTargetName": "esp32s2",
+    "C_Cpp.intelliSenseEngine": "Tag Parser"
 }
