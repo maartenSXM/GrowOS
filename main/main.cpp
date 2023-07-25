@@ -17,6 +17,44 @@ void app_main(void)
 #endif
   Serial.println(F("DEBUG MODE"));
 #endif
+  // Call the function to initialize the time zone for Toronto
+  initializeTimeZone();
+  // Get the current time from the RTC
+  time_t now;
+  struct tm timeinfo;
+  if (esp_sleep_get_time(&now))
+  {
+    localtime_r(&now, &timeinfo);
+  }
+  else
+  {
+    ESP_LOGE("RTC", "Failed to get time from RTC");
+    return;
+  }
+
+  // Print the current time
+  char strftime_buf[64];
+  strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+  ESP_LOGI("RTC", "Current time: %s", strftime_buf);
+
+  // Get the last reset reason
+  esp_reset_reason_t reset_reason = esp_reset_reason();
+  const char *reset_reason_str = esp_reset_reason_get_name(reset_reason);
+
+  // Print the reset reason
+  ESP_LOGI("RESET_REASON", "Last reset reason: %s", reset_reason_str);
+
+  if (strcmp(reset_reason_str, "ESP_RST_POWERON") == 0)
+  {
+    // The reset reason is "ESP_RST_POWERON"
+    // Your code here...
+  }
+  else
+  {
+    // The reset reason is not "ESP_RST_POWERON"
+    // Your code here...
+  }
+
   // Initialize NVS
   esp_err_t ret = nvs_flash_init();
   if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -25,15 +63,16 @@ void app_main(void)
     ret = nvs_flash_init();
   }
   ESP_ERROR_CHECK(ret);
+
   wifi_scan();
 
-  digitalWrite(ACT_GND, true); // lcd uses ground switch
-  digitalWrite(ACT_12V, true);
-  delay(500);
+  // Initialize Touch Controller
+  Wire.begin();
+  ts.begin();
+  ts.registerTouchHandler(touch);
 
+  // Initialize LCD display
   initializeLCD();
-  initialize_esp32_system_variables();
-  initialize_firebase_variables();
 
   dht.begin();
 
@@ -42,6 +81,34 @@ void app_main(void)
   if (enBUMODE)
   {
     setupBUMODE();
+  }
+
+  // Reports the cause of the last processor reset. Reading this RSTC_SR does not reset this field.
+  //  0 = fresh 1 = backup mode reset 2 = watchdog , 3 = software, 4 = User/NSRT
+  uint32_t resetStatus = (RSTC->RSTC_SR & RSTC_SR_RSTTYP_Msk) >> RSTC_SR_RSTTYP_Pos;
+  // For fresh starts only
+  if ((resetStatus != 1) || (dueFlashStorage.read(0) == 255))
+  {
+    rtc.begin();
+    rtc.setTime(15, 59, 50); //(hours,min,sec) Mil time
+    rtc.setDate(1, 3, 2021); // day,month,year
+    splashPage();            // Welcome to opbox
+    // configureTimePage();
+    setNutrientDate();      // sets nutrient date as today.
+    defaultDailySchedule(); // initialize the default schedule
+  }
+  // This will run if coming out of backup mode or non first start
+  else
+  {
+    rtc.begin();
+    rtc.setTime(15, 59, 50); //(hours,min,sec) Mil time
+    rtc.setDate(1, 3, 2021); // day,month,year
+    delay(1);
+    disablePageLimits(); // disable page limits that were used for this page but no longer valid for building next page from fresh
+    splashPage();
+    pollCurrentDate();
+    loadFlashSettings(); // retrieves nutrient date and week
+    // configureTimePage();          //set time after power out-tage
   }
 
   // Reports the cause of the last processor reset. Reading this RSTC_SR does not reset this field.

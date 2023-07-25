@@ -1,101 +1,77 @@
-#include "flashStorage.h"
+#include "nvs_flash.h"
+#include "nvs.h"
 
-void saveFlashSettings(){
-  /*
-  if(!enSaveToFlash) return;
-  //settings saved bit
-  dueFlashStorage.write(0,0);
-  
-  //sunrise hour
-  dueFlashStorage.write(1,sunriseTime.hour);
+void saveFlashSettings()
+{
+  if (!enSaveToFlash)
+    return;
 
-  //hours on
-  dueFlashStorage.write(2,daylight);
-
-  //hours off
-  dueFlashStorage.write(3,night);
-
-  //set fan temp
-  dueFlashStorage.write(4,targetTemp);
-
-  //save fan speed
-  dueFlashStorage.write(7,fanSpeed);
-  */
-}
-
-void saveNutrientDateFlash(){
-  /*
-  if(!enSaveToFlash) return;
-  dueFlashStorage.write(5,growDay);
-  dueFlashStorage.write(6,growWeek);
-  */
-}
-
-void loadFlashSettings(){
-  /*
-  tft.fillScreen(BLACK);
-  if(dueFlashStorage.read(0) != 0){
-    tft.print("No settings to read",20,20);
-    delay(1000);
-    return;                //no settings to read
+  nvs_handle_t nvs_handle;
+  esp_err_t ret = nvs_open("settings", NVS_READWRITE, &nvs_handle);
+  if (ret != ESP_OK)
+  {
+    // Handle error
+    return;
   }
 
-  tft.setTextSize(2);
-  tft.setFont(NULL);
-  tft.setColor(RED,BLACK);
+  // sunrise hour
+  nvs_set_i32(nvs_handle, "sunriseHour", sunriseTime.hour);
 
-  tft.print("WARNING",xCenter-40,60); 
+  // hours on
+  nvs_set_u8(nvs_handle, "daylightHours", daylight);
 
-  tft.setColor(WHITE,BLACK);
-  
-  tft.print("GROW LIGHT WILL NOW BE ACTIVATED",45,90); 
+  // hours off
+  nvs_set_u8(nvs_handle, "nightHours", night);
 
-  tft.setTextSize(1);
-  tft.setFont(NULL);
-  
-  tft.print("RECOVERED SETTINGS",xCenter-52,yDisp-120); 
-  
-  //sunrise hour
-  sunriseTime.hour = dueFlashStorage.read(1);
-  tft.print("Sunrise: " + String(sunriseTime.hour),110,yDisp-80); 
+  // day and week of grow
+  nvs_set_u8(nvs_handle, "currentGrowDay", growDay);
 
-  //hours on
-  daylight = dueFlashStorage.read(2);
-  tft.print("Daylight Hours: " + String(daylight),110,yDisp-60); 
-  
-  //hours off
-  night = dueFlashStorage.read(3);
-  tft.print("Night Hours: " + String(night),110,yDisp-40);
+  nvs_set_u8(nvs_handle, "currentGrowWeek", growWeek);
 
-  //set fan temp
-  targetTemp = dueFlashStorage.read(4);
-  tft.print("Fan Target Temp: " + String(targetTemp),xCenter+20,yDisp-80);
+  // set fan temp
+  nvs_set_f32(nvs_handle, "targetTemp", targetTemp);
 
-  //day and week of grow
-  growDay = dueFlashStorage.read(5);
-  if(growDay == 255) growDay = 1;
-  tft.print("Current Grow Day: " + String(growDay),xCenter+20,yDisp-60);
-  growWeek = dueFlashStorage.read(6);
-  if(growWeek == 255) growWeek = 1;
-  tft.print("Current Grow Week: " + String(growWeek),xCenter+20,yDisp-40);
+  // save fan speed
+  nvs_set_u16(nvs_handle, "fanSpeed", fanSpeed);
+
+  nvs_close(nvs_handle);
+}
+
+void loadFlashSettings()
+{
+  // Open the NVS handle
+  nvs_handle_t nvs_handle;
+  esp_err_t ret = nvs_open("settings", NVS_READONLY, &nvs_handle);
+  if (ret != ESP_OK)
+  {
+    // Handle error
+    return;
+  }
+
+  // sunrise hour
+  nvs_get_i32(nvs_handle, "sunriseHour", &sunriseTime.hour);
+
+  // hours on
+  nvs_get_u8(nvs_handle, "daylightHours", &daylight);
+
+  // hours off
+  nvs_get_u8(nvs_handle, "nightHours", &night);
+
+  // set fan temp
+  nvs_get_f32(nvs_handle, "targetTemp", &targetTemp);
+
+  // day and week of grow
+  nvs_get_u8(nvs_handle, "currentGrowDay", &growDay);
+  if (growDay == 255)
+    growDay = 1;
+
+  nvs_get_u8(nvs_handle, "currentGrowWeek", &growWeek);
+  if (growWeek == 255)
+    growWeek = 1;
 
   // fan speed
-  fanSpeed = dueFlashStorage.read(7);
+  nvs_get_u16(nvs_handle, "fanSpeed", &fanSpeed);
 
-  //load currentDate with current date so we can set prevDayOfWeek to be same and not instantly roll over to a new day the next time the date/time is checked.
-  int dayOfWeek, day, month = 0;
-  //rtc.getDate(&dayOfWeek,&day,&month,&currentDate.year);    //day_of_week, day, month, year
-  currentDate.dayOfWeek = uint8_t(dayOfWeek);
-  currentDate.day = uint8_t(day);
-  currentDate.month = uint8_t(month);
-  prevDayOfWeek = currentDate.dayOfWeek;
-
-  //SAVE
-  saveSlotTimes();          //requires  sunriseTime.hour and daylight to be set
-
-  delay(5000);
-  //Start new schedule
-  findCurrentSlot();
-  startNewSlot();
-  */
+  // CLOSE the NVS handle
+  nvs_close(nvs_handle);
 }

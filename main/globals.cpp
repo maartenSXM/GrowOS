@@ -37,6 +37,9 @@ uint16_t X_Coord, Y_Coord; // Note these should be same as tp.x and tp.y temp gl
 uint32_t timeLastTouch = 0;
 uint32_t lcdTimeoutDuration = 60 * 1000;
 bool lcdSleep = false;
+
+struct tm timeInfo = {0}; // Global variable to hold time information
+struct timeval tv_now;
 _Date nutrientDate = {0, 0, 0, 0};
 _Date currentDate = {0, 0, 0, 0};
 _Date dateTemp = {0, 0, 0, 0};

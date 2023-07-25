@@ -3,8 +3,9 @@
 
 #include "globals.h"
 
+void initializeTimeZone();
 int dater(int x);
-int dateDiff(int year1,int mon1,int day1,int year2,int mon2,int day2);
+int dateDiff(int year1, int mon1, int day1, int year2, int mon2, int day2);
 uint16_t getDaysSinceNutrientDate();
 void setNutrientDate();
 void saveNutrientDateFlash();
