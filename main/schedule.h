@@ -30,6 +30,7 @@ void readTempHumid();
 void pollCurrentTime();
 void pollCurrentDate();
 void checkSlot();
+void resetSlot();
 int countDeviceOnTime(const int devI);
 void debugSchedule();
 void saveSlotTimes();

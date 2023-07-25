@@ -6,7 +6,19 @@
 #define GLOBALS_H_
 
 /***** EXT LIBS CONFIG *****/
-#include "Arduino.h"
+#include <Arduino.h>     //for basic shit
+#include <Wire.h>        //I2C for CTP touch controller
+#include <FT6X36.h>      //Touch Controller
+#include "SPI.h"         //SPI for Display
+#include "TFT_eSPI.h"    //The API for controlling the TFT
+#include "driver/ledc.h" //PWM for brightness
+#include "DHT.h"         //TEMP & HUMID Sensor
+
+#include "esp_system.h"
+#include "esp_log.h"
+#include "esp_sleep.h"
+#include <time.h>
+
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -23,17 +35,12 @@
 #include "esp_event.h"
 #include "nvs_flash.h"
 
-#include "Adafruit_GFX.h"
 #include "./Fonts/FreeSans12pt7b.h" // Font files to include in library
 #include "./Fonts/FreeSans9pt7b.h"
 #include "./Fonts/FreeMonoBoldOblique24pt7b.h"
 #include "./Fonts/FreeMonoBold24pt7b.h"
 #include "./Fonts/FreeSansBold24pt7b.h"
 #include "./Fonts/FreeSans24pt7b.h"
-
-#include "UTFTGLUE.h"    //Brings in MCUFRIEND_kbv.h, and ADAFRUIT_GFX.h - enables more flexibility and compatibility for LCD graphics functions
-#include "TouchScreen.h" //Adafruit touch Library
-#include "DHT.h"         //TEMP & HUMID Sensor
 
 #include <WiFi.h> //Include WiFi library
 #include <WiFiClient.h>
@@ -47,62 +54,49 @@
 #include <addons/TokenHelper.h> //Provide the token generation process info.
 #include <HTTPUpdate.h>         //for firmware update
 
-/***** HARDWARE CONFIG *****/
-#define numDevices 7
-#define FanPWM DAC1
+// HARDWARE CONFIG
 
-#define ACT_LED 44
-#define ACT_PUMP 45
-#define ACT_12V 51
-#define ACT_5V 50
-#define ACT_HS_AUX 47
-#define ACT_GND 43
-#define ACT_AC_3 48
+#define H_GPIO 0
+#define CSI_VSYNC 1
+#define CSI_D9 2
+#define CSI_D8 3
+#define CSI_D7 4
+#define CSI_D6 5
+#define CTP_IRQ 6
+#define CTP_RST 7
+#define TFT_RST 7
+#define TWI_SDA 8
+#define TWI_SCK 9
+#define CSI_PWR_EN 10
+#define CSI_PCLK 11
+#define CSI_D4 12
+#define H_S_ENABLE 13
+#define PWROFF_INT 14
+#define TEMP_DATA 17
+#define TFT_PWR_EN 18
+#define H_USB -19
+#define H_USB +20
+#define TFT_BACKLIGHT 21
+#define TFT_CS 33
+#define CSI_HREF 33
+#define TFT_DC 34
+#define CSI_XCLK 34
+#define TFT_MOSI 35
+#define CSI_D2 35
+#define TFT_SCLK 36
+#define CSI_D3 36
+#define TFT_MISO 37
+#define CSI_D5 37
+#define VBAT_SENSE 38
+#define H_GPIO39 39
+#define H_GPIO40 40
+#define H_GPIO41 41
+#define H_GPIO42 42
+#define H_U0TXD
+#define H_U0RXD
+#define VBAT_CE 45
 
-#define INT_PWROFF 46
-#define DHTPIN 49 // Digital pin connected to the DHT sensor
-#define PHData 49
-#define MoistureData 49
-
-#define RST_ESP 23
-#define TX_ESP 23
-#define RX_ESP 23
-
-#define LCD_CS 23    // Chip Select goes to Analog 3
-#define LCD_CD 23    // (RS) Command/Data goes to Analog 2
-#define LCD_WR 23    // LCD Write goes to Analog 1
-#define LCD_RD 23    // LCD Read goes to Analog 0
-#define LCD_RESET 23 // Can alternately just connect to Arduino's reset pin
-
-struct _Date
-{
-  uint8_t dayOfWeek;
-  uint8_t day;
-  uint8_t month;
-  uint16_t year; // according to library has to be 16bit
-};
-struct _Time
-{
-  int hour;
-  int minute;
-  int second;
-};
-struct _DateTime
-{
-  int dayOfWeek;
-  int day;
-  int month;
-  int year;
-  int hour;
-  int minute;
-  int second;
-};
-
-// Touch Screen pinout for blue 3.5 ILI9486 lcd
-extern uint8_t XM;
-extern uint8_t XP;
-extern uint8_t YP;
-extern uint8_t YM;
+#define FT6236_TOUCH_FREQUENCY 400000
 
 #define DEFAULT_SCAN_LIST_SIZE CONFIG_EXAMPLE_SCAN_LIST_SIZE
 
@@ -209,6 +203,32 @@ extern uint32_t timeLastTouch;
 extern uint32_t lcdTimeoutDuration;
 extern bool lcdSleep;
 
+struct _Date
+{
+  uint8_t dayOfWeek;
+  uint8_t day;
+  uint8_t month;
+  uint16_t year; // according to library has to be 16bit
+};
+struct _Time
+{
+  int32_t hour;
+  int32_t minute;
+  int32_t second;
+};
+struct _DateTime
+{
+  int32_t dayOfWeek;
+  int32_t day;
+  int32_t month;
+  int32_t year;
+  int32_t hour;
+  int32_t minute;
+  int32_t second;
+};
+
+extern struct tm timeInfo; // Global variable to hold time information
+extern struct timeval tv_now;
 extern _Date nutrientDate;
 extern _Date currentDate;
 extern _Date dateTemp;
@@ -220,8 +240,8 @@ extern _Time newTSTime;
 extern _Time timeTemp;
 extern uint8_t growWeek;
 extern uint8_t growDay;
-extern uint8_t daylight;
-extern uint8_t night;
+extern uint8_t daylight; // hours of daylight
+extern uint8_t night;    // hours of night
 extern int yTime;
 
 // devIs coding:
@@ -252,11 +272,13 @@ extern char weeksSelect[_ADA_GFX_sizeOfLabel];
 extern uint8_t daysSelected[numDayBtns]; // 0th = All, 1th=Sunday     // 0=OFF 1=ON 2=HIDDEN
 #define numWeekBtns 13
 extern uint8_t weeksSelected[numWeekBtns]; // 0th = ALL, 1th = week1 .... 12=week12
+
 extern Adafruit_GFX_Button dayBtns[numDayBtns];
 extern Adafruit_GFX_Button weekBtns[numWeekBtns];
 extern Adafruit_GFX_Button daysSelectBtn;
 extern Adafruit_GFX_Button weeksSelectBtn;
 extern Adafruit_GFX_Button exitBtn;
+
 // number of seconds for device to be on in auto settings
 extern uint16_t fanQuota;     // 18 hours
 extern uint16_t lightQuota;   // 18 hours
