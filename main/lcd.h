@@ -1,7 +1,7 @@
 #ifndef LCD_H_
 #define LCD_H_
 
-#include "common.h"
+#include "globals.h"
 
 void centerTitle(String s, uint16_t textColor, uint16_t bg);
 void doubleCenterPrint(String s1, String s2, int len1, int len2, int y, uint16_t textColor, int offset1, int offset2);

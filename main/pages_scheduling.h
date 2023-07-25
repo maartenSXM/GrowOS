@@ -1,7 +1,7 @@
 #ifndef PAGES_SCHEDULING_H_
 #define PAGES_SCHEDULING_H_
 
-#include "common.h"
+#include "globals.h"
 #include "pages.h"
 #include "lcd.h"
 

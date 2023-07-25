@@ -1,7 +1,7 @@
 #ifndef GPIO_H_
 #define GPIO_H_
 
-#include "common.h"
+#include "globals.h"
 #include "schedule.h"
 
 void softwareReset();

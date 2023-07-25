@@ -1,7 +1,7 @@
 #ifndef WIFI_FUNCS_H_
 #define WIFI_FUNCS_H_
 
-#include "common.h"
+#include "globals.h"
 
 extern const char* loginIndex;
 extern const char* serverIndex;

@@ -5,7 +5,7 @@
 #ifndef ICONS_H_
 #define ICONS_H_
 
-#include "common.h"
+#include "globals.h"
 
 #if defined(__AVR__)
     #include <avr/pgmspace.h>

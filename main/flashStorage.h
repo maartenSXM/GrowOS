@@ -1,7 +1,7 @@
 #ifndef FLASHSTORAGE_H_
 #define FLASHSTORAGE_H_
 
-#include "common.h"
+#include "globals.h"
 
 void startNewSlot();
 int8_t findCurrentSlot();
