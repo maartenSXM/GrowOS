@@ -1,5 +1,5 @@
 // file: main.c or main.cpp
-#include "common.h" //Most config and global vars
+#include "globals.h" //Most config and global vars
 
 extern "C"
 {

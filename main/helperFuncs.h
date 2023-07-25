@@ -1,7 +1,7 @@
 #ifndef HELPERFUNCS_H_
 #define HELPERFUNCS_H_
 
-#include "common.h"
+#include "globals.h"
 #include "pages.h"
 
 void int_to_char_cat(char *dest,int i);

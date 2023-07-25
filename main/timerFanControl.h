@@ -1,7 +1,7 @@
 #ifndef TIMERFANCONTROL_H_
 #define TIMERFANCONTROL_H_
 
-#include "common.h"
+#include "globals.h"
 
 void setFanPWM(int percent);
 void toggleHS_AUX();
