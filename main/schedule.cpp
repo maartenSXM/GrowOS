@@ -204,14 +204,16 @@ void startNewSlot()
 // For state set manually devices - those that are Auto-0, and Periodic-0
 void setDeviceState()
 {
+  /*
   if (!devIsAuto[currentSlot][0] && !devIsPeriodic[currentSlot][0] && devIsState[currentSlot][0])
-    setFanPWM(fanSpeed);
-  if (!devIsAuto[currentSlot][1] && !devIsPeriodic[currentSlot][1])
-    setPin(ACT_LED, devIsState[currentSlot][1]);
-  if (!devIsAuto[currentSlot][2] && !devIsPeriodic[currentSlot][2])
-    setPin(ACT_PUMP, devIsState[currentSlot][2]);
-  if (!devIsAuto[currentSlot][3] && !devIsPeriodic[currentSlot][3])
-    setPin(ACT_5V, devIsState[currentSlot][3]);
+    // setFanPWM(fanSpeed);
+    if (!devIsAuto[currentSlot][1] && !devIsPeriodic[currentSlot][1])
+      // setPin(ACT_LED, devIsState[currentSlot][1]);
+      if (!devIsAuto[currentSlot][2] && !devIsPeriodic[currentSlot][2])
+        // setPin(ACT_PUMP, devIsState[currentSlot][2]);
+        if (!devIsAuto[currentSlot][3] && !devIsPeriodic[currentSlot][3])
+  // setPin(ACT_5V, devIsState[currentSlot][3]);
+  */
 }
 
 // for auto and periodically on devices, manually set devices should already be set

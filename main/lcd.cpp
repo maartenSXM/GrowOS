@@ -1,4 +1,6 @@
+#include "globals.h"
 #include "lcd.h"
+#include "pages.h"
 
 #define SWAP(x, y) \
   {                \
@@ -10,8 +12,7 @@
 void initializeLCD()
 {
   timeLastTouch = millis();
-  uint16_t ID = readID(); // ili9486 = blue 3.5"
-  tft.begin(ID);
+  tft.begin();
 
   tft.fillScreen(BLACK);
   tft.setRotation(TOUCH_ORIENTATION);
@@ -19,6 +20,60 @@ void initializeLCD()
   yDisp = tft.height();
   yCenter = (yDisp / 2) - 1;
   xCenter = (xDisp / 2) - 1;
+}
+
+void touchHandler(TPoint p, TEvent e)
+{
+  // TEvent e could be : TEvent::Tap, TEvent::TouchStart, TEvent::TouchMove, TEvent::TouchEnd, TEvent::DragStart, TEvent::DragMove, TEvent::DragEnd,
+  printTouchInfo(p, e); // log the coordiantes
+  if (lcdSleep)
+  {
+    lcdSleep = false;
+    lcdWakeup();
+    return;
+  }
+  updateGlobalTouchInfo(p, e);
+  tp.touched = true;
+  touchPage(); // check to see if the touch is on something relevant for
+  tp.touched = false;
+}
+
+void updateGlobalTouchInfo(TPoint p, TEvent e)
+{
+  tp.x = p.x;
+  tp.y = p.y;
+  timeLastTouch = millis();
+}
+
+void printTouchInfo(TPoint p, TEvent e)
+{
+  if (e != TEvent::Tap && e != TEvent::DragStart && e != TEvent::DragMove && e != TEvent::DragEnd)
+    return;
+
+  Serial.print("X: ");
+  Serial.print(p.x);
+  Serial.print(", Y: ");
+  Serial.print(p.y);
+  Serial.print(", E: ");
+
+  switch (e)
+  {
+  case TEvent::Tap:
+    Serial.println("Tap");
+    break;
+  case TEvent::DragStart:
+    Serial.println("DragStart");
+    break;
+  case TEvent::DragMove:
+    Serial.println("DragMove");
+    break;
+  case TEvent::DragEnd:
+    Serial.println("DragEnd");
+    break;
+  default:
+    Serial.println("UNKNOWN");
+    break;
+  }
 }
 
 void lcdTimeout()
@@ -42,65 +97,45 @@ void lcdWakeup()
   homePage();
 }
 
-bool readResistiveTouch(void)
+void getCalibratedPoints(void)
 {
-  tp = ts.getPoint();
-  pinMode(YP, OUTPUT); // restore shared pins
-  pinMode(XM, OUTPUT);
-  // digitalWrite(YP, HIGH);  //because TFT control pins
-  // digitalWrite(XM, HIGH);
-  // If Touched return true
-  if (tp.z > ts.pressureThreshhold && tp.z < maxPressureThreshold)
+  // Serial.println("tp.x=" + String(tp.x) + ", tp.y=" + String(tp.y) + ", tp.z =" + String(tp.z));
+  if (touchCalibrated)
   {
-    // Serial.println("tp.x=" + String(tp.x) + ", tp.y=" + String(tp.y) + ", tp.z =" + String(tp.z));
-    if (touchCalibrated)
+    if (TOUCH_ORIENTATION == PORTRAIT)
     {
-      if (TOUCH_ORIENTATION == PORTRAIT)
-      {
-        X_Coord = map(tp.x, CAL_TS_LEFT, CAL_TS_RT, 0, CAL_TS_HT);
-        Y_Coord = map(tp.y, CAL_TS_TOP, CAL_TS_BOT, 0, CAL_TS_WID);
-        tp.x = X_Coord;
-        tp.y = Y_Coord;
-        // adjust for out of range
-        if (tp.x < 0)
-          tp.x = 0;
-        if (tp.x > CAL_TS_WID)
-          tp.x = CAL_TS_WID - 1;
-        if (tp.y < 0)
-          tp.y = 0;
-        if (tp.y > CAL_TS_HT)
-          tp.y = CAL_TS_HT - 1;
-      }
-      else if (TOUCH_ORIENTATION == LANDSCAPE)
-      {
-        X_Coord = map(tp.y, CAL_TS_LEFT, CAL_TS_RT, 0, CAL_TS_WID);
-        Y_Coord = map(tp.x, CAL_TS_TOP, CAL_TS_BOT, 0, CAL_TS_HT);
-        tp.x = X_Coord;
-        tp.y = Y_Coord;
-        // adjust for out of range
-        if (tp.x < 0)
-          tp.x = 0;
-        if (tp.x > CAL_TS_WID)
-          tp.x = CAL_TS_WID - 1;
-        if (tp.y < 0)
-          tp.y = 0;
-        if (tp.y > CAL_TS_HT)
-          tp.y = CAL_TS_HT - 1;
-      }
-      else
-      {
-#ifdef DEBUG
-        Serial.println("ERROR: Invalid TOUCH_ORIENTATION");
-#endif
-      }
+      tp.x = map(tp.x, CAL_TS_LEFT, CAL_TS_RT, 0, CAL_TS_HT);
+      tp.y = map(tp.y, CAL_TS_TOP, CAL_TS_BOT, 0, CAL_TS_WID);
+      // adjust for out of range
+      if (tp.x < 0)
+        tp.x = 0;
+      if (tp.x > CAL_TS_WID)
+        tp.x = CAL_TS_WID - 1;
+      if (tp.y < 0)
+        tp.y = 0;
+      if (tp.y > CAL_TS_HT)
+        tp.y = CAL_TS_HT - 1;
     }
-    // an appropriate z value, therefor is touched
-    return true;
-  }
-  // not a valid z value, therefor not touched
-  else
-  {
-    return false;
+    else if (TOUCH_ORIENTATION == LANDSCAPE)
+    {
+      tp.x = map(tp.y, CAL_TS_LEFT, CAL_TS_RT, 0, CAL_TS_WID);
+      tp.y = map(tp.x, CAL_TS_TOP, CAL_TS_BOT, 0, CAL_TS_HT);
+      // adjust for out of range
+      if (tp.x < 0)
+        tp.x = 0;
+      if (tp.x > CAL_TS_WID)
+        tp.x = CAL_TS_WID - 1;
+      if (tp.y < 0)
+        tp.y = 0;
+      if (tp.y > CAL_TS_HT)
+        tp.y = CAL_TS_HT - 1;
+    }
+    else
+    {
+#ifdef DEBUG
+      Serial.println("ERROR: Invalid TOUCH_ORIENTATION");
+#endif
+    }
   }
 }
 
@@ -111,10 +146,11 @@ void waitForTouch(int ms)
   bool isTouched = false;
   while (((endtime - starttime) <= ms) && isTouched == false)
   { // do this loop for up to 1000mS
-    if (touchIsPressed())
+    if (ts.touched())
     {
+      tp.touched = true;
       isTouched = true;
-      touchPage(); // check to see if the touch is on something relevant for
+      ts.loop(); // Poll the touch screen controller
       break;
     }
     endtime = millis();
@@ -123,39 +159,12 @@ void waitForTouch(int ms)
 
 void waitForTap(void)
 {
-  while (touchIsPressed() == false)
+  while (ts.touched() == false)
   {
   }
-  while (touchIsPressed() == true)
+  while (ts.touched() == true)
   {
   }
-}
-
-bool touchIsPressed(void)
-{
-  // .kbv this was too sensitive !!
-  // now touch has to be stable for 50ms
-  int count = 0;
-  bool state, oldstate;
-  oldstate = readResistiveTouch();
-  while (count < 5)
-  {
-    state = readResistiveTouch(); // returns true if above pressureThres, else false
-    if (state == oldstate)
-      count++;
-    else
-      count = 0;
-    oldstate = state;
-    delay(2);
-  }
-#ifdef DEBUG
-  if (state)
-  {
-    Serial.print("Touch  ");
-    Serial.println("x:" + String(tp.x) + "  y:" + String(tp.y));
-  }
-#endif
-  return state;
 }
 
 bool touchWithinUL(int x1, int y1, int w, int h)
@@ -173,20 +182,12 @@ bool tapWithinUL(int x1, int y1, int w, int h)
   int x2 = x1 + w, y2 = y1 + h;
   if ((tp.x >= x1) && (tp.x <= x2) && (tp.y >= y1) && (tp.y <= y2))
   {
-    while (touchIsPressed())
+    while (ts.touched())
     {
     } // waitForRelease
     return true;
   }
   return false;
-}
-
-uint16_t readID(void)
-{
-  uint16_t ID = tft.readID();
-  if (ID == 0xD3D3)
-    ID = 0x9486;
-  return ID;
 }
 
 char *Aval(int pin)
@@ -243,12 +244,10 @@ void printTextBoxUL(int xPrint, int yPrint, uint16_t outline, uint16_t fill, uin
   int16_t x, y;
   uint16_t w, h;
   tft.getTextBounds(s, xPrint, yPrint, &x, &y, &w, &h);
-  tft.setColor(fill);
-  tft.fillRoundRectUL(x - 5, y - 5, w + 10, h + 10);
-  tft.setColor(outline);
-  tft.drawRoundRectUL(x - 5, y - 5, w + 10, h + 10);
-  tft.setColor(textColor);
-  tft.print(s, xPrint, yPrint);
+  tft.fillRoundRect(x - 5, y - 5, w + 10, h + 10, 10, fill);
+  tft.drawRoundRect(x - 5, y - 5, w + 10, h + 10, 10, outline);
+  tft.setTextColor(textColor);
+  tft.drawString(s, xPrint, yPrint);
 }
 
 void centerPrintXY(String s, int x, int y, uint16_t textColor, uint16_t bg, int textSize = -1)
@@ -259,7 +258,7 @@ void centerPrintXY(String s, int x, int y, uint16_t textColor, uint16_t bg, int 
   else
     len = s.length() * textSize;
   tft.setTextColor(textColor, bg);
-  tft.print(s, x - (len / 2), y);
+  tft.drawString(s, x - (len / 2), y);
 }
 
 void centerPrintCustomFont(String s, int yS, uint16_t textColor, uint16_t bg, int textSize) // By Erik - To clear the previous font that was there
@@ -285,10 +284,10 @@ void centerPrintCustomFont(String s, int yS, uint16_t textColor, uint16_t bg, in
 
   tft.getTextBounds(s, xPrint, yPrint, &x, &y, &w, &h);
   delay(10);
-  tft.fillRectUL(xPrint, y, w + 15, h + 10, bg);
+  tft.fillRect(xPrint, y, w + 15, h + 10, bg);
 
   tft.setTextColor(textColor, bg);
-  tft.print(s, xPrint + 1, yPrint);
+  tft.drawString(s, xPrint + 1, yPrint);
 }
 
 void centerPrint(String s, int y, uint16_t textColor, uint16_t bg, int textSize)
@@ -302,12 +301,12 @@ void centerPrint(String s, int y, uint16_t textColor, uint16_t bg, int textSize)
     len = s.length() * 6 * textSize;
   }
   tft.setTextColor(textColor, bg);
-  tft.print(s, ((xDisp - len)) / 2, y - 5);
+  tft.drawString(s, ((xDisp - len)) / 2, y - 5);
 }
 
 void centerTitle(String s, uint16_t textColor, uint16_t bg)
 {
-  tft.setFont(&FreeSans9pt7b);
+  tft.setFreeFont(&FreeSans9pt7b);
   tft.setTextSize(1);
   // tft.fillRect(0, 0, xDisp, 14, RED);
   tft.fillRect(0, 0, xDisp, 23, WHITE);
@@ -319,8 +318,8 @@ void centerTitle(String s, uint16_t textColor, uint16_t bg)
 void doubleCenterPrint(String s1, String s2, int len1, int len2, int y, uint16_t textColor, int offset1, int offset2)
 {
   int middle = xCenter;
-  tft.print(s1, middle - middle / 2 - len1 / 2 + offset1, y);
-  tft.print(s2, (middle + middle / 2 - len2 / 2 - offset2), y);
+  tft.drawString(s1, middle - middle / 2 - len1 / 2 + offset1, y);
+  tft.drawString(s2, (middle + middle / 2 - len2 / 2 - offset2), y);
 }
 
 void centerNumberPrint(const char *s, int y, uint16_t textColor, uint16_t bg)
@@ -328,7 +327,7 @@ void centerNumberPrint(const char *s, int y, uint16_t textColor, uint16_t bg)
   int len = strlen(s) * 32;
   tft.setTextColor(textColor);
   tft.setCursor((xDisp - len) / 2, y);
-  tft.print(s, (xDisp - len) / 2, y);
+  tft.drawString(s, (xDisp - len) / 2, y);
 }
 
 // top left is 0,0 - bottom right is 479,319
@@ -527,7 +526,7 @@ void readCalibrationCoordinates()
   while (OK == false)
   {
     centerPrint("*  PRESS  *", yCenter, WHITE, BLACK);
-    while (touchIsPressed() == false)
+    while (ts.touched() == false)
     {
     }
     centerPrint("*  HOLD!  *", yCenter, WHITE, BLACK);
@@ -535,7 +534,7 @@ void readCalibrationCoordinates()
     iter = 50;
     do
     {
-      if (readResistiveTouch()) //.kbv , on first click or wrong click sometimes z is Very high.
+      if (ts.touched()) //.kbv , on first click or wrong click sometimes z is Very high.
       {
         tx += tp.x;
         ty += tp.y;
@@ -576,7 +575,7 @@ void calibrate(int x, int y, int i, String msg)
   char buf[40];
   sprintf(buf, "\r\ncx=%d cy=%d cz=%d %s", cx, cy, cz, msg.c_str());
   Serial.print(buf);
-  while (touchIsPressed() == true)
+  while (ts.touched() == true)
   {
   }
 }
@@ -624,8 +623,8 @@ void report()
     SWAP(TS_LEFT, TS_RT);
     SWAP(TS_TOP, TS_BOT);
   }
-  sprintf(buf, "const int XP=%d,XM=%s,YP=%s,YM=%d; //%dx%d ID=0x%04X",
-          XP, Aval(XM), Aval(YP), YM, TS_WID, TS_HT, readID());
+  sprintf(buf, "const int XP=%d,XM=%s,YP=%s,YM=%d; //%dx%d",
+          XP, Aval(XM), Aval(YP), YM, TS_WID, TS_HT);
   Serial.println(buf);
   sprintf(buf, "\nTouch Pin Wiring XP=%d XM=%s YP=%s YM=%d",
           XP, Aval(XM), Aval(YP), YM);
@@ -668,11 +667,11 @@ void report()
     bofe(buf);
   }
   tft.println("Tap the 'x' in top right corner to exit");
-  Adafruit_GFX_Button exitButton;
-  exitButton.initButton(&tft, 470, 12, 20, 20, OPBOX_GREEN, BLACK, WHITE, "X", 2);
+  ButtonWidget exitButton = ButtonWidget(&tft);
+  exitButton.initButton(470, 12, 20, 20, OPBOX_GREEN, BLACK, WHITE, "X", 2);
   exitButton.drawButton(false);
 
-  while (!(touchIsPressed() && exitButton.contains(tp.x, tp.y)))
+  while (!(ts.touched() && exitButton.contains(tp.x, tp.y)))
   {
   }
   return;
@@ -695,8 +694,8 @@ void fail()
 void testCalibration(void)
 {
   tft.fillScreen(BLACK);
-  Adafruit_GFX_Button exitButton;
-  exitButton.initButton(&tft, 470, 10, 20, 20, OPBOX_GREEN, BLACK, WHITE, "X", 2);
+  ButtonWidget exitButton = ButtonWidget(&tft);
+  exitButton.initButton(470, 10, 20, 20, OPBOX_GREEN, BLACK, WHITE, "X", 2);
   exitButton.drawButton(false);
 
   // drawCross(30, 30, WHITE);
@@ -711,10 +710,10 @@ void testCalibration(void)
   text.toCharArray(buffer, 30);
 
   tft.setTextSize(1);
-  tft.print(buffer, xCenter / 2, 50, 1);
-  tft.print("Touch anywhere on screen", xCenter / 2, 70, 1);
-  tft.print("to test settings", xCenter / 2, 90, 1);
-  tft.print("Tap the 'X' in the top right to exit.", xCenter / 2, 120, 1);
+  tft.drawString(buffer, xCenter / 2, 50, 1);
+  tft.drawString("Touch anywhere on screen", xCenter / 2, 70, 1);
+  tft.drawString("to test settings", xCenter / 2, 90, 1);
+  tft.drawString("Tap the 'X' in the top right to exit.", xCenter / 2, 120, 1);
 
   while (Serial.available())
     Serial.read(); // Empty the serial buffer before we start
@@ -722,7 +721,7 @@ void testCalibration(void)
   centerPrint("Y = ", 12, WHITE, BLACK);
   while (true)
   {
-    if (touchIsPressed() == true) // Note this function updates coordinates stored within library variables
+    if (ts.touched() == true) // Note this function updates coordinates stored within library variables
     {
       drawCross(tp.x, tp.y, GREEN);
 

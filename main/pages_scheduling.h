@@ -6,8 +6,8 @@
 #include "lcd.h"
 
 bool touchIsPressed(void);
-bool buttonIsHeld(Adafruit_GFX_Button *btn,int ms);
-bool buttonIsPressed(Adafruit_GFX_Button *btn);
+bool buttonIsHeld(ButtonWidget *btn,int ms);
+bool buttonIsPressed(ButtonWidget *btn);
 void insertTimeSlot(_Time tS);
 bool timeSlotExists(_Time tS);
 void drawSelectedTime();
@@ -22,7 +22,7 @@ void weeksSelectPage();
 void daysSelectPage();
 void homePage();
 void disablePageLimits();
-bool awaitingButtonRelease(Adafruit_GFX_Button *btn);
+bool awaitingButtonRelease(ButtonWidget *btn);
 void schedulePage();
 void getDeviceName(char *str,int devI);
 int getTextHeight();
