@@ -5,8 +5,7 @@
 #include "lcd.h"
 #include "schedule.h"
 
-bool touchIsPressed();
-bool awaitingButtonRelease(Adafruit_GFX_Button *btn);
+bool awaitingButtonRelease(ButtonWidget *btn);
 int countDeviceOnTime(const int devI);
 void pollCurrentTime();
 void maxTimeSlotsPage();

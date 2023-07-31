@@ -2,10 +2,11 @@
 
 const char *TAG = "growos";
 
-UTFTGLUE tft(0x9468, LCD_CD, LCD_WR, LCD_CS, LCD_RESET, LCD_RD); // MCUFRIEND_kbv tft;
-TouchScreen ts(1, 2, 3, 4, 290);                                 // re-initialised after diagnose, the final param is the resistance across x- x+
-TSPoint tp;                                                      // the coordinates are stored here during a touch
-DHT dht(DHTPIN, DHTTYPE);                                        // init DHT sensor
+TFT_eSPI tft = TFT_eSPI(TFT_WIDTH, TFT_HEIGHT);
+FT6X36 ts(&Wire, CTP_IRQ);
+// init DHT sensor
+DHT dht(TEMP_DATA, DHTTYPE);
+
 uint8_t ESP32_BASE_MAC_ADDRESS[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 /***** WIFI CONFIG *****/
 char SSIDName[] = {' '};
@@ -33,7 +34,7 @@ uint16_t maxPressureThreshold = 22000;
 bool touchCalibrated = true;
 uint16_t CAL_TS_LEFT = 934, CAL_TS_RT = 138, CAL_TS_TOP = 840, CAL_TS_BOT = 144; // Touch screen calibration
 uint16_t CAL_TS_WID = 480, CAL_TS_HT = 320;
-uint16_t X_Coord, Y_Coord; // Note these should be same as tp.x and tp.y temp global for x and y coord of a touch screen press
+touchPoint_t tp = {0, 0, 0, false};
 uint32_t timeLastTouch = 0;
 uint32_t lcdTimeoutDuration = 60 * 1000;
 bool lcdSleep = false;
@@ -49,14 +50,17 @@ _Time sleepTime = {22, 30, 0};
 _Time currentTime = {0, 0, 0};
 _Time newTSTime = {12, 05, 0};
 _Time timeTemp = {0, 0, 0};
-uint8_t growWeek;
-uint8_t growDay;
-uint8_t daylight;
-uint8_t night;
-int yTime;
+uint8_t growWeek = 0;
+uint8_t growDay = 0;
+uint8_t daylight = 0;
+uint8_t night = 0;
+int yTime = 0;
+
+const uint8_t daysPerMonth[numMonths + 1] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 // devIs coding:
 // 0:fan 1:light 2:pump 3:12vaux 4:5vaux 5:redLight HS switch 6:Special 0
-uint8_t devicePins[numDevices] = {0, ACT_LED, ACT_PUMP, ACT_12V, ACT_5V, ACT_HS_AUX, ACT_GND};
+// uint8_t devicePins[numDevices] = {0, ACT_LED, ACT_PUMP, ACT_12V, ACT_5V, ACT_HS_AUX, ACT_GND};
+uint8_t devicePins[numDevices] = {0, 1, 2, 3, 4, 5, 6};
 int8_t numSlots = 1;
 int8_t currentSlot = -1;
 int week = 0;
@@ -73,18 +77,27 @@ bool customApplication = false;                   // set to true to use the tech
 char hydroponicDeviceNames[numDevices][growOSSizeOfDeviceLabel] = {"Fan", "Light", "Pump", "12V", "5V", "Red Light"};
 char technicalDeviceNames[numDevices][growOSSizeOfDeviceLabel] = {"12V PWM", "Outlet Relay1", "Outlet Relay2", "12V", "5V", "High-Side Switch"};
 char deviceNames[numDevices][growOSSizeOfDeviceLabel];
-char strTemp[_ADA_GFX_sizeOfLabel];
-char strTemp2[_ADA_GFX_sizeOfLabel];
-char daysSelect[_ADA_GFX_sizeOfLabel] = "All Days";
-char weeksSelect[_ADA_GFX_sizeOfLabel] = "All Weeks";
+char strTemp[maxLabelLength];
+char strTemp2[maxLabelLength];
+char daysSelect[maxLabelLength] = "All Days";
+char weeksSelect[maxLabelLength] = "All Weeks";
 
 byte daysSelected[numDayBtns] = {1};   // 0th = All, 1th=Sunday     // 0=OFF 1=ON 2=HIDDEN
 byte weeksSelected[numWeekBtns] = {1}; // 0th = ALL, 1th = week1 .... 12=week12
-Adafruit_GFX_Button dayBtns[numDayBtns];
-Adafruit_GFX_Button weekBtns[numWeekBtns];
-Adafruit_GFX_Button daysSelectBtn;
-Adafruit_GFX_Button weeksSelectBtn;
-Adafruit_GFX_Button exitBtn;
+// Loop to initialize the dayBtns array
+for (int i = 0; i < numDayBtns; i++)
+{
+  dayBtns[i] = ButtonWidget(&tft);
+}
+// Loop to initialize the dayBtns array
+for (int i = 0; i < numWeekBtns; i++)
+{
+  weekBtns[i] = ButtonWidget(&tft);
+}
+ButtonWidget daysSelectBtn = ButtonWidget(&tft);
+ButtonWidget weeksSelectBtn = ButtonWidget(&tft);
+ButtonWidget exitBtn = ButtonWidget(&tft);
+
 // number of seconds for device to be on in auto settings
 uint16_t fanQuota = 60 * 60 * 20;     // 18 hours
 uint16_t lightQuota = 60 * 60 * 24;   // 18 hours
@@ -95,13 +108,13 @@ uint16_t fiveVQuota = 60 * 60 * 16;   // 18 hours
 uint16_t HS_AUX_STATE = 0;
 uint16_t fanSpeed = 40;
 bool c = true; // show temp in celcius or fahrenheit
-float currentTemp = 21;
-float maxTempDay = currentTemp;
-float minTempDay = currentTemp;
-float targetTemp = 21;
-float currentHumid = 30;
-float maxHumidDay = currentHumid;
-float minHumidDay = currentHumid;
+int16_t currentTemp = 21;
+int16_t maxTempDay = currentTemp;
+int16_t minTempDay = currentTemp;
+int16_t targetTemp = 21;
+int16_t currentHumid = 30;
+int16_t maxHumidDay = currentHumid;
+int16_t minHumidDay = currentHumid;
 int timePumpOn = 120;   // seconds
 int timePumpOff = 1800; // seconds 1800=30min
 int PWMFrequency = 1000;

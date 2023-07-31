@@ -1,5 +1,80 @@
+#include "global_Defines.h"
+
+/***** EXT LIBS CONFIG *****/
+#include <Arduino.h> //for basic shit
+#include "esp_system.h"
+#include "esp_log.h"
+#include "esp_sleep.h"
+#include "esp32s2/rom/rtc.h"
+#include "time.h"
+#include "sntp.h"
+#include <math.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/event_groups.h>
+#include <freertos/task.h>
+#include <freertos/queue.h>
+#include <freertos/semphr.h>
+#include <esp_log.h>
+#include <esp_err.h>
+#include <esp_wifi.h>
+#include "esp_event.h"
+#include "nvs_flash.h"
+
+#include <Wire.h>        //I2C for CTP touch controller
+#include "FT6X36.h"      //Touch Controller
+#include "SPI.h"         //SPI for Display
+#include "driver/ledc.h" //PWM for brightness
+#include "DHT.h"         //TEMP & HUMID Sensor
+#include "TFT_eSPI.h"    //The API for controlling the TFT
+#include "TFT_eWidget.h" // Widget library
+// #include "Adafruit_GFX.h"//Button
+
+#include <WiFi.h> //Include WiFi library
+#include <WiFiClient.h>
+#include <WiFiAP.h>
+#include "soc/soc.h"          // Disable brownout problems
+#include "soc/rtc_cntl_reg.h" // Disable brownout problems
+#include "driver/rtc_io.h"
+#include <SPIFFS.h>
+#include <FS.h>
+#include <Firebase_ESP_Client.h>
+#include <addons/TokenHelper.h> //Provide the token generation process info.
+#include <HTTPUpdate.h>         //for firmware update
+
 // file: main.c or main.cpp
 #include "globals.h" //Most config and global vars
+
+// Fonts, TFT_eSPI brings these in.
+//  #include "./Fonts/FreeSans12pt7b.h" // Font files to include in library
+//  #include "./Fonts/FreeSans9pt7b.h"
+//  #include "./Fonts/FreeMonoBoldOblique24pt7b.h"
+//  #include "./Fonts/FreeMonoBold24pt7b.h"
+//  #include "./Fonts/FreeSansBold24pt7b.h"
+//  #include "./Fonts/FreeSans24pt7b.h"
+#include "Fonts/FreeBigSmallAndSevenSeg.h"
+#include "icons.h"
+
+/***** App Code Src Headers *****/
+#include "passwords.h"
+#include "icons.h" //Bitmap images
+#include "backupMode.h"
+#include "buttons.h"
+#include "flashStorage.h"
+#include "gpio.h"
+#include "helperFuncs.h"
+#include "lcd.h"
+#include "pages_scheduling.h"
+#include "pages.h"
+#include "rtc.h"
+#include "schedule.h"
+#include "timerFanControl.h"
+#include "wifi_Funcs.h"
+#include "firebase_Funcs.h"
+#include "esp32SystemAPIHandler.h"
 
 extern "C"
 {
@@ -22,37 +97,82 @@ void app_main(void)
   // Get the current time from the RTC
   time_t now;
   struct tm timeinfo;
-  if (esp_sleep_get_time(&now))
-  {
-    localtime_r(&now, &timeinfo);
-  }
-  else
-  {
-    ESP_LOGE("RTC", "Failed to get time from RTC");
-    return;
-  }
 
-  // Print the current time
-  char strftime_buf[64];
-  strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-  ESP_LOGI("RTC", "Current time: %s", strftime_buf);
+  set_rtc_time();
+  pollCurrentDateTime();
 
   // Get the last reset reason
-  esp_reset_reason_t reset_reason = esp_reset_reason();
-  const char *reset_reason_str = esp_reset_reason_get_name(reset_reason);
+  uint8_t reset_reason = rtc_get_reset_reason(0);
+  switch (reset_reason)
+  {
+  case 1:
+    Serial.println("Vbat power on reset");
+    break;
+  case 3:
+    Serial.println("Software reset digital core");
+    break;
+  case 4:
+    Serial.println("Legacy watch dog reset digital core");
+    break;
+  case 5:
+    Serial.println("Deep Sleep reset digital core");
+    break;
+  case 6:
+    Serial.println("Reset by SLC module, reset digital core");
+    break;
+  case 7:
+    Serial.println("Timer Group0 Watch dog reset digital core");
+    break;
+  case 8:
+    Serial.println("Timer Group1 Watch dog reset digital core");
+    break;
+  case 9:
+    Serial.println("RTC Watch dog Reset digital core");
+    break;
+  case 10:
+    Serial.println("Instrusion tested to reset CPU");
+    break;
+  case 11:
+    Serial.println("Time Group reset CPU");
+    break;
+  case 12:
+    Serial.println("Software reset CPU");
+    break;
+  case 13:
+    Serial.println("RTC Watch dog Reset CPU");
+    break;
+  case 14:
+    Serial.println("for APP CPU, reseted by PRO CPU");
+    break;
+  case 15:
+    Serial.println("Reset when the vdd voltage is not stable");
+    break;
+  case 16:
+    Serial.println("RTC Watch dog reset digital core and rtc module");
+    break;
+  default:
+    Serial.println("NO_MEAN");
+  }
 
-  // Print the reset reason
-  ESP_LOGI("RESET_REASON", "Last reset reason: %s", reset_reason_str);
-
-  if (strcmp(reset_reason_str, "ESP_RST_POWERON") == 0)
+  if (reset_reason == 1)
   {
     // The reset reason is "ESP_RST_POWERON"
-    // Your code here...
+
+    splashPage(); // Welcome to opbox
+    // configureTimePage();
+    setNutrientDate();      // sets nutrient date as today.
+    defaultDailySchedule(); // initialize the default schedule
   }
   else
   {
     // The reset reason is not "ESP_RST_POWERON"
-    // Your code here...
+
+    disablePageLimits(); // disable page limits that were used for this page but no longer valid for building next page from fresh
+    splashPage();
+    pollCurrentDate();
+    loadFlashSettings(); // retrieves nutrient date and week
+    resetSlot();
+    // configureTimePage();          //set time after power out-tage
   }
 
   // Initialize NVS
@@ -69,7 +189,8 @@ void app_main(void)
   // Initialize Touch Controller
   Wire.begin();
   ts.begin();
-  ts.registerTouchHandler(touch);
+  ts.registerTouchHandler(touchHandler); //.registerTouchHandler(touch); uses a polling method via ts.loop
+  // ts.registerIsrHandler(touch);  //.registerIsrHandler(touch); uses an interrupt method via Interrupt Service Routine
 
   // Initialize LCD display
   initializeLCD();
@@ -78,74 +199,10 @@ void app_main(void)
 
   loadGlobalButtons();
 
-  if (enBUMODE)
-  {
-    setupBUMODE();
-  }
-
-  // Reports the cause of the last processor reset. Reading this RSTC_SR does not reset this field.
-  //  0 = fresh 1 = backup mode reset 2 = watchdog , 3 = software, 4 = User/NSRT
-  uint32_t resetStatus = (RSTC->RSTC_SR & RSTC_SR_RSTTYP_Msk) >> RSTC_SR_RSTTYP_Pos;
-  // For fresh starts only
-  if ((resetStatus != 1) || (dueFlashStorage.read(0) == 255))
-  {
-    rtc.begin();
-    rtc.setTime(15, 59, 50); //(hours,min,sec) Mil time
-    rtc.setDate(1, 3, 2021); // day,month,year
-    splashPage();            // Welcome to opbox
-    // configureTimePage();
-    setNutrientDate();      // sets nutrient date as today.
-    defaultDailySchedule(); // initialize the default schedule
-  }
-  // This will run if coming out of backup mode or non first start
-  else
-  {
-    rtc.begin();
-    rtc.setTime(15, 59, 50); //(hours,min,sec) Mil time
-    rtc.setDate(1, 3, 2021); // day,month,year
-    delay(1);
-    disablePageLimits(); // disable page limits that were used for this page but no longer valid for building next page from fresh
-    splashPage();
-    pollCurrentDate();
-    loadFlashSettings(); // retrieves nutrient date and week
-    // configureTimePage();          //set time after power out-tage
-  }
-
-  // Reports the cause of the last processor reset. Reading this RSTC_SR does not reset this field.
-  //  0 = fresh 1 = backup mode reset 2 = watchdog , 3 = software, 4 = User/NSRT
-  // uint32_t resetStatus = (RSTC->RSTC_SR & RSTC_SR_RSTTYP_Msk) >> RSTC_SR_RSTTYP_Pos;
-  // For fresh starts only
-  // if((resetStatus != 1) || (dueFlashStorage.read(0) == 255)) {
-  bool firstBoot = true;
-
-  if (firstBoot)
-  {
-    splashPage();
-    initialProvision();
-  }
-  if (false)
-  {
-    // rtc.begin();
-    // rtc.setTime(15, 59, 50);      //(hours,min,sec) Mil time
-    // rtc.setDate(1, 3, 2021);      //day,month,year
-    splashPage(); // Welcome to CyberGrow!
-    // configureTimePage();
-    setNutrientDate();      // sets nutrient date as today.
-    defaultDailySchedule(); // initialize the default schedule
-  }
-  // This will run if coming out of backup mode or non first start
-  else
-  {
-    // rtc.begin();
-    // rtc.setTime(15, 59, 50);      //(hours,min,sec) Mil time
-    // rtc.setDate(1, 3, 2021);      //day,month,year
-    delay(1);
-    disablePageLimits(); // disable page limits that were used for this page but no longer valid for building next page from fresh
-    splashPage();
-    pollCurrentDate();
-    loadFlashSettings(); // retrieves nutrient date and week
-    // configureTimePage();          //set time after power out-tage
-  }
+  // if (enBUMODE)
+  //{
+  //   setupBUMODE();
+  // }
 
   // For first page we need to check the slot to poll current time and get new data to build homePage with
   readTempHumid();

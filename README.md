@@ -4,16 +4,19 @@ Embedded Operating System and User Interface that runs on the ESPS2 Based growBo
 
 ## Setting up dev environment
 
-This project uses ESP-IDF (IoT Development Framework) and Arduino Core for ESP32 chips. ESP-IDF provides complete customization and access to professional developement tools to aid with IoT dev, and Arduino brings the largest embedded community and code libraries. 
+This project uses ESP-IDF (IoT Development Framework) and Arduino Core for ESP32 chips. ESP-IDF provides complete customization and access to professional developement tools to aid with IoT dev, and Arduino brings the largest embedded community and code libraries.
 
 1. find a cozy spot on your machine to clone the ESP-IDF repo. This might also be where your source files are kept
 2. Ensure you have python3 installed.
 3. Clone Esp-idf v4.4. [GITHUB](https://github.com/espressif/esp-idf) [DOCS](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/index.html)
+
 ```
     git clone --recursive -b release/v4.4 https://github.com/espressif/esp-idf.git
 ```
+
 4. Clone the Arduino core for esp32 [GITHUB](https://github.com/espressif/arduino-esp32) [DOCS](https://docs.espressif.com/projects/arduino-esp32/en/latest/libraries.html)
-5. 
+5.
+
 ```
     cd esp-idf/components
     git clone -b idf-release/v4.4 https://github.com/espressif/arduino-esp32.git arduino
@@ -21,20 +24,26 @@ This project uses ESP-IDF (IoT Development Framework) and Arduino Core for ESP32
     git submodule update --init --recursive
     cd ../..
 ```
+
 6. Ensure .install files are executable in the esp-idf directory
-7. 
+7.
+
 ```
 source ./install.sh
 ```
-Note: Python3 is required, if your machine is defaulting to python2, try making "python" command map to python3
-8. After successfull install 
+
+Note: Python3 is required, if your machine is defaulting to python2, try making "python" command map to python3 8. After successfull install
+
 ```
 source ./export.sh
 ```
+
 Now you can use idf.py to run commands such as "build" and "menuconfig"
 You may want to add this alias to your .zprofile "alias get_idf='. $HOME/Documents/Prog/ESP/esp-idf/export.sh'"
 
 ## Compiling
+
+Make sure to export esp-idf via get_idf or directly calling '. $HOME/Documents/Prog/ESP/esp-idf/export.sh'
 
 All component libraries live within the project to ensure stable dependency. Each component has a CMakeLists.txt as required by the CMAKE build tool integrated into ESP-IDF.
 
@@ -43,13 +52,12 @@ Then run `idf.py build` to build the project
 
 ### Hardware Required
 
-* A CyberGrow Board with ESP32s2
-* A USB cable for Power supply and programming.
-
+- A CyberGrow Board with ESP32s2
+- A USB cable for Power supply and programming.
 
 ### Configure the project
 
-Open the project configuration menu (`idf.py menuconfig`). 
+Open the project configuration menu (`idf.py menuconfig`).
 
 TODO
 
@@ -59,10 +67,10 @@ Build the project and flash it to the board, then run the monitor tool to view t
 
 Run `idf.py -p PORT flash monitor` to build, flash and monitor the project.
 
-(To exit the serial monitor, type ``Ctrl-]``.)
+(To exit the serial monitor, type `Ctrl-]`.)
 
 See the Getting Started Guide for all the steps to configure and use the ESP-IDF to build projects.
 
-* [ESP-IDF Getting Started Guide on ESP32](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
-* [ESP-IDF Getting Started Guide on ESP32-S2](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/get-started/index.html)
-* [ESP-IDF Getting Started Guide on ESP32-C3](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/get-started/index.html)
+- [ESP-IDF Getting Started Guide on ESP32](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
+- [ESP-IDF Getting Started Guide on ESP32-S2](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/get-started/index.html)
+- [ESP-IDF Getting Started Guide on ESP32-C3](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/get-started/index.html)

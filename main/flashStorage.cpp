@@ -1,5 +1,6 @@
 #include "nvs_flash.h"
 #include "nvs.h"
+#include "flashStorage.h"
 
 void saveFlashSettings()
 {
@@ -29,7 +30,7 @@ void saveFlashSettings()
   nvs_set_u8(nvs_handle, "currentGrowWeek", growWeek);
 
   // set fan temp
-  nvs_set_f32(nvs_handle, "targetTemp", targetTemp);
+  nvs_set_i16(nvs_handle, "targetTemp", targetTemp);
 
   // save fan speed
   nvs_set_u16(nvs_handle, "fanSpeed", fanSpeed);
@@ -58,7 +59,7 @@ void loadFlashSettings()
   nvs_get_u8(nvs_handle, "nightHours", &night);
 
   // set fan temp
-  nvs_get_f32(nvs_handle, "targetTemp", &targetTemp);
+  nvs_get_i16(nvs_handle, "targetTemp", &targetTemp);
 
   // day and week of grow
   nvs_get_u8(nvs_handle, "currentGrowDay", &growDay);

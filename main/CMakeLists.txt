@@ -1,9 +1,11 @@
-#the default component_dirs build var is "IDF_PATH/components"
-#more on build system here https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-system.html
-#if having unclear issues building first just try by doing a fresh build.
+# the default component_dirs build var is "IDF_PATH/components"
+# more on build system here https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-system.html
+# if having unclear issues building first just try by doing a fresh build.
+
+file(GLOB_RECURSE MAIN_SOURCE_FILES "*.cpp")
 
 idf_component_register(
-    SRC_DIRS "."
+    SRCS ${MAIN_SOURCE_FILES}
     INCLUDE_DIRS "."
 )
 message(STATUS "Looking at CMakeLists.txt in main directory. Include_dirs= ${INCLUDE_DIRS} \nMain Component name = ${COMPONENT_ALIAS}")
