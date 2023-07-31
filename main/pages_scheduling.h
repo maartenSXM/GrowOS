@@ -6,8 +6,8 @@
 #include "lcd.h"
 
 bool touchIsPressed(void);
-bool buttonIsHeld(ButtonWidget *btn,int ms);
-bool buttonIsPressed(ButtonWidget *btn);
+bool buttonIsHeld(TFT_eSPI_Button *btn,int ms);
+bool buttonIsPressed(TFT_eSPI_Button *btn);
 void insertTimeSlot(_Time tS);
 bool timeSlotExists(_Time tS);
 void drawSelectedTime();
@@ -22,7 +22,7 @@ void weeksSelectPage();
 void daysSelectPage();
 void homePage();
 void disablePageLimits();
-bool awaitingButtonRelease(ButtonWidget *btn);
+bool awaitingButtonRelease(TFT_eSPI_Button *btn);
 void schedulePage();
 void getDeviceName(char *str,int devI);
 int getTextHeight();

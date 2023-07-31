@@ -5,7 +5,7 @@
 #include "lcd.h"
 #include "schedule.h"
 
-bool awaitingButtonRelease(ButtonWidget *btn);
+bool awaitingButtonRelease(TFT_eSPI_Button *btn);
 int countDeviceOnTime(const int devI);
 void pollCurrentTime();
 void maxTimeSlotsPage();

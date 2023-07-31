@@ -83,8 +83,8 @@ void drawScheduleDevices(int slot, int x, int y, int slotWidth)
 void schedulePage()
 {
   currentPage = 2;
-  ButtonWidget newTSBtn = ButtonWidget(&tft);
-  newTSBtn.initButtonUL(xCenter - 45, yCenter - 72, 100, 30, GREY, BLACK, WHITE, "+ Timeslot", 1);
+  TFT_eSPI_Button newTSBtn;
+  newTSBtn.initButtonUL(&tft, xCenter - 45, yCenter - 72, 100, 30, GREY, BLACK, WHITE, "+ Timeslot", 1);
 
   int timeSlotColor = CYAN;
 
@@ -475,8 +475,8 @@ void maxTimeSlotsPage()
 {
   currentPage = 6;
 
-  ButtonWidget okBtn = ButtonWidget(&tft);
-  okBtn.initButtonUL(xCenter - 30, yDisp - 31, 60, 30, DARKGREY, BLACK, WHITE, "Okay", 2);
+  TFT_eSPI_Button okBtn;
+  okBtn.initButtonUL(&tft, xCenter - 30, yDisp - 31, 60, 30, DARKGREY, BLACK, WHITE, "Okay", 2);
   if (checkTPOnly)
   { // only checking for updating when a button is pressed on the page
     if (awaitingButtonRelease(&okBtn))
@@ -517,16 +517,16 @@ void newTimeslotPage()
     return;
   }
 
-  ButtonWidget upHourBtn = ButtonWidget(&tft);
-  ButtonWidget upMinuteBtn = ButtonWidget(&tft);
-  ButtonWidget downMinuteBtn = ButtonWidget(&tft);
-  ButtonWidget downHourBtn = ButtonWidget(&tft);
+  TFT_eSPI_Button upHourBtn;
+  TFT_eSPI_Button upMinuteBtn;
+  TFT_eSPI_Button downMinuteBtn;
+  TFT_eSPI_Button downHourBtn;
 
   // up and down hour:minute buttons
-  upHourBtn.initButtonUL(120, 45, 110, 51, DARKGREY, BLACK, WHITE, "", 1, upArrow100x50, 100, 50);
-  upMinuteBtn.initButtonUL(260, 45, 110, 51, DARKGREY, BLACK, WHITE, "", 1, upArrow100x50, 100, 50);
-  downHourBtn.initButtonUL(120, 190, 110, 51, DARKGREY, BLACK, WHITE, "", 1, downArrow100x50, 100, 50);
-  downMinuteBtn.initButtonUL(260, 190, 110, 51, DARKGREY, BLACK, WHITE, "", 1, downArrow100x50, 100, 50);
+  upHourBtn.initButtonUL(&tft, 120, 45, 110, 51, DARKGREY, BLACK, WHITE, "", 1, upArrow100x50, 100, 50);
+  upMinuteBtn.initButtonUL(&tft, 260, 45, 110, 51, DARKGREY, BLACK, WHITE, "", 1, upArrow100x50, 100, 50);
+  downHourBtn.initButtonUL(&tft, 120, 190, 110, 51, DARKGREY, BLACK, WHITE, "", 1, downArrow100x50, 100, 50);
+  downMinuteBtn.initButtonUL(&tft, 260, 190, 110, 51, DARKGREY, BLACK, WHITE, "", 1, downArrow100x50, 100, 50);
 
   int timeSlotColor = CYAN;
 

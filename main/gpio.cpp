@@ -1,6 +1,7 @@
 #include "globals.h"
 #include <stdio.h>
 #include "gpio.h"
+#include "arduino.h"
 
 void setPin(int pin, int level)
 {

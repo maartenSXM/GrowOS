@@ -1,6 +1,6 @@
 #include "buttons.h"
 
-bool awaitingButtonRelease(ButtonWidget *btn)
+bool awaitingButtonRelease(TFT_eSPI_Button *btn)
 {
   if (!btn->contains(tp.x, tp.y))
   { // If this button is not pressed we return false
@@ -18,7 +18,7 @@ bool awaitingButtonRelease(ButtonWidget *btn)
   }
 }
 
-bool buttonIsPressed(ButtonWidget *btn)
+bool buttonIsPressed(TFT_eSPI_Button *btn)
 {
   if (!btn->contains(tp.x, tp.y))
   { // If this button is not pressed we return false
@@ -31,7 +31,7 @@ bool buttonIsPressed(ButtonWidget *btn)
   }
 }
 
-bool buttonIsHeld(ButtonWidget *btn, int ms)
+bool buttonIsHeld(TFT_eSPI_Button *btn, int ms)
 {
   int starttime = millis();
   int endtime = starttime;
@@ -49,7 +49,7 @@ bool buttonIsHeld(ButtonWidget *btn, int ms)
   return isHeld;
 }
 
-// create and initialize ButtonWidget objects using static factory methods
+// create and initialize TFT_eSPI_Button objects using static factory methods
 void loadGlobalButtons()
 {
   // the day of week buttons
@@ -61,23 +61,23 @@ void loadGlobalButtons()
   int y = 95;
   int vSpace = 14;
   int hSpace = 10;
-  dayBtns[0].initButtonUL((xCenter - (w / 2)), y - (h + vSpace), w, h, onOutline, onFill, textColour, "All Days", btnTextSize);
+  dayBtns[0].initButtonUL(&tft, (xCenter - (w / 2)), y - (h + vSpace), w, h, onOutline, onFill, textColour, "All Days", btnTextSize);
   for (int i = 1; i < numDayBtns; i++)
   {
     if (i == 1)
-      dayBtns[i].initButtonUL(x, y, w, h, onOutline, onFill, textColour, "Sunday", btnTextSize);
+      dayBtns[i].initButtonUL(&tft, x, y, w, h, onOutline, onFill, textColour, "Sunday", btnTextSize);
     if (i == 2)
-      dayBtns[i].initButtonUL(x, y, w, h, onOutline, onFill, textColour, "Monday", btnTextSize);
+      dayBtns[i].initButtonUL(&tft, x, y, w, h, onOutline, onFill, textColour, "Monday", btnTextSize);
     if (i == 3)
-      dayBtns[i].initButtonUL(x, y, w, h, onOutline, onFill, textColour, "Tuesday", btnTextSize);
+      dayBtns[i].initButtonUL(&tft, x, y, w, h, onOutline, onFill, textColour, "Tuesday", btnTextSize);
     if (i == 4)
-      dayBtns[i].initButtonUL(x, y, w, h, onOutline, onFill, textColour, "Wednesday", btnTextSize);
+      dayBtns[i].initButtonUL(&tft, x, y, w, h, onOutline, onFill, textColour, "Wednesday", btnTextSize);
     if (i == 5)
-      dayBtns[i].initButtonUL(x, y, w, h, onOutline, onFill, textColour, "Thursday", btnTextSize);
+      dayBtns[i].initButtonUL(&tft, x, y, w, h, onOutline, onFill, textColour, "Thursday", btnTextSize);
     if (i == 6)
-      dayBtns[i].initButtonUL(x, y, w, h, onOutline, onFill, textColour, "Friday", btnTextSize);
+      dayBtns[i].initButtonUL(&tft, x, y, w, h, onOutline, onFill, textColour, "Friday", btnTextSize);
     if (i == 7)
-      dayBtns[i].initButtonUL((xCenter - (w / 2)), y, w, h, onOutline, onFill, textColour, "Saturday", btnTextSize);
+      dayBtns[i].initButtonUL(&tft, (xCenter - (w / 2)), y, w, h, onOutline, onFill, textColour, "Saturday", btnTextSize);
     x += w + hSpace;
     if (x + w + hSpace > xDisp)
     {
@@ -95,12 +95,12 @@ void loadGlobalButtons()
   y = 90;
   vSpace = 10;
   hSpace = 10;
-  weekBtns[0].initButtonUL((xCenter - (w / 2)), y - (h + vSpace), w, h, onOutline, onFill, textColour, "All Weeks", btnTextSize);
+  weekBtns[0].initButtonUL(&tft, (xCenter - (w / 2)), y - (h + vSpace), w, h, onOutline, onFill, textColour, "All Weeks", btnTextSize);
   for (int i = 1; i < numWeekBtns; i++)
   {
     strcpy(strTemp, "W ");
     int_to_char_cat(strTemp, i);
-    weekBtns[i].initButtonUL(x, y, w, h, onOutline, onFill, textColour, strTemp, btnTextSize);
+    weekBtns[i].initButtonUL(&tft, x, y, w, h, onOutline, onFill, textColour, strTemp, btnTextSize);
     x += w + hSpace;
     if (x + w + hSpace > xDisp)
     {
@@ -109,9 +109,9 @@ void loadGlobalButtons()
     }
   }
 
-  weeksSelectBtn.initButtonUL(1, 30, 160, 40, GREY, BLACK, WHITE, weeksSelect, btnTextSize);
-  daysSelectBtn.initButtonUL(1, 75, 160, 40, GREY, BLACK, WHITE, daysSelect, btnTextSize);
-  exitBtn.initButton(xDisp - 25, 26, 46, 46, OPBOX_GREEN, BLACK, WHITE, " ", btnTextSize);
+  weeksSelectBtn.initButtonUL(&tft, 1, 30, 160, 40, GREY, BLACK, WHITE, weeksSelect, btnTextSize);
+  daysSelectBtn.initButtonUL(&tft, 1, 75, 160, 40, GREY, BLACK, WHITE, daysSelect, btnTextSize);
+  exitBtn.initButton(&tft, xDisp - 25, 26, 46, 46, OPBOX_GREEN, BLACK, WHITE, " ", btnTextSize);
 }
 
 void updateDaysSelectedBtnLabel()

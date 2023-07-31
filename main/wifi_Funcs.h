@@ -3,8 +3,8 @@
 
 #include "globals.h"
 
-extern const char* loginIndex;
-extern const char* serverIndex;
+extern const char *loginIndex;
+extern const char *serverIndex;
 
 void initialProvision();
 void print_auth_mode(int authmode);

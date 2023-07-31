@@ -346,7 +346,7 @@ void splashPage()
   //tft.drawBitmap(50, 50, sun50x50, 50, 50, BLUE);  // for 8bit monochrome bit map works. draws from top left of image
   //tft.drawBitmap(200, 200, sun50x50, 50, 50, GREEN, 2.4);
   */
-  ButtonWidget enterButton = ButtonWidget(&tft);
+  TFT_eSPI_Button enterButton;
 
   if (checkTPOnly)
   { // only checking for updating when a button is pressed on the page
@@ -374,7 +374,7 @@ void splashPage()
   {
     // Draw button and set as not pressed
     tft.setFreeFont(NULL);
-    enterButton.initButton(xCenter, yCenter + 60, 100, 40, OPBOX_GREEN, BLACK, WHITE, "ENTER", 2);
+    enterButton.initButton(&tft, xCenter, yCenter + 60, 100, 40, OPBOX_GREEN, BLACK, WHITE, "ENTER", 2);
     enterButton.drawButton(false);
 
   } // below sets/updates rest of page every time the main loop repeats
