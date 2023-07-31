@@ -8,7 +8,7 @@
 #include "esp_system.h"
 #include "driver/rtc_io.h"
 
-esp_err_t init_rtc();
+void init_rtc();
 void set_rtc_time(int year = 2023, int month = 6, int day = 24, int hour = 12, int minute = 30, int second = 0);
 void initializeTimeZone();
 int dater(int x);

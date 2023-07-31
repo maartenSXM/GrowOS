@@ -39,8 +39,8 @@ uint32_t timeLastTouch = 0;
 uint32_t lcdTimeoutDuration = 60 * 1000;
 bool lcdSleep = false;
 
-struct tm timeInfo = {0}; // Global variable to hold time information
-struct timeval tv_now;
+struct tm timeInfo = {0};
+struct timeval tv_now = {0, 0};
 _Date nutrientDate = {0, 0, 0, 0};
 _Date currentDate = {0, 0, 0, 0};
 _Date dateTemp = {0, 0, 0, 0};
@@ -84,19 +84,12 @@ char weeksSelect[maxLabelLength] = "All Weeks";
 
 byte daysSelected[numDayBtns] = {1};   // 0th = All, 1th=Sunday     // 0=OFF 1=ON 2=HIDDEN
 byte weeksSelected[numWeekBtns] = {1}; // 0th = ALL, 1th = week1 .... 12=week12
-// Loop to initialize the dayBtns array
-for (int i = 0; i < numDayBtns; i++)
-{
-  dayBtns[i] = ButtonWidget(&tft);
-}
-// Loop to initialize the dayBtns array
-for (int i = 0; i < numWeekBtns; i++)
-{
-  weekBtns[i] = ButtonWidget(&tft);
-}
-ButtonWidget daysSelectBtn = ButtonWidget(&tft);
-ButtonWidget weeksSelectBtn = ButtonWidget(&tft);
-ButtonWidget exitBtn = ButtonWidget(&tft);
+
+TFT_eSPI_Button dayBtns[numDayBtns];
+TFT_eSPI_Button weekBtns[numWeekBtns];
+TFT_eSPI_Button daysSelectBtn;
+TFT_eSPI_Button weeksSelectBtn;
+TFT_eSPI_Button exitBtn;
 
 // number of seconds for device to be on in auto settings
 uint16_t fanQuota = 60 * 60 * 20;     // 18 hours

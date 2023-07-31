@@ -1,7 +1,54 @@
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 
+#include "Arduino.h"
 #include "global_Defines.h"
+
+#include <WiFi.h>        //Wifi
+#include <vector>        // for std::vector
+#include <FS.h>          //SPIFFS
+#include <Wire.h>        //I2C for CTP touch controller
+#include "FT6X36.h"      //Touch Controller
+#include "SPI.h"         //SPI for Display
+#include "driver/ledc.h" //PWM for brightness
+#include "DHT.h"         //TEMP & HUMID Sensor
+#include "TFT_eSPI.h"    //The API for controlling the TFT
+// #include "TFT_eWidget.h" // Widget library
+//  #include "Adafruit_GFX.h"//Button
+
+#include <stdio.h>
+// #include "unity.h"
+
+#include "esp_attr.h"
+#include "soc/soc_caps.h"
+#include "soc/rtc.h"
+#include "soc/rtc_periph.h"
+#if SOC_ADC_RTC_CTRL_SUPPORTED
+#include "soc/sens_periph.h"
+#endif
+#include "soc/gpio_periph.h"
+#include "hal/gpio_ll.h"
+#include "driver/rtc_io.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+#include "esp_rom_gpio.h"
+#include "esp_rom_sys.h"
+#include "esp_rom_uart.h"
+
+#include "esp_sleep.h"
+#include "esp_system.h"
+
+// Fonts, TFT_eSPI brings these in.
+//  #include "./Fonts/FreeSans12pt7b.h" // Font files to include in library
+//  #include "./Fonts/FreeSans9pt7b.h"
+//  #include "./Fonts/FreeMonoBoldOblique24pt7b.h"
+//  #include "./Fonts/FreeMonoBold24pt7b.h"
+//  #include "./Fonts/FreeSansBold24pt7b.h"
+//  #include "./Fonts/FreeSans24pt7b.h"
+#include "Fonts/FreeBigSmallAndSevenSeg.h"
+#include "icons.h"
+
 /******************************
  *        Global Variables
  ******************************/
@@ -128,11 +175,17 @@ extern uint8_t daysSelected[numDayBtns]; // 0th = All, 1th=Sunday     // 0=OFF 1
 #define numWeekBtns 13
 extern uint8_t weeksSelected[numWeekBtns]; // 0th = ALL, 1th = week1 .... 12=week12
 
-extern ButtonWidget dayBtns[numDayBtns];
-extern ButtonWidget weekBtns[numWeekBtns];
-extern ButtonWidget daysSelectBtn;
-extern ButtonWidget weeksSelectBtn;
-extern ButtonWidget exitBtn;
+// extern ButtonWidget dayBtns[numDayBtns];
+// extern ButtonWidget weekBtns[numWeekBtns];
+// extern ButtonWidget daysSelectBtn;
+// extern ButtonWidget weeksSelectBtn;
+// extern ButtonWidget exitBtn;
+//  Global array of ButtonWidget objects
+extern TFT_eSPI_Button dayBtns[numDayBtns];
+extern TFT_eSPI_Button weekBtns[numWeekBtns];
+extern TFT_eSPI_Button daysSelectBtn;
+extern TFT_eSPI_Button weeksSelectBtn;
+extern TFT_eSPI_Button exitBtn;
 
 // number of seconds for device to be on in auto settings
 extern uint16_t fanQuota;     // 18 hours

@@ -667,8 +667,8 @@ void report()
     bofe(buf);
   }
   tft.println("Tap the 'x' in top right corner to exit");
-  ButtonWidget exitButton = ButtonWidget(&tft);
-  exitButton.initButton(470, 12, 20, 20, OPBOX_GREEN, BLACK, WHITE, "X", 2);
+  TFT_eSPI_Button exitButton;
+  exitButton.initButton(&tft, 470, 12, 20, 20, OPBOX_GREEN, BLACK, WHITE, "X", 2);
   exitButton.drawButton(false);
 
   while (!(ts.touched() && exitButton.contains(tp.x, tp.y)))
@@ -694,8 +694,8 @@ void fail()
 void testCalibration(void)
 {
   tft.fillScreen(BLACK);
-  ButtonWidget exitButton = ButtonWidget(&tft);
-  exitButton.initButton(470, 10, 20, 20, OPBOX_GREEN, BLACK, WHITE, "X", 2);
+  TFT_eSPI_Button exitButton;
+  exitButton.initButton(&tft, 470, 10, 20, 20, OPBOX_GREEN, BLACK, WHITE, "X", 2);
   exitButton.drawButton(false);
 
   // drawCross(30, 30, WHITE);

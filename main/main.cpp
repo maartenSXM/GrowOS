@@ -1,7 +1,7 @@
 #include "global_Defines.h"
 
 /***** EXT LIBS CONFIG *****/
-#include <Arduino.h> //for basic shit
+#include "Arduino.h" //for basic shit
 #include "esp_system.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
@@ -24,15 +24,6 @@
 #include "esp_event.h"
 #include "nvs_flash.h"
 
-#include <Wire.h>        //I2C for CTP touch controller
-#include "FT6X36.h"      //Touch Controller
-#include "SPI.h"         //SPI for Display
-#include "driver/ledc.h" //PWM for brightness
-#include "DHT.h"         //TEMP & HUMID Sensor
-#include "TFT_eSPI.h"    //The API for controlling the TFT
-#include "TFT_eWidget.h" // Widget library
-// #include "Adafruit_GFX.h"//Button
-
 #include <WiFi.h> //Include WiFi library
 #include <WiFiClient.h>
 #include <WiFiAP.h>
@@ -47,16 +38,6 @@
 
 // file: main.c or main.cpp
 #include "globals.h" //Most config and global vars
-
-// Fonts, TFT_eSPI brings these in.
-//  #include "./Fonts/FreeSans12pt7b.h" // Font files to include in library
-//  #include "./Fonts/FreeSans9pt7b.h"
-//  #include "./Fonts/FreeMonoBoldOblique24pt7b.h"
-//  #include "./Fonts/FreeMonoBold24pt7b.h"
-//  #include "./Fonts/FreeSansBold24pt7b.h"
-//  #include "./Fonts/FreeSans24pt7b.h"
-#include "Fonts/FreeBigSmallAndSevenSeg.h"
-#include "icons.h"
 
 /***** App Code Src Headers *****/
 #include "passwords.h"

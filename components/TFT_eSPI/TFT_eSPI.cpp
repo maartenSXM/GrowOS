@@ -6769,6 +6769,19 @@ boolean TFT_eSPI::isCustomFont()
     return true;
 }
 
+inline GFXglyph *pgm_read_glyph_ptr(const GFXfont *gfxFont, uint8_t c)
+{
+#ifdef __AVR__
+  return &(((GFXglyph *)pgm_read_pointer(&gfxFont->glyph))[c]);
+#else
+  // expression in __AVR__ section may generate "dereferencing type-punned
+  // pointer will break strict-aliasing rules" warning In fact, on other
+  // platforms (such as STM32) there is no need to do this pointer magic as
+  // program memory may be read in a usual way So expression may be simplified
+  return gfxFont->glyph + c;
+#endif //__AVR__
+}
+
 /**************************************************************************/
 /*!
     @brief    Helper to determine size of a character with current font/size.
@@ -6793,7 +6806,7 @@ void TFT_eSPI::charBounds(char c, int16_t *x, int16_t *y, int16_t *minx,
     if (c == '\n')
     {         // Newline?
       *x = 0; // Reset x to zero, advance y by one line
-      *y += textsize_y * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+      *y += textsize * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
     }
     else if (c != '\r')
     { // Not a carriage return; is normal char
@@ -6804,15 +6817,15 @@ void TFT_eSPI::charBounds(char c, int16_t *x, int16_t *y, int16_t *minx,
         GFXglyph *glyph = pgm_read_glyph_ptr(gfxFont, c - first);
         uint8_t gw = pgm_read_byte(&glyph->width),
                 gh = pgm_read_byte(&glyph->height),
-                xa = pgm_read_byte(&glyph->xAdvance);
+                xa = pgm_read_byte(&glyph->xAdvance);   
         int8_t xo = pgm_read_byte(&glyph->xOffset),
                yo = pgm_read_byte(&glyph->yOffset);
-        if (wrap && ((*x + (((int16_t)xo + gw) * textsize_x)) > _width))
+        if (textwrapX && ((*x + (((int16_t)xo + gw) * textsize)) > _width))
         {
           *x = 0; // Reset x to zero, advance y by one line
-          *y += textsize_y * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+          *y += textsize * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
         }
-        int16_t tsx = (int16_t)textsize_x, tsy = (int16_t)textsize_y,
+        int16_t tsx = (int16_t)textsize, tsy = (int16_t)textsize,
                 x1 = *x + xo * tsx, y1 = *y + yo * tsy, x2 = x1 + gw * tsx - 1,
                 y2 = y1 + gh * tsy - 1;
         if (x1 < *minx)
@@ -6833,18 +6846,18 @@ void TFT_eSPI::charBounds(char c, int16_t *x, int16_t *y, int16_t *minx,
     if (c == '\n')
     {                       // Newline?
       *x = 0;               // Reset x to zero,
-      *y += textsize_y * 8; // advance y one line
+      *y += textsize * 8; // advance y one line
       // min/max x/y unchaged -- that waits for next 'normal' character
     }
     else if (c != '\r')
     { // Normal char; ignore carriage returns
-      if (wrap && ((*x + textsize_x * 6) > _width))
+      if (textwrapX && ((*x + textsize * 6) > _width))
       {                       // Off right?
         *x = 0;               // Reset x to zero,
-        *y += textsize_y * 8; // advance y one line
+        *y += textsize * 8; // advance y one line
       }
-      int x2 = *x + textsize_x * 6 - 1, // Lower-right pixel of char
-          y2 = *y + textsize_y * 8 - 1;
+      int x2 = *x + textsize * 6 - 1, // Lower-right pixel of char
+          y2 = *y + textsize * 8 - 1;
       if (x2 > *maxx)
         *maxx = x2; // Track max x, y
       if (y2 > *maxy)
@@ -6853,7 +6866,7 @@ void TFT_eSPI::charBounds(char c, int16_t *x, int16_t *y, int16_t *minx,
         *minx = *x; // Track min x, y
       if (*y < *miny)
         *miny = *y;
-      *x += textsize_x * 6; // Advance x one char
+      *x += textsize * 6; // Advance x one char
     }
   }
 }

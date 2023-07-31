@@ -7,9 +7,9 @@ void updateWeeksSelectedBtnLabel();
 void updateDaysSelectedBtnLabel();
 void int_to_char_cat(char *dest, int i);
 void loadGlobalButtons();
-bool buttonIsHeld(ButtonWidget *btn, int ms);
-bool buttonIsPressed(ButtonWidget *btn);
+bool buttonIsHeld(TFT_eSPI_Button *btn, int ms);
+bool buttonIsPressed(TFT_eSPI_Button *btn);
 bool touchIsPressed(void);
-bool awaitingButtonRelease(ButtonWidget *btn);
+bool awaitingButtonRelease(TFT_eSPI_Button *btn);
 
 #endif

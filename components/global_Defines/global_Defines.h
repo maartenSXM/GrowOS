@@ -25,7 +25,7 @@
 #define H_USB_PLUS 20
 #define TFT_BACKLIGHT 21
 #define TFT_BL TFT_BACKLIGHT
-#define TFT_BACKLIGHT_ON = 0
+#define TFT_BACKLIGHT_ON 0
 #define TFT_CS 33
 #define CSI_HREF 33
 #define TFT_DC 34
