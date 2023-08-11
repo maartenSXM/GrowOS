@@ -2,7 +2,11 @@
 #define LCD_H_
 
 #include "globals.h"
+#include "SPI.h"
+#include "TFT_eSPI.h"
+#include "driver/ledc.h"
 
+void dimLCDBacklightPercent(uint8_t brightness);
 void centerTitle(String s, uint16_t textColor, uint16_t bg);
 void doubleCenterPrint(String s1, String s2, int len1, int len2, int y, uint16_t textColor, int offset1, int offset2);
 void centerPrintCustomFont(String s, int yS, uint16_t textColor, uint16_t bg, int textSize = -1); // By Erik - To clear the previous font that was there

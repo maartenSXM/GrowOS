@@ -15,7 +15,15 @@
       "map": "cpp",
       "ios": "cpp",
       "periph_ctrl.h": "c",
-      "__config": "cpp"
+      "__config": "cpp",
+      "__bit_reference": "cpp",
+      "__string": "cpp",
+      "algorithm": "cpp",
+      "deque": "cpp",
+      "filesystem": "cpp",
+      "future": "cpp",
+      "string": "cpp",
+      "string_view": "cpp"
     }
   }
 }

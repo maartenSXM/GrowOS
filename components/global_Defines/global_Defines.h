@@ -51,8 +51,8 @@
 #define TFT_RGB_ORDER TFT_RGB
 #define TFT_INVERSION_OFF
 
-#define TFT_WIDTH 480
-#define TFT_HEIGHT 320
+#define TFT_WIDTH 320
+#define TFT_HEIGHT 480
 
 #define ILI9488_DRIVER
 #define SPI_FREQUENCY 20000000 // Max Reliable for ILI9488
@@ -73,7 +73,7 @@
 // this will save ~20kbytes of FLASH
 #define SMOOTH_FONT
 
-#define maxLabelLength 20
+#define maxLabelLength 10
 
 #define DEFAULT_SCAN_LIST_SIZE CONFIG_EXAMPLE_SCAN_LIST_SIZE
 
@@ -112,6 +112,8 @@
 
 #define PORTRAIT 0
 #define LANDSCAPE 1
+#define INV_PORTRAIT 2
+#define INV_LANDSCAPE 3
 
 #define maxNumSlots 100
 
@@ -129,9 +131,9 @@
 
 /***** GENERAL SOFTWARE CONFIG *****/
 // #define Serial SerialUSB                              //native uses SerialUSB
-// #define DEBUG                                         //for serial debugging and other
+#define DEBUG // for serial debugging and other
 // #define DEBUGTOUCH                                    //shows boxes around items that can be touched
-// #define EnsureSerial                                  //waits for serial port to be ready
+// #define EnsureSerial // waits for serial port to be ready
 // #define DEVELOPMENT_MODE                              //settings to use when developing
 // #define saveToFlash                                   //to enable saving important settings to flash and recovering them after power off.
 

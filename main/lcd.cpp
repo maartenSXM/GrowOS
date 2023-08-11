@@ -13,6 +13,7 @@ void initializeLCD()
 {
   timeLastTouch = millis();
   tft.begin();
+  dimLCDBacklightPercent(40);
 
   tft.fillScreen(BLACK);
   tft.setRotation(TOUCH_ORIENTATION);
@@ -22,10 +23,34 @@ void initializeLCD()
   xCenter = (xDisp / 2) - 1;
 }
 
+// set the lcd brightness
+void dimLCDBacklightPercent(uint8_t brightness)
+{
+  const uint8_t freq = 50;
+  const uint8_t ledChannel = 1;
+  const uint8_t resolution = 8;
+  // Calculate the inverted brightness value (0-255)
+  const uint8_t outputBrightness = map(brightness, 0, 100, 255, 0); // maps value (input, fromLow, fromHigh, toLow, toHigh)
+
+  //// attach the channel to the GPIO to be controlled
+  // ledcAttachPin(TFT_BACKLIGHT, ledChannel);
+  //
+  //// configure LED PWM functionalitites
+  // ledcSetup(ledChannel, freq, resolution);
+  //
+  // ledcWrite(ledChannel, 255);
+
+  pinMode(TFT_BACKLIGHT, OUTPUT);
+  analogWrite(TFT_BACKLIGHT, outputBrightness); // Brightness
+}
+
 void touchHandler(TPoint p, TEvent e)
 {
+#ifdef DEBUG
+  Serial.println(F("** TOUCH **"));
   // TEvent e could be : TEvent::Tap, TEvent::TouchStart, TEvent::TouchMove, TEvent::TouchEnd, TEvent::DragStart, TEvent::DragMove, TEvent::DragEnd,
   printTouchInfo(p, e); // log the coordiantes
+#endif
   if (lcdSleep)
   {
     lcdSleep = false;
@@ -145,7 +170,7 @@ void waitForTouch(int ms)
   int endtime = starttime;
   bool isTouched = false;
   while (((endtime - starttime) <= ms) && isTouched == false)
-  { // do this loop for up to 1000mS
+  { // do this loop for up to `ms` milliseconds
     if (ts.touched())
     {
       tp.touched = true;

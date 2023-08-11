@@ -40,6 +40,7 @@ void saveFlashSettings()
 
 void loadFlashSettings()
 {
+  return; // TODO: remove this line when flash is working
   // Open the NVS handle
   nvs_handle_t nvs_handle;
   esp_err_t ret = nvs_open("settings", NVS_READONLY, &nvs_handle);

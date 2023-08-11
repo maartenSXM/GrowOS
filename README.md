@@ -48,6 +48,10 @@ Make sure to export esp-idf via get_idf or directly calling '. $HOME/Documents/P
 All component libraries live within the project to ensure stable dependency. Each component has a CMakeLists.txt as required by the CMAKE build tool integrated into ESP-IDF.
 
 Be sure to set the correct chip target using `idf.py set-target <chip_name>`. Chip_name = esp32s2
+
+Important
+`idf.py set-target` will clear the build directory and re-generate the sdkconfig file from scratch. The old sdkconfig file will be saved as sdkconfig.old.
+
 Then run `idf.py build` to build the project
 
 ### Hardware Required
@@ -58,14 +62,18 @@ Then run `idf.py build` to build the project
 ### Configure the project
 
 Open the project configuration menu (`idf.py menuconfig`).
-
-TODO
+This is usually already configured.
 
 ### Build and Flash
 
+Find your port with the command `ls /dev`, on an m1 macbook with only the device connected it typically is `/dev/tty.usbserial-00000000`
+
 Build the project and flash it to the board, then run the monitor tool to view the serial output:
 
-Run `idf.py -p PORT flash monitor` to build, flash and monitor the project.
+Run `idf.py -p <PORT> flash monitor` to build, flash and monitor the project. `idf.py -p /dev/tty.usbserial-00000000 flash monitor`
+
+NOTE:
+The ESP32-S2 chip needs to be in bootloader mode before it can be detected as a DFU device and flash. This can be achieved by pulling GPIO0 down (on a dev board this is typically done by pressing the BOOT button), pulling RESET down for a moment. GPIO0 can then be released at convenience.
 
 (To exit the serial monitor, type `Ctrl-]`.)
 
@@ -74,3 +82,8 @@ See the Getting Started Guide for all the steps to configure and use the ESP-IDF
 - [ESP-IDF Getting Started Guide on ESP32](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
 - [ESP-IDF Getting Started Guide on ESP32-S2](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/get-started/index.html)
 - [ESP-IDF Getting Started Guide on ESP32-C3](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/get-started/index.html)
+
+### DEBUG
+
+`openocd -f board/esp32s2-kaluga-1.cfg`
+Then start debug (`F5`)

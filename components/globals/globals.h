@@ -35,9 +35,65 @@
 #include "esp_rom_gpio.h"
 #include "esp_rom_sys.h"
 #include "esp_rom_uart.h"
+#include <esp32-hal-timer.h>
+#include "driver/timer.h"
 
 #include "esp_sleep.h"
 #include "esp_system.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+#include "esp_err.h"
+#include "esp_attr.h"
+
+#include "esp_private/system_internal.h"
+#include "esp_private/usb_console.h"
+
+#include "esp_rom_sys.h"
+
+#include "sdkconfig.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_err.h"
+#include "esp_task_wdt.h"
+
+#if !CONFIG_ESP_SYSTEM_PANIC_SILENT_REBOOT
+#if __has_include("esp_app_desc.h")
+#define WITH_ELF_SHA256
+#include "esp_app_desc.h"
+#endif
+#endif // CONFIG_ESP_SYSTEM_PANIC_SILENT_REBOOT
+
+#if CONFIG_ESP_COREDUMP_ENABLE
+#include "esp_core_dump.h"
+#endif
+
+#if CONFIG_APPTRACE_ENABLE
+#include "esp_app_trace.h"
+#if CONFIG_APPTRACE_SV_ENABLE
+#include "SEGGER_RTT.h"
+#endif
+
+#if CONFIG_APPTRACE_ONPANIC_HOST_FLUSH_TMO == -1
+#define APPTRACE_ONPANIC_HOST_FLUSH_TMO ESP_APPTRACE_TMO_INFINITE
+#else
+#define APPTRACE_ONPANIC_HOST_FLUSH_TMO (1000 * CONFIG_APPTRACE_ONPANIC_HOST_FLUSH_TMO)
+#endif
+#endif // CONFIG_APPTRACE_ENABLE
+
+#if !CONFIG_ESP_SYSTEM_PANIC_SILENT_REBOOT
+#include "hal/uart_hal.h"
+#endif
+
+#if CONFIG_ESP_SYSTEM_PANIC_GDBSTUB
+#include "esp_gdbstub.h"
+#endif
+
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG || CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
+#include "hal/usb_serial_jtag_ll.h"
+#endif
 
 // Fonts, TFT_eSPI brings these in.
 //  #include "./Fonts/FreeSans12pt7b.h" // Font files to include in library
@@ -88,9 +144,6 @@ extern bool touchCalibrated;
 // default calibration for 3.5" ILI 0x9486 display
 extern uint16_t CAL_TS_LEFT, CAL_TS_RT, CAL_TS_TOP, CAL_TS_BOT; // Touch screen calibration
 extern uint16_t CAL_TS_WID, CAL_TS_HT;                          // Touch screen calibration, in landscape mode WID = 480 HT=320
-// uint16_t TOUCH_ORIENTATION  PORTRAIT
-// uint16_t CAL_TS_LEFT = 934, CAL_TS_RT = 138, CAL_TS_TOP= 840, CAL_TS_BOT= 144;  //Touch screen calibration
-// uint16_t CAL_TS_WID = 480, CAL_TS_HT = 320;
 struct touchPoint_t
 {
   uint16_t x;

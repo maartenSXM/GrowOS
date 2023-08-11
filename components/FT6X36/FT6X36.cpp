@@ -63,6 +63,8 @@ void FT6X36::loop()
 {
 	while (_isrCounter > 0)
 	{
+		Serial.print("**** isrCOunter:***** ");
+		Serial.println(_isrCounter);
 		_isrCounter--;
 		processTouch();
 	}
