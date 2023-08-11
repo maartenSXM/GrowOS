@@ -1,6 +1,6 @@
 # the default component_dirs build var is "IDF_PATH/components"
 # more on build system here https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-system.html
-# if having unclear issues building first just try by doing a fresh build.
+# if having unclear issues building first just try by doing a fresh build. - idf.py fullclean
 
 file(GLOB_RECURSE MAIN_SOURCE_FILES "*.cpp")
 

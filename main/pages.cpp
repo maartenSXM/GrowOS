@@ -359,6 +359,7 @@ void splashPage()
       }
       // draw button as not pressed after release
       enterButton.drawButton(false);
+      homePage();
     }
     return;
   }
@@ -373,7 +374,7 @@ void splashPage()
   if (reDrawStuff)
   {
     // Draw button and set as not pressed
-    tft.setFreeFont(NULL);
+    tft.setFreeFont(nullptr);
     enterButton.initButton(&tft, xCenter, yCenter + 60, 100, 40, OPBOX_GREEN, BLACK, WHITE, "ENTER", 2);
     enterButton.drawButton(false);
 

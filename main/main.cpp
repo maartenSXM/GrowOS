@@ -57,30 +57,19 @@
 #include "firebase_Funcs.h"
 #include "esp32SystemAPIHandler.h"
 
-extern "C"
+void setup(void)
 {
-  void app_main(void);
-}
-
-void app_main(void)
-{
-  initArduino(); // needed for using arduino core in ESP-idf (git clone https://github.com/espressif/arduino-esp32.git arduino)
 #ifdef DEBUG
-  Serial.begin(9600);
+  Serial.begin(115200);
 #ifdef EnsureSerial
   while (!Serial)
     ; // wait for serial port to connect. Needed for native USB port only
 #endif
-  Serial.println(F("DEBUG MODE"));
+  ESP_LOGI(TAG, "IN DEBUG MODE");
 #endif
-  // Call the function to initialize the time zone for Toronto
-  initializeTimeZone();
-  // Get the current time from the RTC
-  time_t now;
-  struct tm timeinfo;
-
-  set_rtc_time();
-  pollCurrentDateTime();
+  //  Disable the timer watchdogs,
+  // NOT WORKING - DISABLED IN sdkconfig instead
+  // ESP_ERROR_CHECK(esp_task_wdt_deinit());
 
   // Get the last reset reason
   uint8_t reset_reason = rtc_get_reset_reason(0);
@@ -135,6 +124,30 @@ void app_main(void)
     Serial.println("NO_MEAN");
   }
 
+  // Call the function to initialize the time zone for Toronto
+  initializeTimeZone();
+  // Get the current time from the RTC
+  time_t now;
+  struct tm timeinfo;
+
+  set_rtc_time();
+  pollCurrentDateTime();
+
+  // Initialize Touch Controller
+  Wire.begin();
+  ESP_LOGI(TAG, "Initializing touch controller");
+  ts.begin();
+  ts.registerTouchHandler(touchHandler); //.registerTouchHandler(touch); uses a polling method via ts.loop
+  // ts.registerIsrHandler(touch);  //.registerIsrHandler(touch); uses an interrupt method via Interrupt Service Routine
+  ESP_LOGI(TAG, "Touch controller initialized");
+
+  // Initialize LCD display
+  initializeLCD();
+
+  dht.begin();
+
+  loadGlobalButtons();
+
   if (reset_reason == 1)
   {
     // The reset reason is "ESP_RST_POWERON"
@@ -156,29 +169,18 @@ void app_main(void)
     // configureTimePage();          //set time after power out-tage
   }
 
-  // Initialize NVS
-  esp_err_t ret = nvs_flash_init();
-  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-  {
-    ESP_ERROR_CHECK(nvs_flash_erase());
-    ret = nvs_flash_init();
-  }
-  ESP_ERROR_CHECK(ret);
+  ESP_LOGI(TAG, "OUT of splashPage");
+  //
+  //// Initialize NVS
+  // esp_err_t ret = nvs_flash_init();
+  // if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+  //{
+  //   ESP_ERROR_CHECK(nvs_flash_erase());
+  //   ret = nvs_flash_init();
+  // }
+  // ESP_ERROR_CHECK(ret);
 
-  wifi_scan();
-
-  // Initialize Touch Controller
-  Wire.begin();
-  ts.begin();
-  ts.registerTouchHandler(touchHandler); //.registerTouchHandler(touch); uses a polling method via ts.loop
-  // ts.registerIsrHandler(touch);  //.registerIsrHandler(touch); uses an interrupt method via Interrupt Service Routine
-
-  // Initialize LCD display
-  initializeLCD();
-
-  dht.begin();
-
-  loadGlobalButtons();
+  // wifi_scan();
 
   // if (enBUMODE)
   //{
@@ -189,33 +191,28 @@ void app_main(void)
   readTempHumid();
   resetMinMaxTempHumid();
   checkSlot();
-  homePage();
+  // homePage();
 
 #ifdef DEBUG
   Serial.println(F("Setup Complete"));
 #endif
-
-  loop();
 }
 
 void loop()
 {
-  while (1)
-  {
 #ifdef DEBUG
-    Serial.println("*****New Loop*****\nTime: " + String(currentTime.hour) + ":" + String(currentTime.minute) + " " + String(currentTime.second));
-    debugSchedule();
+  Serial.println("*****New Loop*****\nTime: " + String(currentTime.hour) + ":" + String(currentTime.minute) + " " + String(currentTime.second));
+  debugSchedule();
 #endif
-    // is lcd pressed? if yes -> handle the button and come back
-    waitForTouch(900); // wait for a touch for n milliseconds
+  // is lcd pressed? if yes -> handle the button and come back
+  waitForTouch(800); // wait for a touch for n milliseconds
 
-    // check the time, and do scheduled tasks
-    checkSlot();
+  // check the time, and do scheduled tasks
+  checkSlot();
 
-    // rebuild pages with new variable data such as time and external device settings, Note: this function will not build pages from scratch, it sets the bool "updatePageOnly"
-    updatePage();
+  // rebuild pages with new variable data such as time and external device settings, Note: this function will not build pages from scratch, it sets the bool "updatePageOnly"
+  updatePage();
 
-    // check if lcd has not been touched in a while
-    lcdTimeout();
-  }
+  // check if lcd has not been touched in a while
+  lcdTimeout();
 }
