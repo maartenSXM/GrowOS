@@ -2,6 +2,11 @@
 
 Embedded Operating System and User Interface that runs on the ESPS2 Based growBoard by Westlake Horticulture.
 
+### Hardware Required
+
+- A CyberGrow Board with ESP32s2
+- A USB cable for Power supply and programming.
+
 ## Setting up dev environment
 
 This project uses ESP-IDF (IoT Development Framework) and Arduino Core for ESP32 chips. ESP-IDF provides complete customization and access to professional developement tools to aid with IoT dev, and Arduino brings the largest embedded community and code libraries.
@@ -52,12 +57,11 @@ Be sure to set the correct chip target using `idf.py set-target <chip_name>`. Ch
 Important
 `idf.py set-target` will clear the build directory and re-generate the sdkconfig file from scratch. The old sdkconfig file will be saved as sdkconfig.old.
 
+You may need to do some `idf.py menuconfig` for a bit
+
 Then run `idf.py build` to build the project
 
-### Hardware Required
-
-- A CyberGrow Board with ESP32s2
-- A USB cable for Power supply and programming.
+If some error about Hz=100, change to Hz=1000
 
 ### Configure the project
 
