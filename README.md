@@ -15,7 +15,6 @@ This project uses ESP-IDF (IoT Development Framework) and Arduino Core for ESP32
 ```
 
 4. Clone the Arduino core for esp32 [GITHUB](https://github.com/espressif/arduino-esp32) [DOCS](https://docs.espressif.com/projects/arduino-esp32/en/latest/libraries.html)
-5.
 
 ```
     cd esp-idf/components
@@ -26,7 +25,6 @@ This project uses ESP-IDF (IoT Development Framework) and Arduino Core for ESP32
 ```
 
 6. Ensure .install files are executable in the esp-idf directory
-7.
 
 ```
 source ./install.sh
