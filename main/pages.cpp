@@ -107,27 +107,42 @@ void homePage()
   if (!updatePageOnly)
   {
     // Clear screen to remove previous artifacts
-    tft.fillScreen(DARKGREY);
+    tft.fillScreen(BLACK);
   }
   // set or update rest of page
 
   pollCurrentTime();
-  float daylight = countDeviceOnTime(1); // seconds on for light
-  float night = secondsInDay - daylight;
-  float sunriseF = 0;
+  float daylight = countDeviceOnTime(1); // seconds light is on
+  float currentTimeSeconds = secondsSinceNewDay();
+  float night = secondsInDay - daylight; // seconds light is off
+  float sunriseF = 0;                    // time of sunrise in seconds since new day
+  int sunriseStartSlot = 0;              // slot where sunrise starts
+
+  // find the first slot the light is on, that is when sunRise is
   for (int slot = 0; slot < numSlots; slot++)
   {
     if (devIsAuto[slot][1] == 1 || devIsState[slot][1] == 1)
-    { // find the first slot the light is on, that is when sunRise is
+    {
+      sunriseStartSlot = slot;
       sunriseF = secondsSinceNewDay(startTimeSlots[slot]);
       break;
     }
   }
-  // Serial.println("since sun rise " + String(sunriseTime));
+
+  // find the last slot the light is on, the slot after is when sunSet is
+  int sunsetSlot = numSlots - 1; // assume it is the last slot if the loop fails
+  for (int slot = numSlots - 2; slot >= 0; slot--)
+  {
+    if (devIsAuto[slot][1] == 1 || devIsState[slot][1] == 1)
+    {
+      sunsetSlot = slot + 1;
+      break;
+    }
+  }
 
   // assume sunsetTime is the start of the last time slot
-  float sunsetTime = secondsSinceNewDay(startTimeSlots[numSlots - 1]);
-  float sunset = sunsetTime - secondsSinceNewDay(); // Time until sunset default of function is the currentTime
+  float sunsetTime = secondsSinceNewDay(startTimeSlots[sunsetSlot]);
+  float sunset = sunsetTime - secondsSinceNewDay(); // defualt parameter of function is the currentTime
   float sunshine = secondsSinceNewDay() - sunriseF; // elapsed sunshine time so far
 
   int middle = xDisp / 2;
@@ -135,13 +150,38 @@ void homePage()
   int textColor = WHITE;
   // Serial.println("SinceNewDay " + String(secondsSinceNewDay()));  //ok
   // Serial.println("sunshine " + String(sunshine));
-  Serial.println("daylight " + String(daylight));
-  float sunshineRatio = sunshine / daylight; // Percentage of time sun has been up for
-  float sunbarWidth = 0.6;                   // Percentage of screen width taken up by sun bar
-  int sunbarMargin = 15;                     // Margin around sunbar
+  // Serial.println("daylight " + String(daylight));
+  float sunshineRatio = sunshine / daylight; // ratio of time sun has been up for the day
+  int sunbarMarginX = 35;                    // Margin around sunbar
+  int sunbarMarginY = 50;                    // Margin around sunbar
+  int sunbarMaxWidth = xDisp - (sunbarMarginX * 2);
+  int sunbarHeight = yDisp / 6;
 
-  float sunbarX = ((xDisp * (1 - sunbarWidth) / 2) + (xDisp * sunbarWidth * sunshineRatio));
-  float sunbarY = yDisp / 4;
+  float sunbarProgressWidth = 0; // Percentage of screen width taken up by sun bar
+  uint32_t sunbarProgressColour = YELLOW;
+  uint8_t isNight = false;
+
+  if (currentTimeSeconds > sunriseF && currentTimeSeconds < sunsetTime)
+  {
+    sunbarProgressWidth = sunbarMaxWidth * sunshineRatio;
+    sunbarProgressColour = YELLOW;
+  }
+  else
+  {
+    int nightTime = secondsInDay - daylight;
+    float nightRatio = 0;
+    if (currentTimeSeconds < sunriseF)
+    {
+      nightRatio = currentTimeSeconds / sunriseF;
+    }
+    else
+    {
+      nightRatio = (currentTimeSeconds - sunsetTime) / nightTime;
+    }
+    isNight = true;
+    sunbarProgressWidth = sunbarMaxWidth * nightRatio;
+    sunbarProgressColour = DARKCYAN;
+  }
 
   String sfanSpeed = String(fanSpeed);
 
@@ -171,22 +211,30 @@ void homePage()
     stempUnit = "F";
   }
   // settings button
-  tft.drawBitmapScale(465, 40, setting50x50, 50, 50, GREY, 0.5);
+  tft.drawBitmapScale(451, 5, setting50x50, 50, 50, GREY, 0.5);
 
   // Fill the sunbar based on set width and time of day
-  tft.fillRect((xDisp * ((1 - sunbarWidth) / 2)), sunbarY - 30, ((xDisp * ((1 - sunbarWidth) / 2)) + (xDisp * sunbarWidth)), sunbarY, textColor);
-  tft.fillRect((xDisp * ((1 - sunbarWidth) / 2)), sunbarY - 30, sunbarX, sunbarY, YELLOW);
+  tft.fillRect(sunbarMarginX, sunbarMarginY, sunbarMaxWidth, sunbarHeight, textColor);
+  tft.fillRect(sunbarMarginX, sunbarMarginY, sunbarProgressWidth, sunbarHeight, sunbarProgressColour);
 
   // Display time till sunset
   tft.setFreeFont(NULL);
-  tft.setCursor((((xDisp * ((1 - sunbarWidth) / 2)) + (xDisp * sunbarWidth)) + sunbarMargin), sunbarY - 20);
-  tft.setTextSize(1);
-  tft.setTextColor(YELLOW);
+  tft.setCursor(sunbarMarginY + 20, (sunbarMarginY + sunbarHeight / 2) - 5);
+  tft.setTextSize(2);
+  tft.setTextColor(BLACK);
   int sunsetH = (int)(sunset) / 3600;
   int sunsetM = ((int)(sunset) % 3600) / 60; // how many seconds left over after the hours modulo, then divide that by 60 to get seconds
-  tft.println(String(sunsetH) + ":" + String(sunsetM));
+  if (!isNight)
+  {
+    tft.println("Hours until light OFF " String(sunsetH) + ":" + String(sunsetM));
+  }
+  else
+  {
+    tft.println("Hours until light ON " String(sunsetH) + ":" + String(sunsetM));
+  }
 
   tft.setFreeFont(&FreeSevenSegNumFont);
+  tft.setTextSize(1);
   tft.setTextColor(textColor);
 
   // Display stemperature, humidity, max/min stemp, max/min humidity
@@ -252,10 +300,12 @@ void homePage()
 
   // Display speed of fan
   tft.setFreeFont(&FreeSans12pt7b);
+  tft.setTextSize(2);
   centerPrint("Fan: " + String(fanSpeed) + "%", yDisp * 0.75, textColor, BLACK, 12);
 
   // Display week and day of grow
   tft.setFreeFont(&FreeSans9pt7b);
+  tft.setTextSize(2);
   int lenWeek = (6 * 9);
   int lenDay = (6 * 9);
 
@@ -366,6 +416,7 @@ void splashPage()
       }
       // draw button as not pressed after release
       enterButton.drawButton(false);
+      disablePageLimits();
       homePage();
     }
     return;
@@ -411,7 +462,11 @@ void initialWifiSetupPage(int n)
 // THIS IS AN EXAMPLE FUNCTION
 void templatePage()
 {
-  currentPage = 5;
+  if (currentPage != 5)
+  {
+    disablePageLimits();
+    currentPage = 5;
+  }
 
   if (checkTPOnly)
   { // only checking for updating when a button is pressed on the page
@@ -429,5 +484,5 @@ void templatePage()
   if (reDrawStuff)
   {
 
-  } // below sets/updates rest of page every time the main loop repeats
+  } // below updates rest of page every time the main loop repeats
 }
