@@ -503,8 +503,14 @@ int countDeviceOnTime(const int devI)
   return seconds;
 }
 
-int secondsSinceNewDay(_Time cT)
+int secondsSinceNewDay(_Time cT = {})
 {
+  if (cT.hour == 0 && cT.minute == 0 && cT.second == 0)
+  {
+    // If cT is not provided or is set to 00:00:00, use the current time
+    cT = currentTime;
+  }
+
   return cT.hour * 60 * 60 + cT.minute * 60 + cT.second;
 }
 

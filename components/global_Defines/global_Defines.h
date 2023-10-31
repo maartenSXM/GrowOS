@@ -132,7 +132,7 @@
 // #define Serial SerialUSB                              //native uses SerialUSB
 #define DEBUG // for serial debugging and other
 // #define DEBUGTOUCH                                    //shows boxes around items that can be touched
-// #define EnsureSerial // waits for serial port to be ready
+#define EnsureSerial // waits for serial port to be ready
 // #define DEVELOPMENT_MODE                              //settings to use when developing
 // #define saveToFlash                                   //to enable saving important settings to flash and recovering them after power off.
 

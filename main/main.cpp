@@ -64,6 +64,12 @@ void setup(void)
 #ifdef EnsureSerial
   while (!Serial)
     ; // wait for serial port to connect. Needed for native USB port only
+  Serial.println("waiting for serial");
+  for (int i = 0; i < 6; i++)
+  {
+    Serial.println(String(10 - i));
+    delay(1000);
+  }
 #endif
   ESP_LOGI(TAG, "IN DEBUG MODE");
 #endif

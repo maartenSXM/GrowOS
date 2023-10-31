@@ -53,7 +53,7 @@ Make sure to export esp-idf via get_idf or directly calling '. $HOME/Documents/P
 All component libraries live within the project to ensure stable dependency. Each component has a CMakeLists.txt as required by the CMAKE build tool integrated into ESP-IDF.
 
 If the first compile set the correct chip target using `idf.py set-target <chip_name>`. Chip_name = esp32s2
-Else careful because command resets sdkconfig
+Else CAREFUL because command resets sdkconfig
 
 Important
 `idf.py set-target` will clear the build directory and re-generate the sdkconfig file from scratch. The old sdkconfig file will be saved as sdkconfig.old.

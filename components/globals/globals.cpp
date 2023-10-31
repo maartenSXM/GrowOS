@@ -68,7 +68,7 @@ int prevDayOfWeek = 0; // saves the previous day of week so we know when we have
 // ScheduleBlocks - sets blocks of time where certain devices to be set to a certain state
 // 1:off, 2:on, 3:auto(default) - device chooses when to be on to meet plants needs, 4:periodic off/on.
 // Slots, left to right they are earliest to latest. If the clock finds itself outside a block it is always set to auto
-bool devIsAuto[maxNumSlots][numDevices];          // overrides all below component modes is the device on auto mode,
+bool devIsAuto[maxNumSlots][numDevices];          // overrides all below component modes if the device on auto mode,
 bool devIsState[maxNumSlots][numDevices];         // manually set what is active in that block - 0th bit = fan 1=light 2=pump...
 bool devIsPeriodic[maxNumSlots][numDevices];      // is device in periodic mode for this block, componentIsState must be set to true
 uint16_t devPeriodic[maxNumSlots][numDevices][4]; // 0th is off duration, 1st is on duration, 2nd is state, 3rd is sinceStateChange

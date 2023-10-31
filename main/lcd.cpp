@@ -21,6 +21,14 @@ void initializeLCD()
   yDisp = tft.height();
   yCenter = (yDisp / 2) - 1;
   xCenter = (xDisp / 2) - 1;
+#ifdef DEBUG
+  Serial.println("TFT LCD is initialized. Following vars are set.");
+  Serial.println("Touch Orientation = " + String(TOUCH_ORIENTATION));
+  Serial.println("xDisp = " + String(xDisp));
+  Serial.println("yDisp = " + String(yDisp));
+  Serial.println("xCenter = " + String(xCenter));
+  Serial.println("yCenter = " + String(yCenter));
+#endif
 }
 
 // set the lcd brightness
@@ -66,8 +74,9 @@ void touchHandler(TPoint p, TEvent e)
 
 void updateGlobalTouchInfo(TPoint p, TEvent e)
 {
-  tp.x = p.x;
-  tp.y = p.y;
+  // lets map the touch coords to tp so they are consistent with the display coords. *HACK*
+  tp.x = p.y;
+  tp.y = yDisp - p.x;
   timeLastTouch = millis();
 }
 
