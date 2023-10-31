@@ -192,7 +192,7 @@ void updateWeeksSelectedBtnLabel()
 {
   if (weeksSelected[0] == 1)
   {
-    strcpy(weeksSelect, "All Weeks");
+    strcpy(weeksSelect, "AllWeeks");
     weeksSelectBtn.setLabel(weeksSelect);
     return;
   }
@@ -206,7 +206,7 @@ void updateWeeksSelectedBtnLabel()
   }
   if (allSelected)
   {
-    strcpy(weeksSelect, "All Weeks");
+    strcpy(weeksSelect, "AllWeeks");
     weeksSelectBtn.setLabel(weeksSelect);
     return;
   }

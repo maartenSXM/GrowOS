@@ -138,7 +138,7 @@ void setup(void)
   ESP_LOGI(TAG, "Initializing touch controller");
   ts.begin();
   ts.registerTouchHandler(touchHandler); //.registerTouchHandler(touch); uses a polling method via ts.loop
-  // ts.registerIsrHandler(touch);  //.registerIsrHandler(touch); uses an interrupt method via Interrupt Service Routine
+  // ts.registerIsrHandler(touchHandler);  //.registerIsrHandler(touch); uses an interrupt method via Interrupt Service Routine
   ESP_LOGI(TAG, "Touch controller initialized");
 
   // Initialize LCD display
@@ -205,7 +205,7 @@ void loop()
   debugSchedule();
 #endif
   // is lcd pressed? if yes -> handle the button and come back
-  waitForTouch(800); // wait for a touch for n milliseconds
+  waitForTouch(950); // wait for a touch for n milliseconds
 
   // check the time, and do scheduled tasks
   checkSlot();

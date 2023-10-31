@@ -50,6 +50,7 @@ void touchHandler(TPoint p, TEvent e)
   Serial.println(F("** TOUCH **"));
   // TEvent e could be : TEvent::Tap, TEvent::TouchStart, TEvent::TouchMove, TEvent::TouchEnd, TEvent::DragStart, TEvent::DragMove, TEvent::DragEnd,
   printTouchInfo(p, e); // log the coordiantes
+  Serial.println(F("** Coordinates above **"));
 #endif
   if (lcdSleep)
   {
@@ -73,7 +74,9 @@ void updateGlobalTouchInfo(TPoint p, TEvent e)
 void printTouchInfo(TPoint p, TEvent e)
 {
   if (e != TEvent::Tap && e != TEvent::DragStart && e != TEvent::DragMove && e != TEvent::DragEnd)
-    return;
+  {
+    Serial.println("Unknown Touch event");
+  }
 
   Serial.print("X: ");
   Serial.print(p.x);
@@ -83,6 +86,7 @@ void printTouchInfo(TPoint p, TEvent e)
 
   switch (e)
   {
+  // require println to flush the buffer, and avoid overflow
   case TEvent::Tap:
     Serial.println("Tap");
     break;

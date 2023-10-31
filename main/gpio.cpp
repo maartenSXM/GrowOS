@@ -43,6 +43,8 @@ void readTempHumid()
 {
   currentTemp = dht.readTemperature(); // Read temperature as Celcius (isFahrenheit = false)
   currentHumid = dht.readHumidity();
+  Serial.println("currentTemp = " + String(currentTemp));
+  Serial.println("currentHumid = " + String(currentHumid));
   if (currentTemp > maxTempDay)
   {
     maxTempDay = currentTemp;

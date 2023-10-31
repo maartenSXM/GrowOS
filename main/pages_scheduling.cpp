@@ -661,20 +661,20 @@ void newTimeslotPage()
     tft.drawLine(xMinTL, yMaxTL, xMaxTL, yMaxTL, GREY);
     tft.drawLine(xMinTL, yMinTL, xMaxTL, yMinTL, GREY);
 
-    int color = 255;
-    int inSet = -30;
-    for (int a = inSet; a <= xMinTL; a++)
+    int32_t color = 255;
+    int32_t inSet = -30;
+    for (int32_t a = inSet; a <= xMinTL; a++)
     {
-      int grad = map(a, inSet, xMinTL, 128, 255);                                                                         // colour map - maps value (currentData, fromLow, fromHigh, toLow, toHigh)t
+      int32_t grad = map(a, inSet, xMinTL, 128, 255);                                                                     // colour map - maps value (currentData, fromLow, fromHigh, toLow, toHigh)t
       tft.drawLine(xMinTL + (a), yMinTL - 1, xMinTL + (a), yMaxTL + 1, tft.color565(255 - grad, 255 - grad, 255 - grad)); // Left most gradient
       tft.drawLine(xMaxTL - (a), yMinTL - 1, xMaxTL - (a), yMaxTL + 1, tft.color565(255 - grad, 255 - grad, 255 - grad)); // Right most gradient
     }
 
-    for (int i = 0; i < numSlots; i++)
+    for (int32_t i = 0; i < numSlots; i++)
     { // The timeSlot bars vertical line and time stamps
-      int seconds = secondsSinceNewDay(startTimeSlots[i]);
-      int x = map(seconds, 0, secondsInDay, xMinTL, xMaxTL); // x slot map - maps value (currentTemp, fromLow, fromHigh, toLow, toHigh)
-      int rectLeft = x - 19;
+      int32_t seconds = secondsSinceNewDay(startTimeSlots[i]);
+      int32_t x = map(seconds, 0, secondsInDay, xMinTL, xMaxTL); // x slot map - maps value (currentTemp, fromLow, fromHigh, toLow, toHigh)
+      int32_t rectLeft = x - 19;
       sprintf(strTemp, "%02d:%02d", startTimeSlots[i].hour, startTimeSlots[i].minute);
       tft.drawLine(x, yMinTL + 5, x, yMaxTL - 5, timeSlotColor);
       tft.fillRect(rectLeft, yMinTL + 5, 38, 12, BLACK);
@@ -685,18 +685,18 @@ void newTimeslotPage()
     }
     return;
   }
-  int seconds = secondsSinceNewDay(newTSTime); // new timeslot time visualization
-  int xCand = map(seconds, 0, secondsInDay, xMinTL, xMaxTL);
+  int32_t seconds = secondsSinceNewDay(newTSTime); // new timeslot time visualization
+  int32_t xCand = map(seconds, 0, secondsInDay, xMinTL, xMaxTL);
   tft.setTextColor(WHITE, WHITE);
   tft.drawLine(xCand, yMinTL + 5, xCand, yMaxTL - 5);
   tft.drawLine(xCand, yMaxTL - 5, xCand - 4, yMaxTL - 9);
   tft.drawLine(xCand, yMaxTL - 5, xCand + 4, yMaxTL - 9);
-  int msAnimation = 100;
-  for (int i = 0; i < msAnimation; i++)
+  int32_t msAnimation = 100;
+  for (int32_t i = 0; i < msAnimation; i++)
   { // Fade to black animation
     if (ts.touched())
-      break;                                  // if there is a touch leave animation and handle it
-    int col = map(i, 0, msAnimation, 0, 255); // maps value (currentTemp, fromLow, fromHigh, toLow, toHigh)
+      break;                                      // if there is a touch leave animation and handle it
+    int32_t col = map(i, 0, msAnimation, 0, 255); // maps value (currentTemp, fromLow, fromHigh, toLow, toHigh)
     tft.setColor(255 - col, 255 - col, 255 - col);
     tft.drawLine(xCand, yMinTL + 5, xCand, yMaxTL - 5);
     tft.drawLine(xCand, yMaxTL - 5, xCand - 4, yMaxTL - 9);
