@@ -8,7 +8,7 @@ TFT_eSPI_Button::TFT_eSPI_Button(void)
   _xd = 0;
   _yd = 0;
   _textdatum = MC_DATUM;
-  _label[maxLabelLength - 1] = '\0';
+  _label[maxLabelLength] = '\0';
   currstate = false;
   laststate = false;
 }
@@ -40,10 +40,8 @@ void TFT_eSPI_Button::initButtonUL(
   _textsize = textsize;
   _gfx = gfx;
   strncpy(_label, label, maxLabelLength);
-  _label[maxLabelLength - 1] = '\0'; // Null-terminate the string
 }
 
-/**************************************************************************/
 void TFT_eSPI_Button::initButtonUL(TFT_eSPI *gfx, int16_t x1,
                                    int16_t y1, uint16_t w, uint16_t h,
                                    uint16_t outline, uint16_t fill,
@@ -85,32 +83,30 @@ void TFT_eSPI_Button::setLabelDatum(int16_t x_delta, int16_t y_delta, uint8_t da
   _textdatum = datum;
 }
 
+void TFT_eSPI_Button::setFill(uint16_t fill)
+{
+  _fillcolor = fill;
+}
+void TFT_eSPI_Button::setOutline(uint16_t outline)
+{
+  _outlinecolor = outline;
+}
+void TFT_eSPI_Button::setTextColor(uint16_t textcolor)
+{
+  _textcolor = textcolor;
+}
+void TFT_eSPI_Button::setLabel(String &label)
+{
+  strncpy(_label, const_cast<char *>(label.c_str()), maxLabelLength);
+}
 void TFT_eSPI_Button::setLabel(const char *label)
 {
-  strncpy(_label, label, maxLabelLength); // To ensure null-termination
-  _label[maxLabelLength - 1] = '\0';      // Null-terminate the string
-}
-
-void TFT_eSPI_Button::setTextColor(uint16_t c)
-{
-  _textcolor = c;
-}
-void TFT_eSPI_Button::setFill(uint16_t c)
-{
-  _fillcolor = c;
-}
-
-void TFT_eSPI_Button::setOutline(uint16_t c)
-{
-  _outlinecolor = c;
+  strncpy(_label, label, maxLabelLength);
 }
 
 void TFT_eSPI_Button::drawButton(bool inverted, String long_name)
 {
   uint16_t fill, outline, text;
-  uint16_t x = 0;
-  uint16_t y = 0;
-  uint16_t scale = 1;
 
   if (!inverted)
   {
@@ -154,25 +150,6 @@ void TFT_eSPI_Button::drawButton(bool inverted, String long_name)
 
     _gfx->setTextDatum(tempdatum);
     _gfx->setTextPadding(tempPadding);
-  }
-  if (_bMap)
-  {
-    if ((_w > _bMap_w) && (_h > _bMap_h))
-    {
-      x = _x1 + ((_w - _bMap_w) / 2);
-      y = _y1 + ((_h - _bMap_h) / 2);
-      _gfx->drawBitmap(x, y, _bMap, _bMap_w, _bMap_h, text);
-    }
-    else
-    { // The bitmap is larger than the button. Scale it down
-      if ((_bMap_w / _w) > (_bMap_h / _h))
-      {
-        scale = 1 / (_bMap_w / _w);
-      }
-      else
-        scale = 1 / (_bMap_h / _h);
-      _gfx->drawBitmap8Scale(x, y, _bMap, _bMap_w, _bMap_h, text, scale);
-    }
   }
 }
 

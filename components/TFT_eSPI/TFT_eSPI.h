@@ -16,7 +16,11 @@
 #ifndef _TFT_eSPIH_
 #define _TFT_eSPIH_
 
-#define TFT_ESPI_VERSION "2.5.0"
+#include "global_Defines.h"
+
+// #include "gfxfont.h"
+
+#define TFT_ESPI_VERSION "2.5.31"
 
 // Bit level feature flags
 // Bit 0 set: viewport capability
@@ -29,8 +33,9 @@
 // Standard support
 #include <Arduino.h>
 #include <Print.h>
+#if !defined(TFT_PARALLEL_8_BIT) && !defined(RP2040_PIO_INTERFACE)
 #include <SPI.h>
-
+#endif
 /***************************************************************************************
 **                         Section 2: Load library and processor specific header files
 ***************************************************************************************/
@@ -106,6 +111,7 @@
 #include "Processors/TFT_eSPI_RP2040.h"
 #else
 #include "Processors/TFT_eSPI_Generic.h"
+#define GENERIC_PROCESSOR
 #endif
 
 /***************************************************************************************
@@ -141,6 +147,17 @@
 
 #ifndef SPI_BUSY_CHECK
 #define SPI_BUSY_CHECK
+#endif
+
+// If half duplex SDA mode is defined then MISO pin should be -1
+#ifdef TFT_SDA_READ
+#ifdef TFT_MISO
+#if TFT_MISO != -1
+#undef TFT_MISO
+#define TFT_MISO -1
+#warning TFT_MISO set to -1
+#endif
+#endif
 #endif
 
 /***************************************************************************************
@@ -356,7 +373,9 @@ typedef struct
   int32_t esp;       // Processor code
   uint8_t trans;     // SPI transaction support
   uint8_t serial;    // Serial (SPI) or parallel
-  uint8_t port;      // SPI port
+#ifndef GENERIC_PROCESSOR
+  uint8_t port; // SPI port
+#endif
   uint8_t overlap;   // ESP8266 overlap mode
   uint8_t interface; // Interface type
 
@@ -528,12 +547,12 @@ public:
   // By default the arc is drawn with square ends unless the "roundEnds" parameter is included and set true
   // Angle = 0 is at 6 o'clock position, 90 at 9 o'clock etc. The angles must be in range 0-360 or they will be clipped to these limits
   // The start angle may be larger than the end angle. Arcs are always drawn clockwise from the start angle.
-  void drawSmoothArc(int32_t x, int32_t y, int32_t r, int32_t ir, int32_t startAngle, int32_t endAngle, uint32_t fg_color, uint32_t bg_color, bool roundEnds = false);
+  void drawSmoothArc(int32_t x, int32_t y, int32_t r, int32_t ir, uint32_t startAngle, uint32_t endAngle, uint32_t fg_color, uint32_t bg_color, bool roundEnds = false);
 
   // As per "drawSmoothArc" except the ends of the arc are NOT anti-aliased, this facilitates dynamic arc length changes with
   // arc segments and ensures clean segment joints.
   // The sides of the arc are anti-aliased by default. If smoothArc is false sides will NOT be anti-aliased
-  void drawArc(int32_t x, int32_t y, int32_t r, int32_t ir, int32_t startAngle, int32_t endAngle, uint32_t fg_color, uint32_t bg_color, bool smoothArc = true);
+  void drawArc(int32_t x, int32_t y, int32_t r, int32_t ir, uint32_t startAngle, uint32_t endAngle, uint32_t fg_color, uint32_t bg_color, bool smoothArc = true);
 
   // Draw an anti-aliased filled circle at x, y with radius r
   // Note: The thickness of line is 3 pixels to reduce the visible "braiding" effect of anti-aliasing narrow lines
@@ -572,7 +591,7 @@ public:
   // Draw bitmap
   void drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t fgcolor),
       drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t fgcolor, uint16_t bgcolor),
-      drawBitmap8Scale(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w1, int16_t h1, uint16_t color, float scale),
+      drawBitmapScale(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color, float scale),
       drawXBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t fgcolor),
       drawXBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t fgcolor, uint16_t bgcolor),
       drawRGBBitmap(int16_t x, int16_t y, const uint16_t bitmap[],
@@ -634,14 +653,6 @@ public:
       drawRightString(const char *string, int32_t x, int32_t y, uint8_t font),    // Deprecated, use setTextDatum() and drawString()
       drawCentreString(const String &string, int32_t x, int32_t y, uint8_t font), // Deprecated, use setTextDatum() and drawString()
       drawRightString(const String &string, int32_t x, int32_t y, uint8_t font);  // Deprecated, use setTextDatum() and drawString()
-  void getTextBounds(const char *string, int16_t x, int16_t y, int16_t *x1,
-                     int16_t *y1, uint16_t *w, uint16_t *h),
-      getTextBounds(const __FlashStringHelper *s, int16_t x, int16_t y,
-                    int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h),
-      getTextBounds(const String &str, int16_t x, int16_t y, int16_t *x1,
-                    int16_t *y1, uint16_t *w, uint16_t *h);
-
-  boolean isCustomFont();
 
   // Text rendering and font handling support funtions
   void setCursor(int16_t x, int16_t y),              // Set cursor for tft.print()
@@ -650,11 +661,16 @@ public:
   int16_t getCursorX(void), // Read current cursor x position (moves with tft.print())
       getCursorY(void);     // Read current cursor y position
 
-  void setTextColor(uint16_t color),                                         // Set character (glyph) color only (background not over-written)
+  uint16_t setrgb(byte r, byte g, byte b) { return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3); }
+  void setTextColor(uint16_t color), // Set character (glyph) color only (background not over-written)
+      setColor(uint16_t c),
       setTextColor(uint16_t fgcolor, uint16_t bgcolor, bool bgfill = false), // Set character (glyph) foreground and background colour, optional background fill for smooth fonts
       setTextSize(uint8_t size);                                             // Set character size multiplier (this increases pixel size)
-  uint16_t setrgb(byte r, byte g, byte b) { return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3); }
-  void setColor(byte r, byte g, byte b) { setTextColor(setrgb(r, g, b)); }
+
+  void setColor(byte r, byte g, byte b)
+  {
+    setTextColor(setrgb(r, g, b));
+  };
 
   void setTextWrap(bool wrapX, bool wrapY = false); // Turn on/off wrapping of text in TFT width and/or height
 
@@ -668,16 +684,23 @@ public:
   void setFreeFont(const GFXfont *f = NULL), // Select the GFX Free Font
       setTextFont(uint8_t font);             // Set the font number to use in future
 #else
-  void setFreeFont(uint8_t font),            // Not used, historical fix to prevent an error
-      setTextFont(uint8_t font);             // Set the font number to use in future
+  void setFreeFont(uint8_t font), // Not used, historical fix to prevent an error
+      setTextFont(uint8_t font);  // Set the font number to use in future
 #endif
-
+  void getTextBounds(const char *string, int16_t x, int16_t y, int16_t *x1,
+                     int16_t *y1, uint16_t *w, uint16_t *h),
+      getTextBounds(const __FlashStringHelper *s, int16_t x, int16_t y,
+                    int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h),
+      getTextBounds(const String &str, int16_t x, int16_t y, int16_t *x1,
+                    int16_t *y1, uint16_t *w, uint16_t *h);
   int16_t textWidth(const char *string, uint8_t font), // Returns pixel width of string in specified font
       textWidth(const char *string),                   // Returns pixel width of string in current font
       textWidth(const String &string, uint8_t font),   // As above for String types
       textWidth(const String &string),
-      fontHeight(int16_t font), // Returns pixel height of string in specified font
-      fontHeight(void);         // Returns pixel width of string in current font
+      fontHeight(int16_t font), // Returns pixel height of specified font
+      fontHeight(void);         // Returns pixel height of current font
+
+  boolean isCustomFont();
 
   // Used by library and Smooth font class to extract Unicode point codes from a UTF8 encoded string
   uint16_t decodeUTF8(uint8_t *buf, uint16_t *index, uint16_t remaining),
@@ -694,11 +717,12 @@ public:
 
   // Low level read/write
   void spiwrite(uint8_t); // legacy support only
-#ifndef RM68120_DRIVER
-  void writecommand(uint8_t c); // Send a command, function resets DC/RS high ready for data
+#ifdef RM68120_DRIVER
+  void writecommand(uint16_t c);                // Send a 16 bit command, function resets DC/RS high ready for data
+  void writeRegister8(uint16_t c, uint8_t d);   // Write 8 bit data data to 16 bit command register
+  void writeRegister16(uint16_t c, uint16_t d); // Write 16 bit data data to 16 bit command register
 #else
-  void writecommand(uint16_t c);             // Send a command, function resets DC/RS high ready for data
-  void writeRegister(uint16_t c, uint8_t d); // Write data to 16 bit command register
+  void writecommand(uint8_t c);   // Send an 8 bit command, function resets DC/RS high ready for data
 #endif
   void writedata(uint8_t d); // Send data with DC/RS set high
 
@@ -724,7 +748,11 @@ public:
   // Alpha blend 2 colours, see generic "alphaBlend_Test" example
   // alpha =   0 = 100% background colour
   // alpha = 255 = 100% foreground colour
+#ifdef STM32
+  uint16_t alphaBlend(uint8_t alpha, uint16_t fgc, uint16_t bgc);
+#else
   inline uint16_t alphaBlend(uint8_t alpha, uint16_t fgc, uint16_t bgc);
+#endif
   // 16 bit colour alphaBlend with alpha dither (dither reduces colour banding)
   uint16_t alphaBlend(uint8_t alpha, uint16_t fgc, uint16_t bgc, uint8_t dither);
   // 24 bit colour alphaBlend with optional alpha dither
@@ -811,8 +839,9 @@ public:
   bool verifySetupID(uint32_t id);
 
   // Global variables
+#if !defined(TFT_PARALLEL_8_BIT) && !defined(RP2040_PIO_INTERFACE)
   static SPIClass &getSPIinstance(void); // Get SPI class handle
-
+#endif
   uint32_t textcolor, textbgcolor; // Text foreground and background colours
 
   uint32_t bitmap_fg, bitmap_bg; // Bitmap foreground (bit=1) and background (bit=0) colours
@@ -896,6 +925,9 @@ private:
 protected:
   void charBounds(char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny,
                   int16_t *maxx, int16_t *maxy);
+  int16_t WIDTH, ///< This is the 'raw' display width - never changes
+      HEIGHT;    ///< This is the 'raw' display height - never changes
+  // uint8_t rotation; ///< Display rotation (0 thru 3)
 
   // int32_t  win_xe, win_ye;          // Window end coords - not needed
 

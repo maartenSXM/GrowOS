@@ -171,7 +171,7 @@ void homePage()
     stempUnit = "F";
   }
   // settings button
-  tft.drawBitmap8Scale(465, 40, setting50x50, 50, 50, GREY, 0.5);
+  tft.drawBitmapScale(465, 40, setting50x50, 50, 50, GREY, 0.5);
 
   // Fill the sunbar based on set width and time of day
   tft.fillRect((xDisp * ((1 - sunbarWidth) / 2)), sunbarY - 30, ((xDisp * ((1 - sunbarWidth) / 2)) + (xDisp * sunbarWidth)), sunbarY, textColor);
@@ -335,6 +335,9 @@ void deviceInfoPage()
 // This is a special page, it does not follow the templatePage()
 void splashPage()
 {
+#ifdef DEBUG
+  Serial.println(F("Inside Splash Page"));
+#endif
   currentPage = 7;
   /*
   header file/prototype for draw functions
@@ -347,6 +350,7 @@ void splashPage()
   //tft.drawBitmap(200, 200, sun50x50, 50, 50, GREEN, 2.4);
   */
   TFT_eSPI_Button enterButton;
+  enterButton.initButton(&tft, xCenter, yCenter + 60, 100, 40, OPBOX_GREEN, BLACK, WHITE, "ENTER", 2);
 
   if (checkTPOnly)
   { // only checking for updating when a button is pressed on the page
@@ -356,6 +360,9 @@ void splashPage()
       // wait for release
       while (ts.touched() && enterButton.contains(tp.x, tp.y))
       {
+#ifdef DEBUG
+        Serial.println(F("You are holding down the enter button"));
+#endif
       }
       // draw button as not pressed after release
       enterButton.drawButton(false);
@@ -375,7 +382,6 @@ void splashPage()
   {
     // Draw button and set as not pressed
     tft.setFreeFont(nullptr);
-    enterButton.initButton(&tft, xCenter, yCenter + 60, 100, 40, OPBOX_GREEN, BLACK, WHITE, "ENTER", 2);
     enterButton.drawButton(false);
 
   } // below sets/updates rest of page every time the main loop repeats

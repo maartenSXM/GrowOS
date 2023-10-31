@@ -12,7 +12,7 @@
  * @author Ricard Bitriá Ribes (https://github.com/dracir9)
  * Created Date: 22-01-2022
  * -----
- * Last Modified: 14-04-2022
+ * Last Modified: 25-02-2023
  * Modified By: Ricard Bitriá Ribes
  * -----
  * @copyright (c) 2022 Ricard Bitriá Ribes
@@ -24,6 +24,14 @@
 #include "sdkconfig.h"
 
 /***************************************************************************************
+**                         Others
+***************************************************************************************/
+
+#ifdef CONFIG_DISABLE_WARNINGS
+#define DISABLE_ALL_LIBRARY_WARNINGS
+#endif
+
+/***************************************************************************************
 **                         TFT_eSPI Configuration defines
 ***************************************************************************************/
 // Override defaults
@@ -32,7 +40,6 @@
 /***************************************************************************************
 **                         Section 1: Load TFT driver
 ***************************************************************************************/
-
 #if defined(CONFIG_TFT_ILI9341_DRIVER)
 #define ILI9341_DRIVER
 #elif defined(CONFIG_TFT_ILI9341_2_DRIVER)
@@ -124,7 +131,6 @@
 /***************************************************************************************
 **                         Section 2: General Pin configuration
 ***************************************************************************************/
-
 // General pins
 #if CONFIG_TFT_CS == -1
 #error "Invalid Chip Select pin. Check TFT_eSPI configuration"
@@ -133,13 +139,17 @@
 #endif
 
 #if CONFIG_TFT_DC == -1
+// #error "Invalid Data/Command pin. Check TFT_eSPI configuration"
+// ERIK
 #define TFT_DC 34
 #else
 #define TFT_DC CONFIG_TFT_DC
 #endif
 
 #if CONFIG_TFT_RST == -1
-#error "Invalid Reset pin. Check TFT_eSPI configuration"
+#if !defined(DISABLE_ALL_LIBRARY_WARNINGS)
+#warning "Invalid Reset pin. Check TFT_eSPI configuration"
+#endif
 #else
 #define TFT_RST CONFIG_TFT_RST
 #endif
@@ -161,6 +171,8 @@
 
 // 8 BIT PARALLEL BUS
 #ifdef CONFIG_TFT_PARALLEL_8_BIT
+
+#define TFT_PARALLEL_8_BIT
 
 #if CONFIG_TFT_D0 == -1
 #error "Invalid Data 0 pin. Check TFT_eSPI configuration"

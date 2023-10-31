@@ -117,7 +117,6 @@
 
 #define maxNumSlots 100
 
-#define maxLabelLength 20
 #define numMonths 12
 #define numDayBtns 8
 #define numWeekBtns 13
