@@ -6,6 +6,7 @@ Embedded Operating System and User Interface that runs on the ESPS2 Based growBo
 
 - A CyberGrow Board with ESP32s2
 - A USB cable for Power supply and programming.
+- A USB-Serial or JTAG programmer
 
 ## Setting up dev environment
 
