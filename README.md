@@ -10,9 +10,9 @@ Embedded Operating System and User Interface that runs on the ESPS2 Based growBo
 
 ## Setting up dev environment
 
-This project uses ESP-IDF (IoT Development Framework) and Arduino Core for ESP32 chips. ESP-IDF provides complete customization and access to professional developement tools to aid with IoT dev, and Arduino brings the largest embedded community and code libraries.
+This project uses ESP-IDF (IoT Development Framework) and Arduino Core for ESP32 chips. ESP-IDF provides complete customization and access to professional development tools to aid with IoT dev, Arduino brings the large embedded community and code libraries.
 
-1. find a cozy spot on your machine to clone the ESP-IDF repo. This might also be where your source files are kept
+1. find a cozy spot on your machine to clone the ESP-IDF repo. This could also be where your source files are kept, or inside a project?
 2. Ensure you have python3 installed.
 3. Clone Esp-idf v4.4. [GITHUB](https://github.com/espressif/esp-idf) [DOCS](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/index.html)
 
@@ -36,7 +36,9 @@ This project uses ESP-IDF (IoT Development Framework) and Arduino Core for ESP32
 source ./install.sh
 ```
 
-Note: Python3 is required, if your machine is defaulting to python2, try making "python" command map to python3 8. After successfull install
+Note: Python3 is required, if your machine is defaulting to python2, try making "python" command map to python3
+
+7.  After successfull install
 
 ```
 source ./export.sh
@@ -52,21 +54,20 @@ Make sure to export esp-idf via get_idf or directly calling '. $HOME/Documents/P
 All component libraries live within the project to ensure stable dependency. Each component has a CMakeLists.txt as required by the CMAKE build tool integrated into ESP-IDF.
 
 If the first compile set the correct chip target using `idf.py set-target <chip_name>`. Chip_name = esp32s2
-Else CAREFUL because command resets sdkconfig
 
 Important
 `idf.py set-target` will clear the build directory and re-generate the sdkconfig file from scratch. The old sdkconfig file will be saved as sdkconfig.old.
 
-You may need to do some `idf.py menuconfig` for a bit
+You may need to do some `idf.py menuconfig` for a bit if your working with new libraries that have not yet been configured
 
-Then run `idf.py build` to build the project
+run `idf.py build` to build the project
 
-If some error about Hz=100, change to Hz=1000
+If some error about Hz=100, change to Hz=1000 (This error happens on a fresh sdkconfig)
 
 ### Configure the project
 
 Open the project configuration menu (`idf.py menuconfig`).
-This is usually already configured.
+This is should already be configured.
 
 ### Build and Flash
 
