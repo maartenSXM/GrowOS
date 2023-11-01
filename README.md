@@ -86,6 +86,32 @@ See the Getting Started Guide for all the steps to configure and use the ESP-IDF
 - [ESP-IDF Getting Started Guide on ESP32-S2](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/get-started/index.html)
 - [ESP-IDF Getting Started Guide on ESP32-C3](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/get-started/index.html)
 
+### To Flash Dev Board Via USB->Serial TTL Converter (The GPIO-0 Dance)
+
+1. Wire board to TTL converter like this
+   TTL -> Board
+   GND -- GND
+   CTS -- XXX
+   VCC -- 3.3V
+   TX -- RXD
+   RX -- TXD
+   DTR -- XXX
+
+GND -- GPIO-0
+
+2. Put Board into firmware upload mode -
+   2.1 Remove power from board
+   2.2 Ensure GPIO-0 is pulled to GND
+
+3. Upload firmware to board
+   3.1 Apply power to board
+   3.2 Send Flash Command
+
+### RUN
+
+1. Set GPIO-0 to be floating (Pulled high via onboard circuitry)
+2. Remove 3.3V from board and reapply to boot.
+
 ### DEBUG
 
 `openocd -f board/esp32s2-kaluga-1.cfg`
