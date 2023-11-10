@@ -299,7 +299,9 @@ menu "TFT_eSPI"
         config TFT_DC
             int "TFT Data/Command pin"
             default -1
-            range -1 31
+            range -1 33 if IDF_TARGET_ESP32
+            range -1 45 if IDF_TARGET_ESP32S2
+            range -1 48 if IDF_TARGET_ESP32S3
             help
                 Labelled as DC or RS (Register Select) in some displays
     

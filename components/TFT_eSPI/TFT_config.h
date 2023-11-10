@@ -140,8 +140,6 @@
 
 #if CONFIG_TFT_DC == -1
 // #error "Invalid Data/Command pin. Check TFT_eSPI configuration"
-// ERIK
-#define TFT_DC 34
 #else
 #define TFT_DC CONFIG_TFT_DC
 #endif
