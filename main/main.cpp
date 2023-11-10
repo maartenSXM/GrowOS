@@ -7,7 +7,7 @@
 #include "esp_sleep.h"
 #include "esp32s2/rom/rtc.h"
 #include "time.h"
-#include "sntp.h"
+#include "esp_sntp.h"
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -129,8 +129,8 @@ void setup(void)
   // Call the function to initialize the time zone for Toronto
   initializeTimeZone();
   // Get the current time from the RTC
-  time_t now;
-  struct tm timeinfo;
+  // time_t now;
+  // struct tm timeinfo;
 
   set_rtc_time();
   pollCurrentDateTime();
