@@ -16,9 +16,6 @@ char hostName[] = {' '};
 
 // WebServer server(80);
 
-/***** FIREBASE *****/
-char FIREBASE_FILE_PHOTO_PATH[65] = {' '};
-
 uint8_t XM = 1;
 uint8_t XP = 8;
 uint8_t YP = 2;

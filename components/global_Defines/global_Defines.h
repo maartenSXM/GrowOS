@@ -11,7 +11,6 @@
 #define CSI_D6 5
 #define CTP_IRQ 6
 #define CTP_RST 7
-#define TFT_RST 7
 #define TWI_SDA 8
 #define TWI_SCK 9
 #define CSI_PWR_EN 10
@@ -23,18 +22,10 @@
 #define TFT_PWR_EN 18
 #define H_USB_MINUS 19
 #define H_USB_PLUS 20
-#define TFT_BACKLIGHT 21
-#define TFT_BL TFT_BACKLIGHT
-#define TFT_BACKLIGHT_ON 0
-#define TFT_CS 33
 #define CSI_HREF 33
-#define TFT_DC 34
 #define CSI_XCLK 34
-#define TFT_MOSI 35
 #define CSI_D2 35
-#define TFT_SCLK 36
 #define CSI_D3 36
-#define TFT_MISO 37
 #define CSI_D5 37
 #define VBAT_SENSE 38
 #define H_GPIO39 39
@@ -55,10 +46,6 @@
 #define TFT_HEIGHT 480
 
 #define ILI9488_DRIVER
-#define SPI_FREQUENCY 20000000 // Max Reliable for ILI9488
-// Optional reduced SPI frequency for reading TFT
-// #define SPI_READ_FREQUENCY 20000000
-#define SPI_READ_FREQUENCY 5000000
 
 #define LOAD_GLCD  // Font 1. Original Adafruit 8 pixel font needs ~1820 bytes in FLASH
 #define LOAD_FONT2 // Font 2. Small 16 pixel high font, needs ~3534 bytes in FLASH, 96 characters

@@ -120,10 +120,6 @@ extern char hostName[33];
 extern uint8_t ESP32_BASE_MAC_ADDRESS[6];
 // extern WebServer server;
 
-/***** FIREBASE *****/
-// See passwords.h for more
-extern char FIREBASE_FILE_PHOTO_PATH[65];
-
 extern TFT_eSPI tft;
 extern FT6X36 ts;
 extern DHT dht;
