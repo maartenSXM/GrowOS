@@ -41,15 +41,15 @@ void dimLCDBacklightPercent(uint8_t brightness)
   const uint8_t outputBrightness = map(brightness, 0, 100, 255, 0); // maps value (input, fromLow, fromHigh, toLow, toHigh)
 
   //// attach the channel to the GPIO to be controlled
-  // ledcAttachPin(TFT_BACKLIGHT, ledChannel);
+  // ledcAttachPin(TFT_BL, ledChannel);
   //
   //// configure LED PWM functionalitites
   // ledcSetup(ledChannel, freq, resolution);
   //
   // ledcWrite(ledChannel, 255);
 
-  pinMode(TFT_BACKLIGHT, OUTPUT);
-  analogWrite(TFT_BACKLIGHT, outputBrightness); // Brightness
+  pinMode(TFT_BL, OUTPUT);
+  analogWrite(TFT_BL, outputBrightness); // Brightness
 }
 
 void touchHandler(TPoint p, TEvent e)

@@ -503,7 +503,7 @@ int countDeviceOnTime(const int devI)
   return seconds;
 }
 
-int secondsSinceNewDay(_Time cT = {})
+int secondsSinceNewDay(_Time cT)
 {
   if (cT.hour == 0 && cT.minute == 0 && cT.second == 0)
   {

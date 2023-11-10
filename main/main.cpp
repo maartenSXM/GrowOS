@@ -32,15 +32,12 @@
 #include "driver/rtc_io.h"
 #include <SPIFFS.h>
 #include <FS.h>
-#include <Firebase_ESP_Client.h>
-#include <addons/TokenHelper.h> //Provide the token generation process info.
 #include <HTTPUpdate.h>         //for firmware update
 
 // file: main.c or main.cpp
 #include "globals.h" //Most config and global vars
 
 /***** App Code Src Headers *****/
-#include "passwords.h"
 #include "icons.h" //Bitmap images
 #include "backupMode.h"
 #include "buttons.h"
@@ -54,7 +51,6 @@
 #include "schedule.h"
 #include "timerFanControl.h"
 #include "wifi_Funcs.h"
-#include "firebase_Funcs.h"
 #include "esp32SystemAPIHandler.h"
 
 void setup(void)

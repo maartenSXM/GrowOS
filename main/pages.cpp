@@ -226,11 +226,11 @@ void homePage()
   int sunsetM = ((int)(sunset) % 3600) / 60; // how many seconds left over after the hours modulo, then divide that by 60 to get seconds
   if (!isNight)
   {
-    tft.println("Hours until light OFF " String(sunsetH) + ":" + String(sunsetM));
+    tft.println("Hours until light OFF " + String(sunsetH) + ":" + String(sunsetM));
   }
   else
   {
-    tft.println("Hours until light ON " String(sunsetH) + ":" + String(sunsetM));
+    tft.println("Hours until light ON " + String(sunsetH) + ":" + String(sunsetM));
   }
 
   tft.setFreeFont(&FreeSevenSegNumFont);
