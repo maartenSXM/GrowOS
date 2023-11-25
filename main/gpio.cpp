@@ -6,12 +6,7 @@
 void setPin(int pin, int level)
 {
 #ifdef DEBUG
-  Serial.print("Pin: " + String(pin));
-  Serial.print(F(" - "));
-  if (level)
-    Serial.println("HIGH");
-  else
-    Serial.println("LOW");
+  printf("Pin: %d - %s\n", pin, level ? "HIGH" : "LOW");
 #endif
   if (level)
   {
@@ -43,24 +38,25 @@ void readTempHumid()
 {
   currentTemp = dht.readTemperature(); // Read temperature as Celcius (isFahrenheit = false)
   currentHumid = dht.readHumidity();
-  Serial.println("currentTemp = " + String(currentTemp));
-  Serial.println("currentHumid = " + String(currentHumid));
+
+  printf("currentTemp = %d\n", currentTemp);
+  printf("currentHumid = %d\n", currentHumid);
+
   if (currentTemp > maxTempDay)
-  {
     maxTempDay = currentTemp;
-  }
-  else if (currentTemp < minTempDay)
-  {
-    minTempDay = currentTemp;
-  }
+  else
+    {
+    if (currentTemp < minTempDay)
+        minTempDay = currentTemp;
+    }
+
   if (currentHumid > maxHumidDay)
-  {
     maxHumidDay = currentHumid;
-  }
-  else if (currentHumid < minHumidDay)
-  {
-    minHumidDay = currentHumid;
-  }
+  else
+    {
+    if (currentHumid < minHumidDay)
+        minHumidDay = currentHumid;
+    }
 }
 
 void resetMinMaxTempHumid()
@@ -161,10 +157,8 @@ void setFanAuto()
 void setDeviceAuto(const int devI)
 {
 #ifdef DEBUG
-  Serial.println("***** Adjusting a device to be auto ***** ");
-  char buffer2[50];
-  sprintf(buffer2, "Setting dev %d to be auto", devI);
-  Serial.println(buffer2);
+  printf("***** Adjusting a device to be auto ***** \n");
+  printf("Setting dev %d to be auto\n", devI);
 #endif
 
   int fillTime = 0;
@@ -193,10 +187,8 @@ void setDeviceAuto(const int devI)
     break;
   }
 #ifdef DEBUG
-  char buffer[50];
-  sprintf(buffer, "Dev %d is on for %d", devI, onTime);
-  Serial.println(buffer);
-  Serial.println("fillTime = " + String(fillTime));
+  printf("Dev %d is on for %d\n", devI, onTime);
+  printf("fillTime = %d\n", fillTime);
   delay(10);
 #endif
 
@@ -209,7 +201,7 @@ void setDeviceAuto(const int devI)
       {
         slotTime = secondsDiffTwoTimes(startTimeSlots[i], startTimeSlots[(i + 1) % numSlots]);
 #ifdef DEBUG
-        Serial.println("slottime " + String(slotTime));
+	printf("slottime %d\n", slotTime);
 #endif
         if (slotTime < fillTime)
         {

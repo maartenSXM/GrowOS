@@ -11,6 +11,7 @@ match to a button on that page. We handle what to do for that button or touch in
 // corresponds to a button on that page
 
 #include "pages.h"
+#include <stdio.h>
 
 void touchPage()
 {
@@ -148,9 +149,9 @@ void homePage()
   int middle = xDisp / 2;
 
   int textColor = WHITE;
-  // Serial.println("SinceNewDay " + String(secondsSinceNewDay()));  //ok
-  // Serial.println("sunshine " + String(sunshine));
-  // Serial.println("daylight " + String(daylight));
+  // printf("SinceNewDay %d\n", secondsSinceNewDay());
+  // printf("sunshine %d\n", sunshine);
+  // printf("daylight %d\n", daylight);
   float sunshineRatio = sunshine / daylight; // ratio of time sun has been up for the day
   int sunbarMarginX = 35;                    // Margin around sunbar
   int sunbarMarginY = 50;                    // Margin around sunbar
@@ -386,7 +387,7 @@ void deviceInfoPage()
 void splashPage()
 {
 #ifdef DEBUG
-  Serial.println(F("Inside Splash Page"));
+  printf("Inside Splash Page\n");
 #endif
   currentPage = 7;
   /*
@@ -411,7 +412,7 @@ void splashPage()
       while (ts.touched() && enterButton.contains(tp.x, tp.y))
       {
 #ifdef DEBUG
-        Serial.println(F("You are holding down the enter button"));
+        printf("You are holding down the enter button");
 #endif
       }
       // draw button as not pressed after release

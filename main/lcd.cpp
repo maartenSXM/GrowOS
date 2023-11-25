@@ -1,6 +1,7 @@
 #include "globals.h"
 #include "lcd.h"
 #include "pages.h"
+#include <stdio.h>
 
 #define SWAP(x, y) \
   {                \
@@ -22,31 +23,35 @@ void initializeLCD()
   yCenter = (yDisp / 2) - 1;
   xCenter = (xDisp / 2) - 1;
 #ifdef DEBUG
-  Serial.println("TFT LCD is initialized. Following vars are set.");
-  Serial.println("Touch Orientation = " + String(TOUCH_ORIENTATION));
-  Serial.println("xDisp = " + String(xDisp));
-  Serial.println("yDisp = " + String(yDisp));
-  Serial.println("xCenter = " + String(xCenter));
-  Serial.println("yCenter = " + String(yCenter));
+  printf("TFT LCD is initialized. Following vars are set.");
+  printf("Touch Orientation = %d\n", TOUCH_ORIENTATION);
+  printf("xDisp\t= %d\n", xDisp);
+  printf("yDisp\t= %d\n", yDisp);
+  printf("xCenter\t= %d\n", xCenter);
+  printf("yCenter\t= %d\n", yCenter);
 #endif
 }
 
 // set the lcd brightness
 void dimLCDBacklightPercent(uint8_t brightness)
 {
+  // Calculate the inverted brightness value (0-255)
+  // maps value (input, fromLow, fromHigh, toLow, toHigh)
+  const uint8_t outputBrightness = map(brightness, 0, 100, 255, 0);
+
+#if 0
   const uint8_t freq = 50;
   const uint8_t ledChannel = 1;
   const uint8_t resolution = 8;
-  // Calculate the inverted brightness value (0-255)
-  const uint8_t outputBrightness = map(brightness, 0, 100, 255, 0); // maps value (input, fromLow, fromHigh, toLow, toHigh)
 
-  //// attach the channel to the GPIO to be controlled
-  // ledcAttachPin(TFT_BL, ledChannel);
-  //
-  //// configure LED PWM functionalitites
-  // ledcSetup(ledChannel, freq, resolution);
-  //
-  // ledcWrite(ledChannel, 255);
+  // attach the channel to the GPIO to be controlled
+  ledcAttachPin(TFT_BL, ledChannel);
+  
+  // configure LED PWM functionalitites
+  ledcSetup(ledChannel, freq, resolution);
+  
+  ledcWrite(ledChannel, 255);
+#endif /* 0 */
 
   pinMode(TFT_BL, OUTPUT);
   analogWrite(TFT_BL, outputBrightness); // Brightness
@@ -55,10 +60,10 @@ void dimLCDBacklightPercent(uint8_t brightness)
 void touchHandler(TPoint p, TEvent e)
 {
 #ifdef DEBUG
-  Serial.println(F("** TOUCH **"));
+  printf("** TOUCH **\n");
   // TEvent e could be : TEvent::Tap, TEvent::TouchStart, TEvent::TouchMove, TEvent::TouchEnd, TEvent::DragStart, TEvent::DragMove, TEvent::DragEnd,
   printTouchInfo(p, e); // log the coordiantes
-  Serial.println(F("** Coordinates above **"));
+  printf("** Coordinates above **\n");
 #endif
   if (lcdSleep)
   {
@@ -84,32 +89,27 @@ void printTouchInfo(TPoint p, TEvent e)
 {
   if (e != TEvent::Tap && e != TEvent::DragStart && e != TEvent::DragMove && e != TEvent::DragEnd)
   {
-    Serial.println("Unknown Touch event");
+    printf("Unknown Touch event\n");
   }
 
-  Serial.print("X: ");
-  Serial.print(p.x);
-  Serial.print(", Y: ");
-  Serial.print(p.y);
-  Serial.print(", E: ");
+  printf("X: %d, Y:%d, E: ", p.x, p.y);
 
   switch (e)
   {
-  // require println to flush the buffer, and avoid overflow
   case TEvent::Tap:
-    Serial.println("Tap");
+    printf("Tap\n");
     break;
   case TEvent::DragStart:
-    Serial.println("DragStart");
+    printf("DragStart\n");
     break;
   case TEvent::DragMove:
-    Serial.println("DragMove");
+    printf("DragMove\n");
     break;
   case TEvent::DragEnd:
-    Serial.println("DragEnd");
+    printf("DragEnd\n");
     break;
   default:
-    Serial.println("UNKNOWN");
+    printf("UNKNOWN\n");
     break;
   }
 }
@@ -119,8 +119,9 @@ void lcdTimeout()
   if (lcdSleep)
     return; // already asleep
   uint32_t curTime = millis();
-  if (((curTime - timeLastTouch) >= lcdTimeoutDuration) || ((curTime - timeLastTouch) < 0))
-  { // the second or case will be less than zero when millis overflows (goes back to zero)
+  // the second condition can occur when millis() wraps
+  if (((curTime - timeLastTouch) >= lcdTimeoutDuration) || (curTime < timeLastTouch))
+  {
     lcdSleep = true;
     tft.fillScreen(BLACK);
     // setPin(ACT_GND, false);
@@ -137,7 +138,8 @@ void lcdWakeup()
 
 void getCalibratedPoints(void)
 {
-  // Serial.println("tp.x=" + String(tp.x) + ", tp.y=" + String(tp.y) + ", tp.z =" + String(tp.z));
+  // printf("tp.x=%d, tp.y=%d, tp.z=%d\n", tp.x, tp.y, tp.z);
+
   if (touchCalibrated)
   {
     if (TOUCH_ORIENTATION == PORTRAIT)
@@ -145,12 +147,14 @@ void getCalibratedPoints(void)
       tp.x = map(tp.x, CAL_TS_LEFT, CAL_TS_RT, 0, CAL_TS_HT);
       tp.y = map(tp.y, CAL_TS_TOP, CAL_TS_BOT, 0, CAL_TS_WID);
       // adjust for out of range
+#if 0 /* XXX x and y are unsigned - to be deleted */
       if (tp.x < 0)
         tp.x = 0;
-      if (tp.x > CAL_TS_WID)
-        tp.x = CAL_TS_WID - 1;
       if (tp.y < 0)
         tp.y = 0;
+#endif
+      if (tp.x > CAL_TS_WID)
+        tp.x = CAL_TS_WID - 1;
       if (tp.y > CAL_TS_HT)
         tp.y = CAL_TS_HT - 1;
     }
@@ -159,19 +163,21 @@ void getCalibratedPoints(void)
       tp.x = map(tp.y, CAL_TS_LEFT, CAL_TS_RT, 0, CAL_TS_WID);
       tp.y = map(tp.x, CAL_TS_TOP, CAL_TS_BOT, 0, CAL_TS_HT);
       // adjust for out of range
+#if 0 /* XXX x and y are unsigned - to be deleted */
       if (tp.x < 0)
         tp.x = 0;
-      if (tp.x > CAL_TS_WID)
-        tp.x = CAL_TS_WID - 1;
       if (tp.y < 0)
         tp.y = 0;
+#endif
+      if (tp.x > CAL_TS_WID)
+        tp.x = CAL_TS_WID - 1;
       if (tp.y > CAL_TS_HT)
         tp.y = CAL_TS_HT - 1;
     }
     else
     {
 #ifdef DEBUG
-      Serial.println("ERROR: Invalid TOUCH_ORIENTATION");
+      printf("ERROR: Invalid TOUCH_ORIENTATION\n");
 #endif
     }
   }
@@ -244,7 +250,7 @@ char *Aval(int pin)
 void bofe(char *buf)
 {
   tft.println(buf);
-  Serial.println(buf);
+  printf("%s\n",buf);
 }
 
 int getLongestDeviceNameLabelWidth()
@@ -372,8 +378,8 @@ void centerNumberPrint(const char *s, int y, uint16_t textColor, uint16_t bg)
 void drawCrossHair(int x, int y, uint16_t color) // Draw a cross hair and a box around the given center point
 {
   tft.drawRect(x - 9, y - 9, x + 9, y + 9, color); // 10, 150, 20, 20
-  Serial.print(x - 9);
-  Serial.print(y + 9);
+  // printf("%d\n", x - 9);
+  // printf("%d\n", y + 9);
   tft.drawLine(x - 5, y, x + 5, y, color);
   tft.drawLine(x, y - 5, x, y + 5, color);
 }
@@ -386,23 +392,21 @@ void drawCross(int x, int y, unsigned int color)
 
 void showpins(int A, int D, int value, const char *msg)
 {
-  char buf[40];
-  sprintf(buf, "%s (%s, D%d) = %d", msg, Aval(A), D, value);
-  Serial.println(buf);
+  printf("%s (%s, D%d) = %d\n", msg, Aval(A), D, value);
 }
 
 // NO diagnosing pins in production board
-/*bool diagnosePins()
+#if 0
+bool diagnosePins()
 {
     uint8_t i, j, Apins[2], Dpins[2], found = 0;
     uint16_t value, Values[2];
 
-    Serial.println(F("Making all control and bus pins INPUT_PULLUP"));
-    Serial.println(F("Typical 30k Analog pullup with corresponding pin"));
-    Serial.println(F("would read low when digital is written LOW"));
-    Serial.println(F("e.g. reads ~25 for 300R X direction"));
-    Serial.println(F("e.g. reads ~30 for 500R Y direction"));
-    Serial.println(F(""));
+    printf("Making all control and bus pins INPUT_PULLUP\n");
+    printf("Typical 30k Analog pullup with corresponding pin\n");
+    printf("would read low when digital is written LOW\n");
+    printf("e.g. reads ~25 for 300R X direction\n");
+    printf("e.g. reads ~30 for 500R Y direction\n\n");
 
     for (i = A0; i < A5; i++) pinMode(i, INPUT_PULLUP);
     for (i = 2; i < 10; i++) pinMode(i, INPUT_PULLUP);
@@ -428,7 +432,7 @@ void showpins(int A, int D, int value, const char *msg)
     }
     if (found == 2) {
         int idx = Values[0] < Values[1];
-//                Serial.println(F("Diagnosing as:-"));
+//                printf("Diagnosing as:-");
 //                for (i = 0; i < 2; i++) {
 //                    showpins(Apins[i], Dpins[i], Values[i],
 //                             (Values[i] < Values[!i]) ? "XM,XP: " : "YP,YM: ");
@@ -438,11 +442,12 @@ void showpins(int A, int D, int value, const char *msg)
         ts = TouchScreen(XP, YP, XM, YM, 300);    //re-initialise with pins
         return true;                              //success
     }
-    if (found == 0) Serial.println(F("MISSING TOUCHSCREEN"));
-    //else Serial.println(F("BROKEN TOUCHSCREEN"));
+    if (found == 0) printf("MISSING TOUCHSCREEN\n");
+    //else printf("BROKEN TOUCHSCREEN\n");
     return false;
 }
-*/
+
+#endif /* 0 */
 
 // bool switchOrientation(uint16_t changeOrientTo){
 //    uint16_t tmp;
@@ -610,9 +615,7 @@ void calibrate(int x, int y, int i, String msg)
   drawCrossHair(x, y, GREEN);
   rx[i] = cx;
   ry[i] = cy;
-  char buf[40];
-  sprintf(buf, "\r\ncx=%d cy=%d cz=%d %s", cx, cy, cz, msg.c_str());
-  Serial.print(buf);
+  printf("\r\ncx=%d cy=%d cz=%d %s\n", cx, cy, cz, msg.c_str());
   while (ts.touched() == true)
   {
   }
@@ -661,16 +664,14 @@ void report()
     SWAP(TS_LEFT, TS_RT);
     SWAP(TS_TOP, TS_BOT);
   }
-  sprintf(buf, "const int XP=%d,XM=%s,YP=%s,YM=%d; //%dx%d",
+  printf("const int XP=%d,XM=%s,YP=%s,YM=%d; //%dx%d\n",
           XP, Aval(XM), Aval(YP), YM, TS_WID, TS_HT);
-  Serial.println(buf);
   sprintf(buf, "\nTouch Pin Wiring XP=%d XM=%s YP=%s YM=%d",
           XP, Aval(XM), Aval(YP), YM);
   tft.println(buf);
 #endif
-  sprintf(buf, "const int TS_LEFT=%d,TS_RT=%d,TS_TOP=%d,TS_BOT=%d;",
+  printf("const int TS_LEFT=%d,TS_RT=%d,TS_TOP=%d,TS_BOT=%d;\n",
           TS_LEFT, TS_RT, TS_TOP, TS_BOT);
-  Serial.println(buf);
 
   for (int orient = 0; orient < 2; orient++)
   {
@@ -706,7 +707,7 @@ void report()
   }
   tft.println("Tap the 'x' in top right corner to exit");
   TFT_eSPI_Button exitButton;
-  exitButton.initButton(&tft, 470, 12, 20, 20, OPBOX_GREEN, BLACK, WHITE, "X", 2);
+  exitButton.initButton(&tft, 470, 12, 20, 20, OPBOX_GREEN, BLACK, WHITE, (char *) "X", 2);
   exitButton.drawButton(false);
 
   while (!(ts.touched() && exitButton.contains(tp.x, tp.y)))
@@ -753,8 +754,12 @@ void testCalibration(void)
   tft.drawString("to test settings", xCenter / 2, 90, 1);
   tft.drawString("Tap the 'X' in the top right to exit.", xCenter / 2, 120, 1);
 
+#if 0
+  SMEG: not sure why this was even necessary. Deferring porting to esp-idf.
   while (Serial.available())
     Serial.read(); // Empty the serial buffer before we start
+#endif
+
   centerPrint("X = ", 5, WHITE, BLACK);
   centerPrint("Y = ", 12, WHITE, BLACK);
   while (true)

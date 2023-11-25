@@ -1,74 +1,85 @@
-#include "global_Defines.h"
+/* esp-idf headers */
 
-/***** EXT LIBS CONFIG *****/
-#include "Arduino.h" //for basic shit
-#include "esp_system.h"
-#include "esp_log.h"
-#include "esp_sleep.h"
-#include "esp32s2/rom/rtc.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/event_groups.h>
+#include <freertos/task.h>
+#include <driver/gpio.h>
+#include <sdkconfig.h>
+#include <esp_log.h>
+#include <esp_err.h>
+
+/* C libraries */
+
+#include <stdio.h>
+
+/* local driver headers */
+
 #include "time.h"
+#include "soc/soc.h"          // Disable brownout problems
+#include "soc/rtc_cntl_reg.h" // Disable brownout problems
+#include "esp32s2/rom/rtc.h"
+
+/***** application headers *****/
+
+#include "buttons.h"
+#include "flashStorage.h"
+#include "gpio.h"
+#include "lcd.h"
+#include "pages.h"
+#include "rtc.h"
+#include "schedule.h"
+
+#if 0 /* NOT_NEEDED */
+
+#include <freertos/queue.h>
+#include <freertos/semphr.h>
+#include "global_Defines.h"
+#include "Arduino.h" //for basic shit
+#include "driver/rtc_io.h"
+#include "esp_sleep.h"
+#include "esp_system.h"
 #include "esp_sntp.h"
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/event_groups.h>
-#include <freertos/task.h>
-#include <freertos/queue.h>
-#include <freertos/semphr.h>
-#include <esp_log.h>
-#include <esp_err.h>
 #include <esp_wifi.h>
 #include "esp_event.h"
 #include "nvs_flash.h"
-
 #include <WiFi.h> //Include WiFi library
 #include <WiFiClient.h>
 #include <WiFiAP.h>
-#include "soc/soc.h"          // Disable brownout problems
-#include "soc/rtc_cntl_reg.h" // Disable brownout problems
-#include "driver/rtc_io.h"
 #include <SPIFFS.h>
 #include <FS.h>
 #include <HTTPUpdate.h>         //for firmware update
-
-// file: main.c or main.cpp
 #include "globals.h" //Most config and global vars
-
-/***** App Code Src Headers *****/
 #include "icons.h" //Bitmap images
 #include "backupMode.h"
-#include "buttons.h"
-#include "flashStorage.h"
-#include "gpio.h"
 #include "helperFuncs.h"
-#include "lcd.h"
 #include "pages_scheduling.h"
-#include "pages.h"
-#include "rtc.h"
-#include "schedule.h"
 #include "timerFanControl.h"
 #include "wifi_Funcs.h"
 #include "esp32SystemAPIHandler.h"
 
+#endif /* NOT_NEEDED */
+
+/* defines to move to kconfig.proj */
+
+/* https://github.com/espressif/esp-idf/blob/release/v4.4/examples/peripherals/uart/uart_echo/main/Kconfig.projbuild */
+#define GB_UART_BUF_SIZE 256
+#define GB_UART_BAUD_RATE 115200
+#define GB_UART_PORT_NUM 1
+#define GB_UART_RXD_PIN	 5
+#define GB_UART_TXD_PIN	 4
+#define GB_UART_RTS_PIN	 UART_PIN_NO_CHANGE
+#define GB_UART_CTS_PIN	 UART_PIN_NO_CHANGE
+
 void setup(void)
 {
 #ifdef DEBUG
-  Serial.begin(115200);
-#ifdef EnsureSerial
-  while (!Serial)
-    ; // wait for serial port to connect. Needed for native USB port only
-  Serial.println("waiting for serial");
-  for (int i = 0; i < 6; i++)
-  {
-    Serial.println(String(10 - i));
-    delay(1000);
-  }
+    ESP_LOGI(TAG, "IN DEBUG MODE");
 #endif
-  ESP_LOGI(TAG, "IN DEBUG MODE");
-#endif
+
   //  Disable the timer watchdogs,
   // NOT WORKING - DISABLED IN sdkconfig instead
   // ESP_ERROR_CHECK(esp_task_wdt_deinit());
@@ -78,52 +89,52 @@ void setup(void)
   switch (reset_reason)
   {
   case 1:
-    Serial.println("Vbat power on reset");
+    printf("Vbat power on reset\n");
     break;
   case 3:
-    Serial.println("Software reset digital core");
+    printf("Software reset digital core\n");
     break;
   case 4:
-    Serial.println("Legacy watch dog reset digital core");
+    printf("Legacy watch dog reset digital core\n");
     break;
   case 5:
-    Serial.println("Deep Sleep reset digital core");
+    printf("Deep Sleep reset digital core\n");
     break;
   case 6:
-    Serial.println("Reset by SLC module, reset digital core");
+    printf("Reset by SLC module, reset digital core\n");
     break;
   case 7:
-    Serial.println("Timer Group0 Watch dog reset digital core");
+    printf("Timer Group0 Watch dog reset digital core\n");
     break;
   case 8:
-    Serial.println("Timer Group1 Watch dog reset digital core");
+    printf("Timer Group1 Watch dog reset digital core\n");
     break;
   case 9:
-    Serial.println("RTC Watch dog Reset digital core");
+    printf("RTC Watch dog Reset digital core\n");
     break;
   case 10:
-    Serial.println("Instrusion tested to reset CPU");
+    printf("Instrusion tested to reset CPU\n");
     break;
   case 11:
-    Serial.println("Time Group reset CPU");
+    printf("Time Group reset CPU\n");
     break;
   case 12:
-    Serial.println("Software reset CPU");
+    printf("Software reset CPU\n");
     break;
   case 13:
-    Serial.println("RTC Watch dog Reset CPU");
+    printf("RTC Watch dog Reset CPU\n");
     break;
   case 14:
-    Serial.println("for APP CPU, reseted by PRO CPU");
+    printf("for APP CPU, reseted by PRO CPU\n");
     break;
   case 15:
-    Serial.println("Reset when the vdd voltage is not stable");
+    printf("Reset when the vdd voltage is not stable\n");
     break;
   case 16:
-    Serial.println("RTC Watch dog reset digital core and rtc module");
+    printf("RTC Watch dog reset digital core and rtc module\n");
     break;
   default:
-    Serial.println("NO_MEAN");
+    printf("NO_MEAN\n");
   }
 
   // Call the function to initialize the time zone for Toronto
@@ -196,14 +207,16 @@ void setup(void)
   // homePage();
 
 #ifdef DEBUG
-  Serial.println(F("Setup Complete"));
+  printf("Setup Complete\n");
 #endif
 }
 
 void loop()
 {
 #ifdef DEBUG
-  Serial.println("*****New Loop*****\nTime: " + String(currentTime.hour) + ":" + String(currentTime.minute) + " " + String(currentTime.second));
+  printf("*****New Loop*****\n");
+  printf("Time: %d:%d:%d\n", currentTime.hour, currentTime.minute,
+							currentTime.second);
   debugSchedule();
 #endif
   // is lcd pressed? if yes -> handle the button and come back
