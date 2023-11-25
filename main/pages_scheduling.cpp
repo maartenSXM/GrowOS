@@ -1,4 +1,5 @@
 #include "pages_scheduling.h"
+#include <stdio.h>
 
 void drawScheduleDevices(int slot, int x, int y, int slotWidth)
 {

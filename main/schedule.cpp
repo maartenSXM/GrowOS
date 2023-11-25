@@ -1,4 +1,5 @@
 #include "schedule.h"
+#include <stdio.h>
 
 // Two slots of a time - the first slot is the human waking hours, followed by sleeping hours
 // Convention should be that the first slot is the first time the light goes on for that day
@@ -145,23 +146,17 @@ void resetSlot()
 
 void debugSchedule()
 {
-  char charBuff[40];
-  Serial.println("*****DEBUGGING SCHEDULE*****");
-  sprintf(charBuff, "currentSlot = *%d*, numSlots = %d", currentSlot, numSlots);
-  Serial.println(charBuff);
+  printf("*****DEBUGGING SCHEDULE*****\n");
+  printf("currentSlot = *%d*, numSlots = %d\n", currentSlot, numSlots);
   for (int8_t i = 0; i < (numSlots); i++)
   {
-    strcpy(charBuff, "");
-    sprintf(charBuff, "Slot #%d: \n Starts at H:%d ends at H:%d", i, startTimeSlots[i].hour, startTimeSlots[(i + 1) % numSlots].hour);
-    Serial.println(charBuff);
+    printf("Slot #%d: \n Starts at H:%d ends at H:%d\n", i,
+	startTimeSlots[i].hour, startTimeSlots[(i + 1) % numSlots].hour);
   }
-  Serial.print("Light on for seconds: ");
-  Serial.println(countDeviceOnTime(1));
-  Serial.print("daylight: ");
-  Serial.println(daylight);
-  Serial.print("night: ");
-  Serial.println(night);
-  Serial.println(" ");
+  printf("Light on for seconds: %d\n", countDeviceOnTime(1));
+  printf("daylight: %d\n", daylight);
+  printf("night: %d\n\n", night);
+
 }
 
 void checkSlot()
@@ -186,7 +181,7 @@ void checkSlot()
 void startNewSlot()
 {
 #ifdef DEBUG
-  Serial.println("Starting new slot");
+  printf("Starting new slot\n");
 #endif
   // reset secondsSinceStateChange to zero
   for (int i = 0; i < numDevices; i++)
@@ -257,7 +252,7 @@ int8_t findCurrentSlot()
     if (withinCurrentSlot(i))
     {
 #ifdef DEBUG
-      Serial.println("now in slot " + String(i));
+      printf("now in slot %d\n", i);
 #endif
       currentSlot = i;
       break;
@@ -272,8 +267,7 @@ bool withinCurrentSlot(int8_t slot)
   if ((slot < 0) || (slot >= numSlots))
   {
 #ifdef DEBUG
-    Serial.println("***********ERROR************ \n NOT A VALID SLOT NUMBER: ");
-    Serial.println(slot);
+    printf("*********ERROR********** \n NOT A VALID SLOT NUMBER: %d\n", slot);
 #endif
     slot = slot % numSlots;
   }
@@ -289,8 +283,10 @@ bool withinCurrentSlot(int8_t slot)
   _Time SS = startTimeSlots[slot];
   _Time SE = startTimeSlots[(slot + 1) % numSlots];
 #ifdef DEBUG
-  Serial.println("checking if in slot #" + String(slot));
-  Serial.println("Start Slot" + String(SS.hour) + ":" + String(SS.minute) + "." + String(SS.second) + "   --->    End Slot " + String(SE.hour) + ":" + String(SE.minute) + "." + String(SE.second));
+  printf("checking if in slot #%d\n", slot);
+  printf("Start Slot %d:%d.%d ---> End Slot %d:%d.%d\n",
+		SS.hour, SS.minute, SS.second,
+		SE.hour, SE.minute, SE.second);
 #endif
 
   if ((numSlots == 2) && isSameTime(SS, SE))
@@ -317,9 +313,9 @@ bool withinCurrentSlot(int8_t slot)
   }
 #ifdef DEBUG
   if (result)
-    Serial.println("YES in slot: " + String(slot));
+    printf("YES in slot: %d", slot);
   else
-    Serial.println("NOT in slot: " + String(slot));
+    printf("NOT in slot: %d", slot);
 #endif
   return result;
 }
@@ -423,7 +419,7 @@ void removeTimeSlot(_Time tS)
     }
   }
 
-  _Time startT = startTimeSlots[slot];
+  // _Time startT = startTimeSlots[slot];
 
   // Shift everything from slot onwards, down in list, start from slot so not to overwrite slots being kept
   for (int i = slot; i < (numSlots - 1); i++)
@@ -498,7 +494,7 @@ int countDeviceOnTime(const int devI)
     }
   }
 #ifdef DEBUG
-  Serial.println("Dev " + String(devI) + " is on for " + String(seconds) + "s");
+  printf("Dev %d is on for %ds\n", devI, seconds);
 #endif
   return seconds;
 }
@@ -701,7 +697,7 @@ struct _Time timeAdjustSeconds(_Time timeAdd, int seconds)
     else
     { // the seconds dont fit
       int multiple = seconds / 60;
-      int remainder = seconds % 60;
+      // int remainder = seconds % 60;
       timeAdd.second = (timeAdd.second + seconds) % 60;
       timeAdd = timeAdjustMinutes(timeAdd, multiple < 1 ? 1 : multiple + 1);
     }
@@ -716,7 +712,7 @@ struct _Time timeAdjustSeconds(_Time timeAdd, int seconds)
     else
     { // the seconds dont fit
       int multiple = seconds / 60;
-      int remainder = seconds % 60;
+      // int remainder = seconds % 60;
       timeAdd.second = (timeAdd.second - seconds) % 60;
       timeAdd = timeAdjustMinutes(timeAdd, multiple < 1 ? -1 : ((-1 * multiple) - 1));
     }
@@ -737,7 +733,7 @@ _Time timeAdjustMinutes(_Time timeAdd, int minutes)
     else
     { // the minutes dont fit
       int multiple = minutes / 60;
-      int remainder = minutes % 60;
+      // int remainder = minutes % 60;
       timeAdd.minute = (timeAdd.minute + minutes) % 60;
       timeAdd = timeAdjustHours(timeAdd, multiple < 1 ? 1 : multiple + 1);
     }
@@ -752,7 +748,7 @@ _Time timeAdjustMinutes(_Time timeAdd, int minutes)
     else
     { // the minutes dont fit
       int multiple = minutes / 60;
-      int remainder = minutes % 60;
+      // int remainder = minutes % 60;
       timeAdd.minute = (timeAdd.minute - minutes) % 60;
       timeAdd = timeAdjustHours(timeAdd, multiple < 1 ? -1 : ((-1 * multiple) - 1));
     }

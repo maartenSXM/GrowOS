@@ -1,16 +1,16 @@
 #include "backupMode.h"
+#include <stdio.h>
 
 void setupBUMODE()
 {
   gotPWROFF_INT = false;
   /*
   SUPC->SUPC_MR |= 0x00004000u;             //VDDIO is present set VDDIORDY bit on wakeup
-  //Serial.begin(115200);
   //Reports the cause of the last processor reset. Reading this RSTC_SR does not reset this field.
   // 0 = fresh 1 = backup mode reset 2 = watchdog , 3 = software, 4 = User/NSRT
   uint32_t resetStatus = (RSTC->RSTC_SR & RSTC_SR_RSTTYP_Msk) >> RSTC_SR_RSTTYP_Pos;
 #ifdef DEBUG
-  Serial.print("\nRSTTYP = 0b"); Serial.println(resetStatus, BIN);  // Should be 0b001 see page 232
+  printf("\nRSTTYP = 0x%02X\n", resetStatus); // Should be 0x01 see page 232
 #endif
   //pinMode(A6, INPUT);                       //WKUP1
   SUPC->SUPC_SR;                              //to clear a WAKE UP Status?
@@ -36,10 +36,8 @@ void state_change()
     gotPWROFF_INT = true; // to avoid bouncing signal
     // SUPC->SUPC_MR &= 0xFFFFBFFFu;                 //clear VDDIORDY bit in SUPC_MR atleast 2 slow clock period before VDDIO voltage removed
     // detachInterrupt(digitalPinToInterrupt(46));   //disable power off interrupt so not to get multiple
-    // Serial.print("Entering backup mode : Do NOT stop the software now  |:");
+    // printf("Entering backup mode : Do NOT stop the software now  |:\n");
     // state = (state + 1);
-
-    // Serial.end();                               // Exit from Serial
     delayMicroseconds(500);
     EnterBackupMode();
   }

@@ -1,4 +1,5 @@
 #include "helperFuncs.h"
+#include <stdio.h>
 
 void string_to_char(char *dest, String str){
   str.toCharArray(strTemp, str.length());
