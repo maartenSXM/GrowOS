@@ -116,5 +116,6 @@ GND -- GPIO-0
 
 ### DEBUG
 
-`openocd -f board/esp32s2-kaluga-1.cfg`
-Then start debug (`F5`)
+# review ./.gdbinit
+openocd -f board/esp32s2-kaluga-1.cfg
+xtensa-esp32s2-elf-gdb build/growos.elf

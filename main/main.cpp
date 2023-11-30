@@ -74,6 +74,33 @@
 #define GB_UART_RTS_PIN	 UART_PIN_NO_CHANGE
 #define GB_UART_CTS_PIN	 UART_PIN_NO_CHANGE
 
+void startCPU1()
+  {
+#define GB_AUX_CPU_PIN GPIO_NUM_13
+
+#if 0
+#define GPIO_START_CPU1_PIN  (1ULL << GB_AUX_CPU_PIN)
+    gpio_config_t io_conf = {};
+
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = GPIO_START_CPU1_PIN;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+
+    gpio_config(&io_conf);
+#endif
+    gpio_reset_pin(GB_AUX_CPU_PIN);
+    gpio_set_direction(GB_AUX_CPU_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_level(GB_AUX_CPU_PIN, 1);
+  }
+
+int dontoptimizemeout = 0;
+void haltCPU0()
+  {
+  dontoptimizemeout = 1;
+  }
+
 void setup(void)
 {
 #ifdef DEBUG
@@ -206,6 +233,9 @@ void setup(void)
   checkSlot();
   // homePage();
 
+ startCPU1();
+ haltCPU0();
+
 #ifdef DEBUG
   printf("Setup Complete\n");
 #endif
@@ -213,6 +243,8 @@ void setup(void)
 
 void loop()
 {
+  haltCPU0();
+
 #ifdef DEBUG
   printf("*****New Loop*****\n");
   printf("Time: %d:%d:%d\n", currentTime.hour, currentTime.minute,
