@@ -25,6 +25,7 @@ void touchHandler(TPoint p, TEvent e);
 bool touchIsPressed(void);
 void updateGlobalTouchInfo(TPoint p, TEvent e);
 void printTouchInfo(TPoint p, TEvent e);
+void checkForTouch(void);
 void waitForTouch(int ms);
 void getCalibratedPoints(void);
 void homePage();

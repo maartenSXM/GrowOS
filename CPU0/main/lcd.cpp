@@ -183,6 +183,15 @@ void getCalibratedPoints(void)
   }
 }
 
+void checkForTouch(void)
+{
+  if (ts.touched())
+  {
+    tp.touched = true;
+    ts.loop(); // Poll the touch screen controller
+  }
+}
+
 void waitForTouch(int ms)
 {
   int starttime = millis();

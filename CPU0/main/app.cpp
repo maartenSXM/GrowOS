@@ -3,7 +3,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/event_groups.h>
 #include <freertos/task.h>
-#include <driver/gpio.h>
 #include <sdkconfig.h>
 #include <esp_log.h>
 #include <esp_err.h>
@@ -29,39 +28,6 @@
 #include "rtc.h"
 #include "schedule.h"
 
-#if 0 /* NOT_NEEDED */
-
-#include <freertos/queue.h>
-#include <freertos/semphr.h>
-#include "global_Defines.h"
-#include "Arduino.h" //for basic shit
-#include "driver/rtc_io.h"
-#include "esp_sleep.h"
-#include "esp_system.h"
-#include "esp_sntp.h"
-#include <math.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-#include <esp_wifi.h>
-#include "esp_event.h"
-#include "nvs_flash.h"
-#include <WiFi.h> //Include WiFi library
-#include <WiFiClient.h>
-#include <WiFiAP.h>
-#include <SPIFFS.h>
-#include <FS.h>
-#include <HTTPUpdate.h>         //for firmware update
-#include "globals.h" //Most config and global vars
-#include "icons.h" //Bitmap images
-#include "backupMode.h"
-#include "helperFuncs.h"
-#include "pages_scheduling.h"
-#include "timerFanControl.h"
-#include "wifi_Funcs.h"
-#include "esp32SystemAPIHandler.h"
-
-#endif /* NOT_NEEDED */
 
 /* defines to move to kconfig.proj */
 
@@ -74,35 +40,10 @@
 #define GB_UART_RTS_PIN	 UART_PIN_NO_CHANGE
 #define GB_UART_CTS_PIN	 UART_PIN_NO_CHANGE
 
-void startCPU1()
-  {
-#define GB_AUX_CPU_PIN GPIO_NUM_13
-
-#if 0
-#define GPIO_START_CPU1_PIN  (1ULL << GB_AUX_CPU_PIN)
-    gpio_config_t io_conf = {};
-
-    io_conf.intr_type = GPIO_INTR_DISABLE;
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = GPIO_START_CPU1_PIN;
-    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
-
-    gpio_config(&io_conf);
-#endif
-    gpio_reset_pin(GB_AUX_CPU_PIN);
-    gpio_set_direction(GB_AUX_CPU_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(GB_AUX_CPU_PIN, 1);
-  }
-
-int dontoptimizemeout = 0;
-void haltCPU0()
-  {
-  dontoptimizemeout = 1;
-  }
-
-void setup(void)
+extern "C"
 {
+  void app_setup(void)
+  {
 #ifdef DEBUG
     ESP_LOGI(TAG, "IN DEBUG MODE");
 #endif
@@ -233,17 +174,16 @@ void setup(void)
   checkSlot();
   // homePage();
 
- startCPU1();
- haltCPU0();
-
 #ifdef DEBUG
   printf("Setup Complete\n");
 #endif
-}
+  }
+} /* extern "C" */
 
-void loop()
+extern "C"
 {
-  haltCPU0();
+  void app_loop()
+  {
 
 #ifdef DEBUG
   printf("*****New Loop*****\n");
@@ -252,7 +192,7 @@ void loop()
   debugSchedule();
 #endif
   // is lcd pressed? if yes -> handle the button and come back
-  waitForTouch(950); // wait for a touch for n milliseconds
+  checkForTouch(); 
 
   // check the time, and do scheduled tasks
   checkSlot();
@@ -260,6 +200,9 @@ void loop()
   // rebuild pages with new variable data such as time and external device settings, Note: this function will not build pages from scratch, it sets the bool "updatePageOnly"
   updatePage();
 
+  vTaskDelay (100); /* in milliseconds */
+
   // check if lcd has not been touched in a while
   lcdTimeout();
-}
+  }
+} /* extern "C" */
