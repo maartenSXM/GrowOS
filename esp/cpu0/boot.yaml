@@ -144,33 +144,14 @@ font:
     size: 24
 
 external_components:
-  - source: components
-    components: [ ili9xxx ft63x6 ]
+  - source:
+      type: local
+      path: myComponents
+    components: [ ili9xxx, ft63x6 ]
     # ft63x6 from github://gpambrozio/esphome@FT6336U-touch
     #    mod done is to add swap_x_y directive
     # ili9xx from github:esphome#dev
     #    mod done is to enable SPI 4-wire 18-bit mode for ili9488
-
-display:
-  - platform: ili9xxx
-    model: ili9488_A
-    spi_mode: mode3
-    id: gbLcd
-    dimensions:
-      width: 480
-      height: 320
-      offset_height: 0
-      offset_width: 0
-    color_order: bgr
-    transform:
-      mirror_y: false
-      swap_xy: true
-      mirror_x: true
-    # rotation: 180
-    invert_colors: false
-    auto_clear_enabled: false
- - source: components
-   components: [ ili9xxx ft63x6 ]
 
 display:
   - platform: ili9xxx
