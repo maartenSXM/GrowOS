@@ -1,0 +1,301 @@
+# get the pin definitions for GrowBoard V1 CPU 0
+<<: !include pins.yaml
+
+esphome:
+  name: gbcpu0
+  platformio_options:
+    board_build.mcu: esp32s2
+    board_build.flash_mode: dio
+    board_build.f_flash: 40000000L
+    board_build.flash_size: 4MB
+      # board_build.arduino.memory_type: opi
+    board_upload.maximum_size: 1500000
+    build_unflags: -Werror=all
+    build_flags:
+      - "-Werror=all -Wno-error=maybe-uninitialized -mfix-esp32-psram-cache-issue"
+
+     # upload_protocol: espota
+     # upload_port: gbcpu0.local
+     # upload_port: 192.168.8.134
+     # board_build.partitions: "partitions.csv"
+
+  # flash the led using a slow software-based PWM
+  on_boot:
+    priority: -100
+    then:
+      - output.turn_on:
+          my_slow_pwm  
+      - output.set_level:
+          id: my_slow_pwm
+          level: "90%"
+
+esp32:
+  board: esp32-s2-kaluga-1
+    # board: esp-wrover-kit
+  variant: esp32s2
+  framework:
+    type: esp-idf
+      # type: arduino
+    version: 5.1.2
+      # version: recommended
+      #version: dev
+    platform_version: "https://github.com/platformio/platform-espressif32.git#develop"
+    # platform_version: "https://github.com/platformio/platform-espressif32.git"
+    sdkconfig_options:
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      CONFIG_ESPTOOLPY_FLASHFREQ_40M: y
+      CONFIG_ESPTOOLPY_OCT_FLASH: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+      CONFIG_TFT_SPI_FREQUENCY: "20000000"
+      CONFIG_TFT_SPI_READ_FREQ: "5000000"
+      CONFIG_ESP32S2_SPIRAM_SUPPORT: y
+      CONFIG_ESP32S2_RTC_CLK_SRC_EXT_CRYS: y
+      CONFIG_ESP32S2_RTC_CLK_CAL_CYCLES: "576"
+    advanced:
+      ignore_efuse_mac_crc: false
+
+psram:
+  mode: octal
+  speed: 40Mhz
+
+output:
+  - platform: ledc
+    pin: $PIN_BUZZER
+    id: buzzer_output
+
+  - platform: slow_pwm
+    pin: $PIN_TempData
+    id: my_slow_pwm
+    period: 500ms
+    restart_cycle_on_state_change: true
+
+
+switch:
+  - platform: gpio
+    id: switch_H_S_ENABLE
+    name: "Secondary CPU Enable"
+    pin:
+      number: $PIN_H_S_ENABLE
+      mode: output
+    restore_mode: ALWAYS_ON
+
+  - platform: gpio
+    id: switch_TFT_PWR_EN
+    name: "Display Enable"
+    pin:
+      number: $PIN_TFT_PWR_EN
+      mode: output
+    inverted: true
+    restore_mode: ALWAYS_ON
+
+  - platform: gpio
+    id: switch_TFT_BACKLIGHT
+    name: "Display Backlight"
+    pin:
+      number: $PIN_TFT_BACKLIGHT
+      mode: output
+    inverted: true
+    restore_mode: ALWAYS_ON
+
+#  - platform: gpio
+#    pin:
+#      number: $PIN_TempData
+#      mode: output
+#    id: led
+
+  - platform: output
+    name: "Buzzer"
+    id: buzzer
+    output: buzzer_output
+    on_turn_on: 
+      then:
+        - output.turn_on: buzzer_output
+        - output.ledc.set_frequency:
+            id: buzzer_output
+            frequency: "1000Hz"
+        - output.set_level:
+            id: buzzer_output
+            level: "50%"
+
+    on_turn_off:
+      then:
+        - output.turn_off: buzzer_output
+
+#interval:
+#  - interval: 500ms
+#    then:
+#      - switch.toggle: led
+      # - logger.log: "LED toggling"
+
+# on_turn_on:
+#     - rtttl.play: 'MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+#     on_turn_off:
+#     - rtttl.stop
+
+spi:
+  clk_pin: $PIN_TFT_SCLK
+  mosi_pin: $PIN_TFT_MOSI
+  miso_pin: $PIN_TFT_MISO
+  interface: hardware
+
+font:
+  - file: 'fonts/arial.ttf'
+    id: arial
+    size: 24
+
+external_components:
+  - source: components
+    components: [ ili9xxx ft63x6 ]
+    # ft63x6 from github://gpambrozio/esphome@FT6336U-touch
+    #    mod done is to add swap_x_y directive
+    # ili9xx from github:esphome#dev
+    #    mod done is to enable SPI 4-wire 18-bit mode for ili9488
+
+display:
+  - platform: ili9xxx
+    model: ili9488_A
+    spi_mode: mode3
+    id: gbLcd
+    dimensions:
+      width: 480
+      height: 320
+      offset_height: 0
+      offset_width: 0
+    color_order: bgr
+    transform:
+      mirror_y: false
+      swap_xy: true
+      mirror_x: true
+    # rotation: 180
+    invert_colors: false
+    auto_clear_enabled: false
+ - source: components
+   components: [ ili9xxx ft63x6 ]
+
+display:
+  - platform: ili9xxx
+    model: ili9488_A
+    spi_mode: mode3
+    id: gbLcd
+    dimensions:
+      width: 480
+      height: 320
+      offset_height: 0
+      offset_width: 0
+    color_order: bgr
+    transform:
+      mirror_y: false
+      swap_xy: true
+      mirror_x: true
+    # rotation: 180
+    invert_colors: false
+    auto_clear_enabled: false
+    cs_pin: $PIN_TFT_CS
+    dc_pin: $PIN_TFT_DC
+    reset_pin: $PIN_TFT_RST
+    data_rate: 40MHz
+    update_interval: 100ms
+    lambda: |-
+      static int c = 256, x = 0, y = 0, rgb = 0;
+      if (rgb == 0)
+        it.filled_rectangle(x, y, 80, 64, Color(c-1, 0, 0));
+      else
+        if (rgb == 1)
+           it.filled_rectangle(x, y, 80, 64, Color(0, c-1, 0));
+        else
+           it.filled_rectangle(x, y, 80, 64, Color(0, 0, c-1));
+      x += 80, c-=8; 
+      if (x == 480) x = 0, y += 64;
+      if (y == 320) y = 0;
+      if (c == 0) c = 256, x=0, y=0, rgb ++;
+      if (rgb == 3) rgb = 0;
+
+#     for(auto y = 0; y<320; y += 20) {
+#        for(auto x = 0; x<480; x += 30) {
+#          it.filled_rectangle(x, y, x+30, y+20, Color(c, c, c));
+#          c--;
+#        }
+#      }
+
+#      it.print(50, 50, id(arial), Color(255, 0, 0), "This is RED!");
+#      it.print(50, 150, id(arial), Color(0, 255, 0), "This is BLUE!");
+#      it.print(50, 250, id(arial), Color(0, 0, 255), "This is GREEN!");
+
+# int shift_x = (it.get_width()-310)/2;
+#      int shift_y = (it.get_height()-256)/2;
+#      for(auto i = 0; i<256; i++) {
+#        it.horizontal_line(shift_x+  0,i+shift_y,50, my_red.fade_to_white(i));
+#        it.horizontal_line(shift_x+ 50,i+shift_y,50, my_red.fade_to_black(i));
+#
+#        it.horizontal_line(shift_x+105,i+shift_y,50, my_green.fade_to_white(i));
+#        it.horizontal_line(shift_x+155,i+shift_y,50, my_green.fade_to_black(i));
+#
+#        it.horizontal_line(shift_x+210,i+shift_y,50, my_blue.fade_to_white(i));
+#        it.horizontal_line(shift_x+260,i+shift_y,50, my_blue.fade_to_black(i));
+#      }
+#      it.rectangle(shift_x+ 0, 0+shift_y, shift_x+ 310, 256+shift_y, my_yellow);
+
+color:
+  - id: my_blue
+    blue: 100%
+  - id: my_red
+    red: 100%
+  - id: my_green
+    green: 100%
+  - id: my_white
+    red: 100%
+    blue: 100%
+    green: 100%
+  - id: my_yellow
+    hex: ffff00
+
+i2c:
+  id: i2cBusIntern
+  sda: $PIN_TWI_SDA
+  scl: $PIN_TWI_SCK
+  frequency: 400kHz
+  scan: false
+
+touchscreen:
+ - platform: ft63x6
+   id: tftTouch
+   i2c_id: i2cBusIntern
+   interrupt_pin: $PIN_CTP_IRQ
+   swap_x_y: true
+   on_touch:
+     - logger.log:
+         format: Touch at (%d, %d)
+         args: [touch.x, touch.y]
+
+# Enable logging
+logger:
+  level: DEBUG
+  logs:
+    component: ERROR
+
+# Enable Home Assistant API
+#api:
+#   password: ""
+
+ota:
+  password: ""
+
+web_server:
+
+wifi:
+  ssid: "SkyNet"
+  password: "WestLake"
+  manual_ip:
+    static_ip: 192.168.8.134
+    gateway: 192.168.8.1
+    subnet: 255.255.255.0
+    dns1: 192.168.8.1
+  fast_connect: on
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+# ap:
+#   ssid: "Gbcpu0 Fallback Hotspot"
+#   password: "2MVT9gyfV0D4"
+
+captive_portal:
+    
