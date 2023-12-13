@@ -1,4 +1,3 @@
-substitutions:
   PIN_H_GPIO0: GPIO0
   PIN_CSI_VSYNC: GPIO1
   PIN_CSI_D9: GPIO2

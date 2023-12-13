@@ -1,0 +1,232 @@
+substitutions:
+  <<: !include pinsCpu0.yaml
+
+<<: !include env.yaml
+
+# flash the led using a slow software-based PWM
+# esphome.on_boot:
+#  priority: -100
+#  then:
+#    - output.turn_on:
+#        my_slow_pwm  
+#    - output.set_level:
+#        id: my_slow_pwm
+#        level: "90%"
+#
+light:
+  - platform: status_led
+    id: cpu0_status_led
+    name: "Status LED"
+    pin: $PIN_TempData
+    effects:
+      - strobe:
+          name: blink_slow
+          colors:
+            - state: true
+              duration: 1s
+            - state: false
+              duration: 1s
+
+output:
+  - platform: ledc
+    pin: $PIN_BUZZER
+    id: buzzer_output
+
+#  - platform: slow_pwm
+#    pin: $PIN_TempData
+#    id: my_slow_pwm
+#    period: 500ms
+#    restart_cycle_on_state_change: true
+
+switch:
+  - platform: gpio
+    id: switch_H_S_ENABLE
+    name: "Secondary CPU Enable"
+    pin:
+      number: $PIN_H_S_ENABLE
+      mode: output
+    restore_mode: ALWAYS_ON
+
+  - platform: gpio
+    id: switch_TFT_PWR_EN
+    name: "Display Enable"
+    pin:
+      number: $PIN_TFT_PWR_EN
+      mode: output
+    inverted: true
+    restore_mode: ALWAYS_ON
+
+  - platform: gpio
+    id: switch_TFT_BACKLIGHT
+    name: "Display Backlight"
+    pin:
+      number: $PIN_TFT_BACKLIGHT
+      mode: output
+    inverted: true
+    restore_mode: ALWAYS_ON
+
+  - platform: restart
+    name: "Reboot"
+
+#  - platform: gpio
+#    pin:
+#      number: $PIN_TempData
+#      mode: output
+#    id: led
+
+  - platform: output
+    name: "Buzzer"
+    id: buzzer
+    output: buzzer_output
+    on_turn_on: 
+      then:
+        - output.turn_on: buzzer_output
+        - output.ledc.set_frequency:
+            id: buzzer_output
+            frequency: "1000Hz"
+        - output.set_level:
+            id: buzzer_output
+            level: "50%"
+
+    on_turn_off:
+      then:
+        - output.turn_off: buzzer_output
+
+#interval:
+#  - interval: 500ms
+#    then:
+#      - switch.toggle: led
+      # - logger.log: "LED toggling"
+
+# on_turn_on:
+#     - rtttl.play: 'MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+#     on_turn_off:
+#     - rtttl.stop
+
+spi:
+  clk_pin: $PIN_TFT_SCLK
+  mosi_pin: $PIN_TFT_MOSI
+  miso_pin: $PIN_TFT_MISO
+  interface: hardware
+
+font:
+  - file: 'fonts/arial.ttf'
+    id: arial
+    size: 24
+
+# ft63x6 from github://gpambrozio/esphome@FT6336U-touch
+#    mod done is to add swap_x_y directive
+# ili9xx from github:esphome#dev
+#    mod done is to enable SPI 4-wire 18-bit mode for ili9488
+external_components:
+  - source:
+      type: local
+      path: myComponents
+    components: [ ili9xxx, ft63x6 ]
+
+globals:
+  - id: touchx
+    type: unsigned int
+    restore_value: no
+    initial_value: '0'
+  - id: touchy
+    type: unsigned int
+    restore_value: no
+    initial_value: '0'
+
+display:
+  - platform: ili9xxx
+    model: ili9488_A
+    spi_mode: mode3
+    id: my_display
+    dimensions:
+      width: 480
+      height: 320
+      offset_height: 0
+      offset_width: 0
+    color_order: bgr
+    transform:
+      mirror_y: false
+      swap_xy: true
+      mirror_x: true
+    # rotation: 180
+    invert_colors: false
+    auto_clear_enabled: false
+    cs_pin: $PIN_TFT_CS
+    dc_pin: $PIN_TFT_DC
+    reset_pin: $PIN_TFT_RST
+    data_rate: 40MHz
+    update_interval: 50ms
+    # lambda: !include displayBlocks.yaml
+    lambda: |-
+      static int col = 255; // lets use 8 shades of r, g and b each
+      if (id(touchx) != 0 && id(touchy) != 0)
+        {
+        int r = (col & 0x7) << 5;
+        int g = (col & 0x38) << 2;
+        int b = (col & 0x1c0) >> 1;
+        // printf("r=%d, g=%d, b=%d\n", r, g, b);
+        it.filled_circle(id(touchx), id(touchy), 30, Color(r,g,b));
+        it.circle(id(touchx), id(touchy), 30, Color(0,0,0));
+        id(touchx) = 0;
+        id(touchy) = 0;
+        col --;
+        if (col == 0)
+          col = 255;
+        }
+
+i2c:
+  id: i2cBusIntern
+  sda: $PIN_TWI_SDA
+  scl: $PIN_TWI_SCK
+  frequency: 400kHz
+  scan: false
+
+touchscreen:
+ - platform: ft63x6
+   id: tftTouch
+   i2c_id: i2cBusIntern
+   interrupt_pin: $PIN_CTP_IRQ
+   swap_x_y: true
+   on_touch:
+     lambda: |-
+       id(touchx) = touch.x;
+       id(touchy) = touch.y;
+       // printf("x=%d, y=%d\n", touch.x, touch.y);
+
+#   - logger.log:
+#       format: Touch at (%d, %d)
+#       args: [touch.x, touch.y]
+       
+# Enable logging
+logger:
+  # level: DEBUG
+  logs:
+    component: ERROR
+
+# Enable Home Assistant API
+#api:
+#   password: ""
+
+ota:
+  password: ""
+
+web_server:
+
+wifi:
+  ssid: "SkyNet"
+  password: "WestLake"
+  manual_ip:
+    static_ip: 192.168.8.134
+    gateway: 192.168.8.1
+    subnet: 255.255.255.0
+    dns1: 192.168.8.1
+  fast_connect: on
+
+# Enable fallback hotspot (captive portal) in case wifi connection fails
+# ap:
+#   ssid: "Gbcpu0 Fallback Hotspot"
+#   password: "2MVT9gyfV0D4"
+
+captive_portal:
+    

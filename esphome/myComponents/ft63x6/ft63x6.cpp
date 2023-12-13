@@ -99,7 +99,7 @@ void FT63X6Touchscreen::check_touch_() {
   uint16_t w = this->display_->get_width();
   uint16_t h = this->display_->get_height();
   auto rotation = static_cast<TouchRotation>(this->display_->get_rotation());
-  uint16_t x_resolution, y_resolution;
+  uint16_t x_resolution=0, y_resolution=0;
     switch (rotation) {
       case ROTATE_0_DEGREES:
       case ROTATE_180_DEGREES:
