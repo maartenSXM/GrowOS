@@ -1,5 +1,10 @@
 substitutions:
   <<: !include pinsCpu0.yaml
+  GB_WIFI_ADDR: 192.168.8.134
+  GB_WIFI_GATEWAY: 192.168.8.1
+  GB_WIFI_NETMASK: 255.255.255.0
+  GB_WIFI_SSID: SkyNet
+  GB_WIFI_PASSWORD: WestLake
 
 <<: !include env.yaml
 
@@ -214,13 +219,13 @@ ota:
 web_server:
 
 wifi:
-  ssid: "SkyNet"
-  password: "WestLake"
+  ssid: $GB_WIFI_SSID
+  password: $GB_WIFI_PASSWORD
   manual_ip:
-    static_ip: 192.168.8.134
-    gateway: 192.168.8.1
-    subnet: 255.255.255.0
-    dns1: 192.168.8.1
+    static_ip: $GB_WIFI_ADDR
+    gateway: $GB_WIFI_GATEWAY
+    subnet: $GB_WIFI_NETMASK
+    dns1: $GB_WIFI_GATEWAY
   fast_connect: on
 
 # Enable fallback hotspot (captive portal) in case wifi connection fails

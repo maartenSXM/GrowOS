@@ -12,20 +12,20 @@ source venv/bin/activate
 
 and the you can cd into the growOS/esp/cpu0 directory and do this:
 
-esphome compile boot.yaml
-esphome upload boot.yaml
-esphome logs boot.yaml
+esphome compile cpu0.yaml
+esphome upload cpu0.yaml
+esphome logs cpu0.yaml
 
 or do all three in one shot using this command:
 
-esphome run boot.yaml
+esphome run cpu0.yaml
 
-Note that you should probably change the boot.yaml wifi: config
+Note that you need to change the boot.yaml wifi: config
 to something that is on KoningNet.  I recommend manual config for
 the IP address not DHCP for development since the target will boot faster.
 Perhaps choose something like 192.168.248.10, which is outside the
-KoningNet DHCP range.
+KoningNet DHCP range. SkyNet WiFi will not work at home since it has client
+isolation enabled there - so use KoningNet.
 
-Let me know if it works for you!
 
 
