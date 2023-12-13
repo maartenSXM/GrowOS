@@ -1,3 +1,4 @@
+    lambda: |-
       static int c = 256, x = 0, y = 0, rgb = 0;
       if (rgb == 0)
         it.filled_rectangle(x, y, 80, 64, Color(c-1, 0, 0));

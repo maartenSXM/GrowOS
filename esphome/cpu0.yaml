@@ -162,23 +162,8 @@ display:
     reset_pin: $PIN_TFT_RST
     data_rate: 40MHz
     update_interval: 50ms
-    # lambda: !include displayBlocks.yaml
-    lambda: |-
-      static int col = 255; // lets use 8 shades of r, g and b each
-      if (id(touchx) != 0 && id(touchy) != 0)
-        {
-        int r = (col & 0x7) << 5;
-        int g = (col & 0x38) << 2;
-        int b = (col & 0x1c0) >> 1;
-        // printf("r=%d, g=%d, b=%d\n", r, g, b);
-        it.filled_circle(id(touchx), id(touchy), 30, Color(r,g,b));
-        it.circle(id(touchx), id(touchy), 30, Color(0,0,0));
-        id(touchx) = 0;
-        id(touchy) = 0;
-        col --;
-        if (col == 0)
-          col = 255;
-        }
+    # <<: !include "tests/displayBlocks.yaml"
+    <<: !include "tests/displayCircles.yaml"
 
 i2c:
   id: i2cBusIntern
