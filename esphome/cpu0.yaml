@@ -1,10 +1,5 @@
 substitutions:
   <<: !include pinsCpu0.yaml
-  GB_WIFI_ADDR: 192.168.8.134
-  GB_WIFI_GATEWAY: 192.168.8.1
-  GB_WIFI_NETMASK: 255.255.255.0
-  GB_WIFI_SSID: SkyNet
-  GB_WIFI_PASSWORD: WestLake
 
 <<: !include env.yaml
 
@@ -68,7 +63,9 @@ switch:
       number: $PIN_TFT_BACKLIGHT
       mode: output
     inverted: true
-    restore_mode: ALWAYS_ON
+    # To save power and not burn screen, the backlight defaults off.
+    # It can be turned on from the web server.
+    restore_mode: ALWAYS_OFF
 
   - platform: restart
     name: "Reboot"
@@ -108,115 +105,12 @@ switch:
 #     on_turn_off:
 #     - rtttl.stop
 
-spi:
-  clk_pin: $PIN_TFT_SCLK
-  mosi_pin: $PIN_TFT_MOSI
-  miso_pin: $PIN_TFT_MISO
-  interface: hardware
+<<: !include display.yaml
 
-font:
-  - file: 'fonts/arial.ttf'
-    id: arial
-    size: 24
-
-# ft63x6 from github://gpambrozio/esphome@FT6336U-touch
-#    mod done is to add swap_x_y directive
-# ili9xx from github:esphome#dev
-#    mod done is to enable SPI 4-wire 18-bit mode for ili9488
-external_components:
-  - source:
-      type: local
-      path: myComponents
-    components: [ ili9xxx, ft63x6 ]
-
-globals:
-  - id: touchx
-    type: unsigned int
-    restore_value: no
-    initial_value: '0'
-  - id: touchy
-    type: unsigned int
-    restore_value: no
-    initial_value: '0'
-
-display:
-  - platform: ili9xxx
-    model: ili9488_A
-    spi_mode: mode3
-    id: my_display
-    dimensions:
-      width: 480
-      height: 320
-      offset_height: 0
-      offset_width: 0
-    color_order: bgr
-    transform:
-      mirror_y: false
-      swap_xy: true
-      mirror_x: true
-    # rotation: 180
-    invert_colors: false
-    auto_clear_enabled: false
-    cs_pin: $PIN_TFT_CS
-    dc_pin: $PIN_TFT_DC
-    reset_pin: $PIN_TFT_RST
-    data_rate: 40MHz
-    update_interval: 50ms
-    # <<: !include "tests/displayBlocks.yaml"
-    <<: !include "tests/displayCircles.yaml"
-
-i2c:
-  id: i2cBusIntern
-  sda: $PIN_TWI_SDA
-  scl: $PIN_TWI_SCK
-  frequency: 400kHz
-  scan: false
-
-touchscreen:
- - platform: ft63x6
-   id: tftTouch
-   i2c_id: i2cBusIntern
-   interrupt_pin: $PIN_CTP_IRQ
-   swap_x_y: true
-   on_touch:
-     lambda: |-
-       id(touchx) = touch.x;
-       id(touchy) = touch.y;
-       // printf("x=%d, y=%d\n", touch.x, touch.y);
-
-#   - logger.log:
-#       format: Touch at (%d, %d)
-#       args: [touch.x, touch.y]
-       
 # Enable logging
 logger:
   # level: DEBUG
   logs:
     component: ERROR
 
-# Enable Home Assistant API
-#api:
-#   password: ""
-
-ota:
-  password: ""
-
-web_server:
-
-wifi:
-  ssid: $GB_WIFI_SSID
-  password: $GB_WIFI_PASSWORD
-  manual_ip:
-    static_ip: $GB_WIFI_ADDR
-    gateway: $GB_WIFI_GATEWAY
-    subnet: $GB_WIFI_NETMASK
-    dns1: $GB_WIFI_GATEWAY
-  fast_connect: on
-
-# Enable fallback hotspot (captive portal) in case wifi connection fails
-# ap:
-#   ssid: "Gbcpu0 Fallback Hotspot"
-#   password: "2MVT9gyfV0D4"
-
-captive_portal:
-    
+<<: !include network.yaml

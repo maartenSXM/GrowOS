@@ -1,0 +1,74 @@
+spi:
+  clk_pin: $PIN_TFT_SCLK
+  mosi_pin: $PIN_TFT_MOSI
+  miso_pin: $PIN_TFT_MISO
+  interface: hardware
+
+font:
+  - file: 'fonts/arial.ttf'
+    id: arial
+    size: 24
+
+# ft63x6 from github://gpambrozio/esphome@FT6336U-touch
+#    mod done is to add swap_x_y directive
+external_components:
+  - source:
+      type: local
+      path: myComponents
+    components: [ ft63x6 ]
+
+globals:
+  - id: touchx
+    type: unsigned int
+    restore_value: no
+    initial_value: '0'
+  - id: touchy
+    type: unsigned int
+    restore_value: no
+    initial_value: '0'
+
+display:
+  - platform: ili9xxx
+    model: ili9488_A
+    spi_mode: mode3
+    id: my_display
+    dimensions:
+      width: 480
+      height: 320
+      offset_height: 0
+      offset_width: 0
+    color_order: bgr
+    transform:
+      mirror_y: false
+      swap_xy: true
+      mirror_x: true
+    # rotation: 180
+    invert_colors: false
+    auto_clear_enabled: false
+    cs_pin: $PIN_TFT_CS
+    dc_pin: $PIN_TFT_DC
+    reset_pin: $PIN_TFT_RST
+    data_rate: 40MHz
+    update_interval: 50ms
+    # <<: !include "tests/displayBlocks.yaml"
+    <<: !include "tests/displayCircles.yaml"
+
+i2c:
+  id: i2cBusIntern
+  sda: $PIN_TWI_SDA
+  scl: $PIN_TWI_SCK
+  frequency: 400kHz
+  scan: false
+
+touchscreen:
+ - platform: ft63x6
+   id: tftTouch
+   i2c_id: i2cBusIntern
+   interrupt_pin: $PIN_CTP_IRQ
+   swap_x_y: true
+   on_touch:
+     lambda: |-
+       id(touchx) = touch.x;
+       id(touchy) = touch.y;
+       printf("x=%d, y=%d\n", touch.x, touch.y);
+

@@ -6,11 +6,16 @@ git checkout dev
 ./script/setup
 
 To use esphome from the command line, activate the python
-virtual environment like this:
+virtual environment in your terminal shell like this:
 
 source venv/bin/activate
 
-and the you can cd into the growOS/esp/cpu0 directory and do this:
+and the you can cd into the growOS/esphome directory and setup
+your secrets file by doing this:
+
+cp secrets.$USER secrets.yaml
+
+Now you are ready to build and run!
 
 esphome compile cpu0.yaml
 esphome upload cpu0.yaml
@@ -20,12 +25,5 @@ or do all three in one shot using this command:
 
 esphome run cpu0.yaml
 
-Note that you need to change the boot.yaml wifi: config
-to something that is on KoningNet.  I recommend manual config for
-the IP address not DHCP for development since the target will boot faster.
-Perhaps choose something like 192.168.248.10, which is outside the
-KoningNet DHCP range. SkyNet WiFi will not work at home since it has client
-isolation enabled there - so use KoningNet.
-
-
+Voila!
 
