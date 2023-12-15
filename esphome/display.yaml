@@ -11,11 +11,11 @@ font:
 
 # ft63x6 from github://gpambrozio/esphome@FT6336U-touch
 #    mod done is to add swap_x_y directive
-external_components:
-  - source:
-      type: local
-      path: myComponents
-    components: [ ft63x6 ]
+# external_components:
+#   - source:
+#       type: local
+#       path: myComponents
+#     components: [ ft63x6 ]
 
 globals:
   - id: touchx
@@ -65,7 +65,8 @@ touchscreen:
    id: tftTouch
    i2c_id: i2cBusIntern
    interrupt_pin: $PIN_CTP_IRQ
-   swap_x_y: true
+   transform:
+     swap_xy: true
    on_touch:
      lambda: |-
        id(touchx) = touch.x;

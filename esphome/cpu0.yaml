@@ -45,7 +45,7 @@ switch:
     pin:
       number: $PIN_H_S_ENABLE
       mode: output
-    restore_mode: ALWAYS_ON
+    restore_mode: ALWAYS_OFF
 
   - platform: gpio
     id: switch_TFT_PWR_EN
@@ -109,8 +109,10 @@ switch:
 
 # Enable logging
 logger:
+  baud_rate: 115200
+  hardware_uart: UART0
   # level: DEBUG
-  logs:
-    component: ERROR
+  # logs:
+  # component: ERROR
 
 <<: !include network.yaml
