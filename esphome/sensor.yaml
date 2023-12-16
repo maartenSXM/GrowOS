@@ -1,0 +1,11 @@
+sensor:
+  - platform: internal_temperature
+    name: "System Temperature"
+
+  - platform: wifi_signal
+    name: "Net WiFi Signal "
+    update_interval: 15s
+
+  - platform: uptime
+    name: System Uptime 
+

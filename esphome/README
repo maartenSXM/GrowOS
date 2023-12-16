@@ -25,5 +25,8 @@ or do all three in one shot using this command:
 
 esphome run cpu0.yaml
 
+Also, you can connect to the growboard's IP address from a browser
+to see the information and flip some switches.
+
 Voila!
 

@@ -16,16 +16,16 @@ substitutions:
 light:
   - platform: status_led
     id: cpu0_status_led
-    name: "Status LED"
+    name: "System LED"
     pin: $PIN_TempData
     effects:
       - strobe:
-          name: blink_slow
+          name: blink
           colors:
             - state: true
-              duration: 1s
+              duration: 900ms
             - state: false
-              duration: 1s
+              duration: 100ms
 
 output:
   - platform: ledc
@@ -41,7 +41,7 @@ output:
 switch:
   - platform: gpio
     id: switch_H_S_ENABLE
-    name: "Secondary CPU Enable"
+    name: "CPU1 Enable"
     pin:
       number: $PIN_H_S_ENABLE
       mode: output
@@ -49,7 +49,7 @@ switch:
 
   - platform: gpio
     id: switch_TFT_PWR_EN
-    name: "Display Enable"
+    name: "CPU0 Display Enable"
     pin:
       number: $PIN_TFT_PWR_EN
       mode: output
@@ -58,7 +58,7 @@ switch:
 
   - platform: gpio
     id: switch_TFT_BACKLIGHT
-    name: "Display Backlight"
+    name: "CPU0 Backlight Enable"
     pin:
       number: $PIN_TFT_BACKLIGHT
       mode: output
@@ -68,7 +68,7 @@ switch:
     restore_mode: ALWAYS_OFF
 
   - platform: restart
-    name: "Reboot"
+    name: "System Reboot"
 
 #  - platform: gpio
 #    pin:
@@ -77,7 +77,7 @@ switch:
 #    id: led
 
   - platform: output
-    name: "Buzzer"
+    name: "CPU0 Buzzer"
     id: buzzer
     output: buzzer_output
     on_turn_on: 
@@ -104,6 +104,8 @@ switch:
 #     - rtttl.play: 'MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
 #     on_turn_off:
 #     - rtttl.stop
+
+<<: !include sensor.yaml
 
 <<: !include display.yaml
 
