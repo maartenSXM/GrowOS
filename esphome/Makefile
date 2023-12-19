@@ -47,3 +47,4 @@ endef
 
 Makefile: ;
 
+.PHONY: update0 update1
