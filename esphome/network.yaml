@@ -8,28 +8,28 @@ ota:
 web_server:
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
+  ssid: $sub_wifi_ssid
+  password: $sub_wifi_password
   manual_ip:
-    static_ip: !secret wifi_addr
-    gateway: !secret wifi_gateway
-    subnet: !secret wifi_netmask
-    dns1: !secret wifi_gateway
+    static_ip: $sub_wifi_addr_$CPU
+    gateway: $sub_wifi_gateway
+    subnet: $sub_wifi_netmask
+    dns1: $sub_wifi_gateway
   fast_connect: on
 
 # Enable fallback hotspot (captive portal) in case wifi connection fails
 # ap:
-#   ssid: "Gbcpu0 Fallback Hotspot"
-#   password: "2MVT9gyfV0D4"
+#   ssid: gbCpu$CPU Hotspot
+#   password: $sub_wifi_password
 
 captive_portal:
     
 time:
   - platform: sntp
     id: sntpTime
-    timezone: !secret ntp_timezone
+    timezone: $sub_ntp_timezone
     servers:
-      - !secret ntp_server
+      - $sub_ntp_server
     on_time_sync:
       then:
         - logger.log: "Synchronized sntp clock"
@@ -37,37 +37,3 @@ time:
           # lambda: |-
           # id(sntpBootTime) = id(sntpTime);
 
-text_sensor:
-  - platform: template
-    name: "Net SNTP Time"
-    update_interval: 30s
-    lambda: |-
-      auto time_text = (std::string) "Unknown";
-      if (id(sntpTime).now().is_valid())
-        time_text = id(sntpTime).now().strftime("%d/%m/%Y %H:%M:%S");
-      return time_text;
-
-  - platform: template
-    id: sntpBootTimeText
-    name: "System Boot Time"
-    # update_interval: never
-    lambda: |-
-      static char str[25];
-      static time_t bootTime;
-
-      if (bootTime == (time_t) 0)
-        {
-        if (!id(sntpTime).now().is_valid())
-          return ((std::string) "Unknown");
-        bootTime = id(sntpTime).now().timestamp;
-        strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&bootTime));
-        }
-      return (std::string) str;
-
-  - platform: wifi_info
-    ip_address:
-      name: Net IP Address
-    ssid:
-      name: Net WiFi SSID
-    mac_address:
-      name: Net MAC Address

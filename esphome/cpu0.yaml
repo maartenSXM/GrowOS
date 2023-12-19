@@ -1,4 +1,5 @@
 substitutions:
+  <<: !include location.yaml
   <<: !include pinsCpu0.yaml
 
 <<: !include env.yaml
@@ -108,13 +109,5 @@ switch:
 <<: !include sensor.yaml
 
 <<: !include display.yaml
-
-# Enable logging
-logger:
-  baud_rate: 115200
-  hardware_uart: UART0
-  # level: DEBUG
-  # logs:
-  # component: ERROR
 
 <<: !include network.yaml
