@@ -11,11 +11,11 @@ sensor:
 
   - platform: debug
     free:
-      name: "Heap Free"
+      name: "System Heap Free"
 #   fragmentation:
 #      name: "Heap Frag"
     block:
-      name: "Heap Max Block"
+      name: "System Heap Max Block"
     loop_time:
       name: "System Loop Time"
     psram:

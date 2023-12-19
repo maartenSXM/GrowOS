@@ -29,6 +29,16 @@ make run0
 which does a compile followed by an update, make make rebuild,
 which rebuilds firmware for both CPU 0 and CPU 1)
 
+The Makefile creates a location.yaml file.  Once you have that,
+instead of driving things from the Makefile, you can issue
+esphome commands directly, such as:
+
+ esphome compile cpu0.yaml
+ esphome upload cpu0.yaml
+ esphome logs cpu0.yaml
+
+See esphome -h for more details.
+
 Also, you can connect to the growboard's IP address from a browser
 to see the information and flip some switches.
 

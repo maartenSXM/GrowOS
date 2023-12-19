@@ -17,7 +17,7 @@ substitutions:
 light:
   - platform: status_led
     id: cpu0_status_led
-    name: "System LED"
+    name: "CPU0 Status LED"
     pin: $PIN_TempData
     effects:
       - strobe:
