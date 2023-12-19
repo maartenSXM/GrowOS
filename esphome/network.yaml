@@ -1,6 +1,6 @@
-# Enable Home Assistant API
-#api:
-#   password: ""
+// Enable Home Assistant API
+//api:
+//   password: ""
 
 ota:
   password: ""
@@ -17,10 +17,10 @@ wifi:
     dns1: $sub_wifi_gateway
   fast_connect: on
 
-# Enable fallback hotspot (captive portal) in case wifi connection fails
-# ap:
-#   ssid: gbCpu$CPU Hotspot
-#   password: $sub_wifi_password
+// Enable fallback hotspot (captive portal) in case wifi connection fails
+// ap:
+//   ssid: gbCpu$CPU Hotspot
+//   password: $sub_wifi_password
 
 captive_portal:
     
@@ -34,6 +34,6 @@ time:
       then:
         - logger.log: "Synchronized sntp clock"
 
-          # lambda: |-
-          # id(sntpBootTime) = id(sntpTime);
+          // lambda: |-
+          // id(sntpBootTime) = id(sntpTime);
 

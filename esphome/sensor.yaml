@@ -12,8 +12,8 @@ sensor:
   - platform: debug
     free:
       name: "System Heap Free"
-#   fragmentation:
-#      name: "Heap Frag"
+//   fragmentation:
+//      name: "Heap Frag"
     block:
       name: "System Heap Max Block"
     loop_time:
@@ -34,7 +34,7 @@ text_sensor:
   - platform: template
     id: sntpBootTimeText
     name: "System Boot Time"
-    # update_interval: never
+    // update_interval: never
     lambda: |-
       static char str[25];
       static time_t bootTime;
@@ -57,8 +57,8 @@ text_sensor:
       name: Net MAC Address
 
   - platform: debug
-    # device:
-    #   name: "System Info"
+    // device:
+    //   name: "System Info"
     reset_reason:
       name: "System Reset Reason"
 

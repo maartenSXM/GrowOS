@@ -1,19 +1,18 @@
 substitutions:
-  <<: !include location.yaml
-  <<: !include pinsCpu0.yaml
+#include "location.yaml"
+#include "pinsCpu0.yaml"
+#include "env.yaml"
 
-<<: !include env.yaml
-
-# flash the led using a slow software-based PWM
-# esphome.on_boot:
-#  priority: -100
-#  then:
-#    - output.turn_on:
-#        my_slow_pwm  
-#    - output.set_level:
-#        id: my_slow_pwm
-#        level: "90%"
-#
+// flash the led using a slow software-based PWM
+// esphome.on_boot:
+//  priority: -100
+//  then:
+//    - output.turn_on:
+//        my_slow_pwm  
+//    - output.set_level:
+//        id: my_slow_pwm
+//        level: "90%"
+//
 light:
   - platform: status_led
     id: cpu0_status_led
@@ -33,11 +32,11 @@ output:
     pin: $PIN_BUZZER
     id: buzzer_output
 
-#  - platform: slow_pwm
-#    pin: $PIN_TempData
-#    id: my_slow_pwm
-#    period: 500ms
-#    restart_cycle_on_state_change: true
+//  - platform: slow_pwm
+//    pin: $PIN_TempData
+//    id: my_slow_pwm
+//    period: 500ms
+//    restart_cycle_on_state_change: true
 
 switch:
   - platform: gpio
@@ -64,18 +63,18 @@ switch:
       number: $PIN_TFT_BACKLIGHT
       mode: output
     inverted: true
-    # To save power and not burn screen, the backlight defaults off.
-    # It can be turned on from the web server.
+    // To save power and not burn screen, the backlight defaults off.
+    // It can be turned on from the web server.
     restore_mode: ALWAYS_OFF
 
   - platform: restart
     name: "System Reboot"
 
-#  - platform: gpio
-#    pin:
-#      number: $PIN_TempData
-#      mode: output
-#    id: led
+//  - platform: gpio
+//    pin:
+//      number: $PIN_TempData
+//      mode: output
+//    id: led
 
   - platform: output
     name: "CPU0 Buzzer"
@@ -95,19 +94,19 @@ switch:
       then:
         - output.turn_off: buzzer_output
 
-#interval:
-#  - interval: 500ms
-#    then:
-#      - switch.toggle: led
-      # - logger.log: "LED toggling"
+//interval:
+//  - interval: 500ms
+//    then:
+//      - switch.toggle: led
+      // - logger.log: "LED toggling"
 
-# on_turn_on:
-#     - rtttl.play: 'MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
-#     on_turn_off:
-#     - rtttl.stop
+// on_turn_on:
+//     - rtttl.play: 'MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+//     on_turn_off:
+//     - rtttl.stop
 
-<<: !include sensor.yaml
+#include "sensor.yaml"
 
-<<: !include display.yaml
+#include "display.yaml"
 
-<<: !include network.yaml
+#include "network.yaml"

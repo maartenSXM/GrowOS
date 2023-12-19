@@ -9,13 +9,13 @@ font:
     id: arial
     size: 24
 
-# ft63x6 from github://gpambrozio/esphome@FT6336U-touch
-#    mod done is to add swap_x_y directive
-# external_components:
-#   - source:
-#       type: local
-#       path: myComponents
-#     components: [ ft63x6 ]
+// ft63x6 from github://gpambrozio/esphome@FT6336U-touch
+//    mod done is to add swap_x_y directive
+// external_components:
+//   - source:
+//       type: local
+//       path: myComponents
+//     components: [ ft63x6 ]
 
 globals:
   - id: touchx
@@ -42,7 +42,7 @@ display:
       mirror_y: false
       swap_xy: true
       mirror_x: true
-    # rotation: 180
+    // rotation: 180
     invert_colors: false
     auto_clear_enabled: false
     cs_pin: $PIN_TFT_CS
@@ -50,8 +50,8 @@ display:
     reset_pin: $PIN_TFT_RST
     data_rate: 40MHz
     update_interval: 50ms
-    # <<: !include "tests/displayBlocks.yaml"
-    <<: !include "tests/displayCircles.yaml"
+    // #include "tests/displayBlocks.yaml"
+#include "tests/displayCircles.yaml"
 
 i2c:
   id: i2cBusIntern
