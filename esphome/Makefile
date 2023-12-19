@@ -13,10 +13,10 @@ endif
 
 ifeq ($(USER),maarten)
   LOCATION = sxm
-  SERIAL = 100
+  SERIALNO = 100
 else
   LOCATION = pec
-  SERIAL = 101
+  SERIALNO = 101
 endif
 
 ESPHOME   = esphome
@@ -40,7 +40,7 @@ define setupLocation
 	\n# These substitutions from ./Makefile:		\
 	\n#							\
 	\n  CPU:      \"$(1)\"					\
-	\n  SERIAL:   \"$(SERIAL)\"				\
+	\n  SERIALNO:   \"$(SERIALNO)\"				\
 	\n  LOCATION: \"$(LOCATION)\"				\
 	\n#							\
 	\n# These substitutions from ./location.$(LOCATION):	\
@@ -65,4 +65,4 @@ Makefile: ;
 clean: clean0 clean1
 	@rm -f $(GB_LOC)
 
-.PHONY: update0 update1 always-create clean
+.PHONY: update0 update1 always-create clean all logs *0 *1
