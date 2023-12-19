@@ -11,7 +11,7 @@ wifi:
   ssid: $sub_wifi_ssid
   password: $sub_wifi_password
   manual_ip:
-    static_ip: $sub_wifi_addr_$CPU
+    static_ip: ${sub_wifi_addr_${CPU}}
     gateway: $sub_wifi_gateway
     subnet: $sub_wifi_netmask
     dns1: $sub_wifi_gateway

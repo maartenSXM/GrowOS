@@ -13,11 +13,13 @@ endif
 
 ifeq ($(USER),maarten)
   LOCATION = sxm
+  SERIAL = 100
 else
   LOCATION = pec
+  SERIAL = 101
 endif
 
-ESPHOME = esphome -s LOCATION $(LOCATION)
+ESPHOME = esphome -s LOCATION $(LOCATION) -s SERIAL $(SERIAL)
 YAML_PREFIX  = cpu
 
 update0:   compile0 upload0
