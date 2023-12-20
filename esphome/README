@@ -29,13 +29,14 @@ make run0
 which does a compile followed by an update, make make rebuild,
 which rebuilds firmware for both CPU 0 and CPU 1)
 
-The Makefile creates a location.yaml file.  Once you have that,
+The Makefile creates a location.yaml file and generates a full
+yaml file for esphome.  Once you have that generated yaml file,
 instead of driving things from the Makefile, you can issue
-esphome commands directly, such as:
+esphome commands directly on the generated yaml file, such as:
 
- esphome compile cpu0.yaml
- esphome upload cpu0.yaml
- esphome logs cpu0.yaml
+ esphome compile gen_cpu0.yaml
+ esphome upload gen_cpu0.yaml
+ esphome logs gen_cpu0.yaml
 
 See esphome -h for more details.
 
