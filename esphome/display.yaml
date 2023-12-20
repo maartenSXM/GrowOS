@@ -1,7 +1,7 @@
 spi:
-  clk_pin: $PIN_TFT_SCLK
-  mosi_pin: $PIN_TFT_MOSI
-  miso_pin: $PIN_TFT_MISO
+  clk_pin: _PIN_TFT_SCLK
+  mosi_pin: _PIN_TFT_MOSI
+  miso_pin: _PIN_TFT_MISO
   interface: hardware
 
 font:
@@ -45,9 +45,9 @@ display:
     // rotation: 180
     invert_colors: false
     auto_clear_enabled: false
-    cs_pin: $PIN_TFT_CS
-    dc_pin: $PIN_TFT_DC
-    reset_pin: $PIN_TFT_RST
+    cs_pin: _PIN_TFT_CS
+    dc_pin: _PIN_TFT_DC
+    reset_pin: _PIN_TFT_RST
     data_rate: 40MHz
     update_interval: 50ms
     // #include "tests/displayBlocks.yaml"
@@ -55,8 +55,8 @@ display:
 
 i2c:
   id: i2cBusIntern
-  sda: $PIN_TWI_SDA
-  scl: $PIN_TWI_SCK
+  sda: _PIN_TWI_SDA
+  scl: _PIN_TWI_SCK
   frequency: 400kHz
   scan: false
 
@@ -64,7 +64,7 @@ touchscreen:
  - platform: ft63x6
    id: tftTouch
    i2c_id: i2cBusIntern
-   interrupt_pin: $PIN_CTP_IRQ
+   interrupt_pin: _PIN_CTP_IRQ
    transform:
      swap_xy: true
    on_touch:

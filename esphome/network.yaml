@@ -8,28 +8,32 @@ ota:
 web_server:
 
 wifi:
-  ssid: $sub_wifi_ssid
-  password: $sub_wifi_password
+  ssid: _SUB_WIFI_SSID
+  password: _SUB_WIFI_PASSWORD
   manual_ip:
-    static_ip: ${sub_wifi_addr_${CPU}}
-    gateway: $sub_wifi_gateway
-    subnet: $sub_wifi_netmask
-    dns1: $sub_wifi_gateway
+#if _CPU == 0
+    static_ip: _SUB_WIFI_ADDR_0
+#else
+    static_ip: _SUB_WIFI_ADDR_1
+#endif
+    gateway: _SUB_WIFI_GATEWAY
+    subnet: _SUB_WIFI_NETMASK
+    dns1: _SUB_WIFI_GATEWAY
   fast_connect: on
 
 // Enable fallback hotspot (captive portal) in case wifi connection fails
 // ap:
-//   ssid: gbCpu$CPU Hotspot
-//   password: $sub_wifi_password
+//   ssid: DEF_CAT(gbCpu,_CPU) Hotspot
+//   password: _SUB_WIFI_PASSWORD
 
 captive_portal:
     
 time:
   - platform: sntp
     id: sntpTime
-    timezone: $sub_ntp_timezone
+    timezone: _SUB_NTP_TIMEZONE
     servers:
-      - $sub_ntp_server
+      - _SUB_NTP_SERVER
     on_time_sync:
       then:
         - logger.log: "Synchronized sntp clock"

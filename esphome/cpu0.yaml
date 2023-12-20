@@ -1,23 +1,23 @@
-substitutions:
-#include "location.yaml"
 #include "pinsCpu0.yaml"
 #include "env.yaml"
 
+#if 0
 // flash the led using a slow software-based PWM
-// esphome.on_boot:
-//  priority: -100
-//  then:
-//    - output.turn_on:
-//        my_slow_pwm  
-//    - output.set_level:
-//        id: my_slow_pwm
-//        level: "90%"
-//
+esphome.on_boot:
+ priority: -100
+ then:
+   - output.turn_on:
+       my_slow_pwm  
+   - output.set_level:
+       id: my_slow_pwm
+       level: "90%"
+#endif
+
 light:
   - platform: status_led
     id: cpu0_status_led
     name: "CPU0 Status LED"
-    pin: $PIN_TempData
+    pin: _PIN_TempData
     effects:
       - strobe:
           name: blink
@@ -29,21 +29,23 @@ light:
 
 output:
   - platform: ledc
-    pin: $PIN_BUZZER
+    pin: _PIN_BUZZER
     id: buzzer_output
 
-//  - platform: slow_pwm
-//    pin: $PIN_TempData
-//    id: my_slow_pwm
-//    period: 500ms
-//    restart_cycle_on_state_change: true
+#if 0
+  - platform: slow_pwm
+    pin: _PIN_TempData
+    id: my_slow_pwm
+    period: 500ms
+    restart_cycle_on_state_change: true
+#endif
 
 switch:
   - platform: gpio
     id: switch_H_S_ENABLE
     name: "CPU1 Enable"
     pin:
-      number: $PIN_H_S_ENABLE
+      number: _PIN_H_S_ENABLE
       mode: output
     restore_mode: ALWAYS_OFF
 
@@ -51,7 +53,7 @@ switch:
     id: switch_TFT_PWR_EN
     name: "CPU0 Display Enable"
     pin:
-      number: $PIN_TFT_PWR_EN
+      number: _PIN_TFT_PWR_EN
       mode: output
     inverted: true
     restore_mode: ALWAYS_ON
@@ -60,7 +62,7 @@ switch:
     id: switch_TFT_BACKLIGHT
     name: "CPU0 Backlight Enable"
     pin:
-      number: $PIN_TFT_BACKLIGHT
+      number: _PIN_TFT_BACKLIGHT
       mode: output
     inverted: true
     // To save power and not burn screen, the backlight defaults off.
@@ -70,11 +72,13 @@ switch:
   - platform: restart
     name: "System Reboot"
 
-//  - platform: gpio
-//    pin:
-//      number: $PIN_TempData
-//      mode: output
-//    id: led
+#if 0
+  - platform: gpio
+    pin:
+      number: _PIN_TempData
+      mode: output
+    id: led
+#endif
 
   - platform: output
     name: "CPU0 Buzzer"
@@ -94,16 +98,17 @@ switch:
       then:
         - output.turn_off: buzzer_output
 
-//interval:
-//  - interval: 500ms
-//    then:
-//      - switch.toggle: led
-      // - logger.log: "LED toggling"
-
-// on_turn_on:
-//     - rtttl.play: 'MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
-//     on_turn_off:
-//     - rtttl.stop
+#if 0
+interval:
+  - interval: 500ms
+    then:
+      - switch.toggle: led
+  - logger.log: "LED toggling"
+  on_turn_on:
+    - rtttl.play: 'MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+  on_turn_off:
+    - rtttl.stop
+#endif
 
 #include "sensor.yaml"
 

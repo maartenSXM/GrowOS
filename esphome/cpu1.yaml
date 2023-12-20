@@ -1,37 +1,4 @@
-substitutions:
-  <<: !include location.yaml
-  <<: !include pinsCpu1.yaml
-
-<<: !include env.yaml
-
-# flash the led using a slow software-based PWM
-# esphome.on_boot:
-#  priority: -100
-#  then:
-#    - output.turn_on:
-#        my_slow_pwm  
-#    - output.set_level:
-#        id: my_slow_pwm
-#        level: "90%"
-#
-light:
-  - platform: status_led
-    id: cpu0_status_led
-    name: "System LED"
-    pin: $PIN_TempData
-    effects:
-      - strobe:
-          name: blink
-          colors:
-            - state: true
-              duration: 900ms
-            - state: false
-              duration: 100ms
-
-switch:
-  - platform: restart
-    name: "System Reboot"
-
-<<: !include sensor.yaml
-
-<<: !include network.yaml
+#include "pinsCpu1.yaml"
+#include "env.yaml"
+#include "sensor.yaml"
+#include "network.yaml"

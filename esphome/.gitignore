@@ -6,3 +6,4 @@
 /archive/
 location.yaml
 gen_cpu*.yaml
+.gen_cpu*.yaml
