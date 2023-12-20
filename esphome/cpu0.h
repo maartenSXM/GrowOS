@@ -1,3 +1,6 @@
+#ifndef _INCLUDE_CPU0_H_
+#define _INCLUDE_CPU0_H_
+
 #define _PIN_H_GPIO0	GPIO0
 #define _PIN_CSI_VSYNC	GPIO1
 #define _PIN_CSI_D9	GPIO2
@@ -41,3 +44,5 @@
 #define _PIN_H_U0TXD	GPIO43
 #define _PIN_H_U0RXD	GPIO44
 #define _PIN_VBAT_CE	GPIO45
+
+#endif // _INCLUDE_CPU0_H_

@@ -1,4 +1,6 @@
-#include "pinsCpu1.yaml"
+#include "cpu0.h"
 #include "env.yaml"
 #include "sensor.yaml"
+#include "display.yaml"
 #include "network.yaml"
+#include "app0.yaml"

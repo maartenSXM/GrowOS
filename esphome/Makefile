@@ -20,7 +20,7 @@ else
 endif
 
 ESPHOME   = esphome
-GB_PREFIX = cpu
+GB_PREFIX = main
 GB_LOC    = location.$(LOCATION)
 CPP	  = cpp -undef -nostdinc -D_SERIALNO=$(SERIALNO) 
 

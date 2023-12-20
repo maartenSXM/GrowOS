@@ -1,6 +1,3 @@
-#include "pinsCpu0.yaml"
-#include "env.yaml"
-
 #if 0
 // flash the led using a slow software-based PWM
 esphome.on_boot:
@@ -109,9 +106,3 @@ interval:
   on_turn_off:
     - rtttl.stop
 #endif
-
-#include "sensor.yaml"
-
-#include "display.yaml"
-
-#include "network.yaml"
