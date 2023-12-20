@@ -10,6 +10,7 @@ esphome.on_boot:
        level: "90%"
 #endif
 
+#if GB_CONFIG_APP0_LED
 light:
   - platform: status_led
     id: cpu0_status_led
@@ -23,6 +24,7 @@ light:
               duration: 900ms
             - state: false
               duration: 100ms
+#endif // GB_CONFIG_APP0_LED
 
 output:
   - platform: ledc
@@ -44,7 +46,11 @@ switch:
     pin:
       number: _PIN_H_S_ENABLE
       mode: output
+#if GB_CONFIG_CPU1_DEFAULTS_ON == 1
+    restore_mode: ALWAYS_ON
+#else
     restore_mode: ALWAYS_OFF
+#endif // GB_CONFIG_CPU1_DEFAULTS_ON == 1
 
   - platform: gpio
     id: switch_TFT_PWR_EN
@@ -53,7 +59,11 @@ switch:
       number: _PIN_TFT_PWR_EN
       mode: output
     inverted: true
+#if GB_CONFIG_TFT_PWR_DEFAULTS_ON == 1
     restore_mode: ALWAYS_ON
+#else
+    restore_mode: ALWAYS_OFF
+#endif // GB_CONFIG_TFT_PWR_DEFAULTS_ON == 1
 
   - platform: gpio
     id: switch_TFT_BACKLIGHT
@@ -62,9 +72,11 @@ switch:
       number: _PIN_TFT_BACKLIGHT
       mode: output
     inverted: true
-    // To save power and not burn screen, the backlight defaults off.
-    // It can be turned on from the web server.
+#if GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON == 1
+    restore_mode: ALWAYS_ON
+#else
     restore_mode: ALWAYS_OFF
+#endif // GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON == 1
 
   - platform: restart
     name: "System Reboot"

@@ -1,4 +1,6 @@
+#include "config.h"
 #include "cpu0.h"
+
 #include "env.yaml"
 #include "sensor.yaml"
 #include "display.yaml"

@@ -1,15 +1,9 @@
-// Enable Home Assistant API
-//api:
-//   password: ""
-
-ota:
-  password: ""
-
-web_server:
-
+#if GB_CONFIG_NET_WIFI == 1
+// Enable WiFi and IP stack
 wifi:
   ssid: _SUB_WIFI_SSID
   password: _SUB_WIFI_PASSWORD
+#if GB_CONFIG_NET_STATIC == 1
   manual_ip:
 #if _CPU == 0
     static_ip: _SUB_WIFI_ADDR_0
@@ -19,15 +13,21 @@ wifi:
     gateway: _SUB_WIFI_GATEWAY
     subnet: _SUB_WIFI_NETMASK
     dns1: _SUB_WIFI_GATEWAY
+#endif // GB_CONFIG_NET_STATIC
   fast_connect: on
 
 // Enable fallback hotspot (captive portal) in case wifi connection fails
-// ap:
-//   ssid: DEF_CAT(gbCpu,_CPU) Hotspot
-//   password: _SUB_WIFI_PASSWORD
+#if GB_CONFIG_NET_FALLBACK == 1
+  ap:
+    ssid: DEF_CAT(gbCpu,_CPU) Hotspot
+    password: _SUB_WIFI_PASSWORD
+#endif !GB_CONFIG_NET_FALLBACK
 
+#if GB_CONFIG_NET_PORTAL == 1
 captive_portal:
+#endif // GB_CONFIG_NET_PORTAL
     
+#if GB_CONFIG_NET_SNTP == 1
 time:
   - platform: sntp
     id: sntpTime
@@ -40,4 +40,23 @@ time:
 
           // lambda: |-
           // id(sntpBootTime) = id(sntpTime);
+#endif // GB_CONFIG_NET_SNTP
 
+#if GB_CONFIG_NET_HA == 1
+// Enable Home Assistant API
+api:
+  password: _SUB_HA_PASSWORD
+#endif // GB_CONFIG_NET_OTA
+
+#if GB_CONFIG_NET_OTA == 1
+// Enable over-the-air update
+ota:
+  password: _SUB_OTA_PASSWORD
+#endif // GB_CONFIG_NET_OTA
+
+#if GB_CONFIG_NET_WEB_SERVER == 1
+// Enable web server
+web_server:
+#endif // GB_CONFIG_NET_WEB_SERVER
+
+#endif // GB_CONFIG_NET_WIFI

@@ -2,9 +2,11 @@ sensor:
   - platform: internal_temperature
     name: "System Temperature"
 
+#if GB_CONFIG_NET_WIFI == 1
   - platform: wifi_signal
     name: "Net WiFi Signal "
     update_interval: 15s
+#endif // GB_CONFIG_NET_WIFI == 1
 
   - platform: uptime
     name: System Uptime 
@@ -12,8 +14,6 @@ sensor:
   - platform: debug
     free:
       name: "System Heap Free"
-//   fragmentation:
-//      name: "Heap Frag"
     block:
       name: "System Heap Max Block"
     loop_time:
@@ -22,6 +22,8 @@ sensor:
       name: "System Free PSRAM"
 
 text_sensor:
+#if GB_CONFIG_NET_WIFI == 1
+#if GB_CONFIG_NET_SNTP == 1
   - platform: template
     name: "Net SNTP Time"
     update_interval: 30s
@@ -47,7 +49,10 @@ text_sensor:
         strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&bootTime));
         }
       return (std::string) str;
+#endif // GB_CONFIG_NET_SNTP == 1
+#endif // GB_CONFIG_NET_WIFI == 1
 
+#if GB_CONFIG_NET_WIFI == 1
   - platform: wifi_info
     ip_address:
       name: Net IP Address
@@ -55,6 +60,7 @@ text_sensor:
       name: Net WiFi SSID
     mac_address:
       name: Net MAC Address
+#endif // GB_CONFIG_NET_WIFI == 1
 
   - platform: debug
     // device:
