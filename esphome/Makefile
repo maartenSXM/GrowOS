@@ -1,11 +1,13 @@
 # Use this Makefile with target argument <cmd><cpuNum>
 # <cmd> can be any valid esphome command such as:
 #   'clean', 'compile', 'config', 'upload', or 'logs.
+#
 # Convenience <cmd> 'update' does a 'compile' and then an 'upload'.
 #   (See 'esphome -h for more help on valid <cmds>)
+#
 # <cpuNum> is 0 or 1 or blank to issue <cmd> for both cpus
 #
-# e.g. make compile0 or make update
+# Example usage: make compile0 or make update
 #
 ifeq ($(VIRTUAL_ENV),)
   $(error source esphome.git/venv/bin/activate)
@@ -20,7 +22,7 @@ else
 endif
 
 ESPHOME   = esphome
-GB_PREFIX = main
+GB_PREFIX = boot
 GB_LOC    = location.$(LOCATION)
 CPP	  = cpp -undef -nostdinc -D_SERIALNO=$(SERIALNO) 
 

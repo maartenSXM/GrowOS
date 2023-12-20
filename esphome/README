@@ -34,9 +34,9 @@ Once the yaml files are generated, instead of driving things
 from the Makefile, it is possible to issue esphome commands
 directly on the generated yaml file, such as:
 
-esphome compile gen_cpu0.yaml
-esphome upload gen_cpu0.yaml
-esphome logs gen_cpu0.yaml
+esphome compile gen_boot0.yaml
+esphome upload gen_boot0.yaml
+esphome logs gen_boot0.yaml
 
 See esphome -h for more details.
 
