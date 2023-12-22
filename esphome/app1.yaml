@@ -1,0 +1,15 @@
+
+switch:
+  - platform: gpio
+    pin: _PIN_SET_MOTOR_MINUS
+    name: "Motor minus"
+    id: motorMinus
+    interlock: [motorPlus]
+    interlock_wait_time: 500ms
+
+  - platform: gpio
+    pin: _PIN_SET_MOTOR_PLUS
+    name: "Motor plus"
+    id: motorPlus
+    interlock: [motorMinus]
+    interlock_wait_time: 500ms
