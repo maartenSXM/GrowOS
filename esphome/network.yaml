@@ -21,7 +21,7 @@ wifi:
   ap:
     ssid: DEF_CAT(gbCpu,_CPU) Hotspot
     password: _SUB_WIFI_PASSWORD
-#endif !GB_CONFIG_NET_FALLBACK
+#endif // GB_CONFIG_NET_FALLBACK
 
 #if GB_CONFIG_NET_PORTAL == 1
 captive_portal:

@@ -21,23 +21,17 @@ light:
           name: blink
           colors:
             - state: true
-              duration: 900ms
+              duration: 400ms
             - state: false
               duration: 100ms
 #endif // GB_CONFIG_APP0_LED
 
+#if GB_CONFIG_BUZZER == 1
 output:
   - platform: ledc
     pin: _PIN_BUZZER
-    id: buzzer_output
-
-#if 0
-  - platform: slow_pwm
-    pin: _PIN_TempData
-    id: my_slow_pwm
-    period: 500ms
-    restart_cycle_on_state_change: true
-#endif
+    id: buzzer_out
+#endif // GB_CONFIG_BUZZER == 1
 
 switch:
   - platform: gpio
@@ -81,40 +75,41 @@ switch:
   - platform: restart
     name: "System Reboot"
 
-#if 0
-  - platform: gpio
-    pin:
-      number: _PIN_TempData
-      mode: output
-    id: led
-#endif
-
+#if GB_CONFIG_BUZZER == 1
+#if GB_CONFIG_BUZZER_MONOTONE == 1
   - platform: output
     name: "CPU0 Buzzer"
     id: buzzer
-    output: buzzer_output
+    output: buzzer_out
     on_turn_on: 
       then:
-        - output.turn_on: buzzer_output
+        - output.turn_on: buzzer_out
         - output.ledc.set_frequency:
-            id: buzzer_output
+            id: buzzer_out
             frequency: "1000Hz"
         - output.set_level:
-            id: buzzer_output
+            id: buzzer_out
             level: "50%"
-
     on_turn_off:
       then:
-        - output.turn_off: buzzer_output
+        - output.turn_off: buzzer_out
 
-#if 0
-interval:
-  - interval: 500ms
-    then:
-      - switch.toggle: led
-  - logger.log: "LED toggling"
-  on_turn_on:
-    - rtttl.play: 'MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
-  on_turn_off:
-    - rtttl.stop
-#endif
+#else // GB_CONFIG_BUZZER_MONOTONE == 0
+
+rtttl:
+  output: buzzer_out
+
+button:
+  - platform: template
+    name: "Buzzer play"
+    on_press:
+      then:
+        - rtttl.play: 'mission_imp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+  - platform: template
+    name: "Buzzer stop"  
+    on_press:
+      then:
+        - rtttl.stop
+
+#endif // GB_CONFIG_BUZZER_MONOTONE == 0
+#endif // GB_CONFIG_BUZZER == 1
