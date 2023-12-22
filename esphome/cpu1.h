@@ -11,7 +11,7 @@
 #define _PIN_STA_A_EN	GPIO7
 #define _PIN_STA_E_EN	GPIO8
 #define _PIN_ACT_AIR	GPIO9
-#define _PIN_12V	GPIO10
+#define _PIN_ACT_12V	GPIO10
 #define _PIN_FanPWM	GPIO11
 #define _PIN_HS_AUX	GPIO12
 #define _PIN_LOWWATER	GPIO13

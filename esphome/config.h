@@ -2,7 +2,7 @@
 
 #define GB_CONFIG_NET_WIFI		1
 #define GB_CONFIG_NET_STATIC		1
-#define GB_CONFIG_NET_FALLBACK		1
+#define GB_CONFIG_NET_FALLBACK		0
 #define GB_CONFIG_NET_PORTAL		0
 #define GB_CONFIG_NET_SNTP		1
 #define GB_CONFIG_NET_HA		0
@@ -13,6 +13,7 @@
 
 #if _CPU == 0
 
+#define GB_CONFIG_32_KHZ_XTAL		0	// testing with it off
 #define GB_CONFIG_APP0_LED		1
 #define GB_CONFIG_CPU1_DEFAULTS_ON	0
 #define GB_CONFIG_TFT_PWR_DEFAULTS_ON 	0
