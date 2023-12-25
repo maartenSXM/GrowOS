@@ -1,7 +1,18 @@
 spi:
-  clk_pin: _PIN_TFT_SCLK
-  mosi_pin: _PIN_TFT_MOSI
-  miso_pin: _PIN_TFT_MISO
+  clk_pin:
+    number: _PIN_TFT_SCLK
+#if GB_CONFIG_CAMERA
+    allow_other_uses: true
+#endif // GB_CONFIG_CAMERA
+  mosi_pin:
+    number: _PIN_TFT_MOSI
+#if GB_CONFIG_CAMERA
+    allow_other_uses: true
+  miso_pin:
+    number: _PIN_TFT_MISO
+#if GB_CONFIG_CAMERA
+    allow_other_uses: true
+#endif // GB_CONFIG_CAMERA
   interface: hardware
 
 font:
@@ -45,8 +56,12 @@ display:
     // rotation: 180
     invert_colors: false
     auto_clear_enabled: false
-    cs_pin: _PIN_TFT_CS
-    dc_pin: _PIN_TFT_DC
+    cs_pin:
+      number: _PIN_TFT_CS
+      allow_other_uses: true
+    dc_pin:
+      number: _PIN_TFT_DC
+      allow_other_uses: true
     reset_pin: _PIN_TFT_RST
     data_rate: 40MHz
     update_interval: 50ms
@@ -55,8 +70,12 @@ display:
 
 i2c:
   id: i2cBusIntern
-  sda: _PIN_TWI_SDA
-  scl: _PIN_TWI_SCK
+  sda: 
+    number: _PIN_TWI_SDA
+    allow_other_uses: true
+  scl:
+    number: _PIN_TWI_SCK
+    allow_other_uses: true
   frequency: 400kHz
   scan: false
 

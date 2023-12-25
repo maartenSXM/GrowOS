@@ -26,12 +26,13 @@ light:
               duration: 100ms
 #endif // GB_CONFIG_APP0_LED
 
-#if GB_CONFIG_BUZZER == 1
+#if GB_CONFIG_BUZZER
 output:
   - platform: ledc
     pin: _PIN_BUZZER
     id: buzzer_out
-#endif // GB_CONFIG_BUZZER == 1
+    channel: 2 // xxx config item?
+#endif // GB_CONFIG_BUZZER
 
 switch:
   - platform: gpio
@@ -40,12 +41,13 @@ switch:
     pin:
       number: _PIN_H_S_ENABLE
       mode: output
-#if GB_CONFIG_CPU1_DEFAULTS_ON == 1
+#if GB_CONFIG_CPU1_DEFAULTS_ON
     restore_mode: ALWAYS_ON
 #else
     restore_mode: ALWAYS_OFF
-#endif // GB_CONFIG_CPU1_DEFAULTS_ON == 1
+#endif // GB_CONFIG_CPU1_DEFAULTS_ON
 
+#if GB_CONFIG_DISPLAY
   - platform: gpio
     id: switch_TFT_PWR_EN
     name: "CPU0 Display Enable"
@@ -53,11 +55,11 @@ switch:
       number: _PIN_TFT_PWR_EN
       mode: output
     inverted: true
-#if GB_CONFIG_TFT_PWR_DEFAULTS_ON == 1
+#if GB_CONFIG_TFT_PWR_DEFAULTS_ON
     restore_mode: ALWAYS_ON
 #else
     restore_mode: ALWAYS_OFF
-#endif // GB_CONFIG_TFT_PWR_DEFAULTS_ON == 1
+#endif // GB_CONFIG_TFT_PWR_DEFAULTS_ON
 
   - platform: gpio
     id: switch_TFT_BACKLIGHT
@@ -66,17 +68,33 @@ switch:
       number: _PIN_TFT_BACKLIGHT
       mode: output
     inverted: true
-#if GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON == 1
+#if GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
     restore_mode: ALWAYS_ON
 #else
     restore_mode: ALWAYS_OFF
-#endif // GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON == 1
+#endif // GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
+#endif // GB_CONFIG_DISPLAY
 
+#if GB_CONFIG_CAMERA
+  - platform: gpio
+    id: switch_CAMERA
+    name: "CPU0 Camera Enable"
+    pin:
+      number: _PIN_CSI_PWR_EN
+      mode: output
+    inverted: true
+#if GB_CONFIG_CAMERA_DEFAULTS_ON
+    restore_mode: ALWAYS_ON
+#else
+    restore_mode: ALWAYS_OFF
+#endif // GB_CONFIG_CAMERA_DEFAULTS_ON
+#endif // GB_CONFIG_CAMERA
+#
   - platform: restart
     name: "System Reboot"
 
-#if GB_CONFIG_BUZZER == 1
-#if GB_CONFIG_BUZZER_MONOTONE == 1
+#if GB_CONFIG_BUZZER
+#if GB_CONFIG_BUZZER_MONOTONE
   - platform: output
     name: "CPU0 Buzzer"
     id: buzzer
@@ -94,7 +112,7 @@ switch:
       then:
         - output.turn_off: buzzer_out
 
-#else // GB_CONFIG_BUZZER_MONOTONE == 0
+#else // !GB_CONFIG_BUZZER_MONOTONE
 
 rtttl:
   output: buzzer_out
@@ -111,5 +129,42 @@ button:
       then:
         - rtttl.stop
 
-#endif // GB_CONFIG_BUZZER_MONOTONE == 0
-#endif // GB_CONFIG_BUZZER == 1
+#endif // !GB_CONFIG_BUZZER_MONOTONE
+#endif // GB_CONFIG_BUZZER
+
+#if GB_CONFIG_CAMERA
+esp32_camera:
+  // HW settings
+  external_clock:
+    pin:
+      number: _PIN_CSI_XCLK
+      allow_other_uses: true
+    frequency: 20MHz
+  i2c_pins:
+    sda:
+      number: _PIN_TWI_SDA
+      allow_other_uses: true
+    scl:
+      number: _PIN_TWI_SCK
+      allow_other_uses: true
+  data_pins:
+    [
+    {number: _PIN_CSI_D2, allow_other_uses: true},
+    {number: _PIN_CSI_D3, allow_other_uses: true},
+    _PIN_CSI_D4,
+    {number: _PIN_CSI_D5, allow_other_uses: true},
+    _PIN_CSI_D6,
+    _PIN_CSI_D7,
+    _PIN_CSI_D8,
+    _PIN_CSI_D9
+    ]
+  vsync_pin: _PIN_CSI_VSYNC
+  href_pin:
+    number: _PIN_CSI_HREF
+    allow_other_uses: true
+  pixel_clock_pin: _PIN_CSI_PCLK
+
+  // Image settings
+  name: My Camera
+  // ...
+#endif // GB_CONFIG_CAMERA
