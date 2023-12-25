@@ -32,8 +32,8 @@
 #define H_GPIO40 40
 #define H_GPIO41 41
 #define H_GPIO42 42
-#define H_U0TXD
-#define H_U0RXD
+#define H_U0TXD 43
+#define H_U0RXD 44
 #define VBAT_CE 45
 
 // TFT and Touch CONFIG
