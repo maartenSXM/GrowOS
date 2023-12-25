@@ -1,0 +1,62 @@
+#if GB_CONFIG_NET_WIFI
+// Enable WiFi and IP stack
+wifi:
+  ssid: _SUB_WIFI_SSID
+  password: _SUB_WIFI_PASSWORD
+#if GB_CONFIG_NET_STATIC
+  manual_ip:
+#if _CPU == 0
+    static_ip: _SUB_WIFI_ADDR_0
+#else
+    static_ip: _SUB_WIFI_ADDR_1
+#endif
+    gateway: _SUB_WIFI_GATEWAY
+    subnet: _SUB_WIFI_NETMASK
+    dns1: _SUB_WIFI_GATEWAY
+#endif // GB_CONFIG_NET_STATIC
+  fast_connect: on
+
+// Enable fallback hotspot (captive portal) in case wifi connection fails
+#if GB_CONFIG_NET_FALLBACK
+  ap:
+    ssid: DEF_CAT(gbCpu,_CPU) Hotspot
+    password: _SUB_WIFI_PASSWORD
+#endif // GB_CONFIG_NET_FALLBACK
+
+#if GB_CONFIG_NET_PORTAL
+captive_portal:
+#endif // GB_CONFIG_NET_PORTAL
+    
+#if GB_CONFIG_NET_SNTP
+time:
+  - platform: sntp
+    id: sntpTime
+    timezone: _SUB_NTP_TIMEZONE
+    servers:
+      - _SUB_NTP_SERVER
+    on_time_sync:
+      then:
+        - logger.log: "Synchronized sntp clock"
+
+          // lambda: |-
+          // id(sntpBootTime) = id(sntpTime);
+#endif // GB_CONFIG_NET_SNTP
+
+#if GB_CONFIG_NET_HA
+// Enable Home Assistant API
+api:
+  password: _SUB_HA_PASSWORD
+#endif // GB_CONFIG_NET_OTA
+
+#if GB_CONFIG_NET_OTA
+// Enable over-the-air update
+ota:
+  password: _SUB_OTA_PASSWORD
+#endif // GB_CONFIG_NET_OTA
+
+#if GB_CONFIG_NET_WEB_SERVER
+// Enable web server
+web_server:
+#endif // GB_CONFIG_NET_WEB_SERVER
+
+#endif // GB_CONFIG_NET_WIFI

@@ -12,7 +12,6 @@ ft6336u_ns = cg.esphome_ns.namespace("ft63x6")
 FT63X6Touchscreen = ft6336u_ns.class_(
     "FT63X6Touchscreen",
     touchscreen.Touchscreen,
-    cg.Component,
     i2c.I2CDevice,
 )
 
@@ -30,23 +29,20 @@ CONFIG_SCHEMA = touchscreen.TOUCHSCREEN_SCHEMA.extend(
             cv.Optional(CONF_RESET_PIN): pins.gpio_output_pin_schema,
             cv.Optional(CONF_SWAP_X_Y, default=False): cv.boolean,
         }
-    )
-    .extend(i2c.i2c_device_schema(0x38))
-    .extend(cv.COMPONENT_SCHEMA)
+    ).extend(i2c.i2c_device_schema(0x38))
 )
 
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
-    await cg.register_component(var, config)
-    await i2c.register_i2c_device(var, config)
     await touchscreen.register_touchscreen(var, config)
+    await i2c.register_i2c_device(var, config)
 
-    if CONF_INTERRUPT_PIN in config:
-        interrupt_pin = await cg.gpio_pin_expression(config[CONF_INTERRUPT_PIN])
+    if interrupt_pin_config := config.get(CONF_INTERRUPT_PIN):
+        interrupt_pin = await cg.gpio_pin_expression(interrupt_pin_config)
         cg.add(var.set_interrupt_pin(interrupt_pin))
-    if CONF_RESET_PIN in config:
-        reset_pin = await cg.gpio_pin_expression(config[CONF_RESET_PIN])
+    if reset_pin_config := config.get(CONF_RESET_PIN):
+        reset_pin = await cg.gpio_pin_expression(reset_pin_config)
         cg.add(var.set_reset_pin(reset_pin))
 
     cg.add(var.set_swap_x_y(config[CONF_SWAP_X_Y]))

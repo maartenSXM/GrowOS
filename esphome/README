@@ -1,0 +1,48 @@
+To install esphome, do this:
+
+git clone https://github.com/esphome/esphome.git
+cd esphome
+git checkout dev
+./script/setup
+
+To activate the python virtual environment in a terminal shell,
+do this:
+
+source venv/bin/activate
+
+Now after cd-ing into the growOS/esphome directory, it is 
+possible to build and run esphome for CPU 0 like this:
+
+make compile0
+make upload0
+make logs0
+
+To do all three in one shot, use this command:
+
+make run0
+
+(see the Makefile for more commands, such as 'make update0',
+which does a compile followed by an update, and make rebuild,
+which rebuilds firmware for both CPU 0 and CPU 1)
+
+The Makefile chooses a board serial number and network location
+based on $USER and generates a full yaml file for esphome.
+For now, only two userids (erik and maarten) are supported.
+The files location.pec and location.sxm have that localization.
+
+Once the yaml files are generated, instead of driving things
+from the Makefile, it is also possible to issue esphome commands
+directly on the generated yaml file, such as:
+
+esphome compile gen_boot0.yaml
+esphome upload gen_boot0.yaml
+esphome logs gen_boot0.yaml
+
+See esphome -h for more details.
+
+Also, it is possible to connect to the growboard's IP address
+from a browser to see some published information and flip
+some switches.
+
+Voila!
+

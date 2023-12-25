@@ -1,0 +1,40 @@
+#ifndef _INCLUDE_CPU1_H_
+#define _INCLUDE_CPU1_H_
+
+#define _PIN_S_GPIO0	GPIO0
+#define _PIN_ACT_AUX	GPIO1
+#define _PIN_ACT_PUMP	GPIO2
+#define _PIN_ACT_LED	GPIO3
+#define _PIN_STA_D_EN	GPIO4
+#define _PIN_STA_C_EN	GPIO5
+#define _PIN_STA_B_EN	GPIO6
+#define _PIN_STA_A_EN	GPIO7
+#define _PIN_STA_E_EN	GPIO8
+#define _PIN_ACT_AIR	GPIO9
+#define _PIN_ACT_12V	GPIO10
+#define _PIN_FanPWM	GPIO11
+#define _PIN_HS_AUX	GPIO12
+#define _PIN_LOWWATER	GPIO13
+#define _PIN_DLOCK_GND_EN	GPIO14
+#define _PIN_KP_R1_OUT	GPIO15
+#define _PIN_KP_R2_OUT	GPIO16
+#define _PIN_KP_R3_OUT	GPIO17
+#define _PIN_KP_R4_OUT	GPIO18
+#define _PIN_KP_C1_OUT	GPIO19
+#define _PIN_KP_C2_OUT	GPIO20
+#define _PIN_KP_C3_OUT	GPIO21
+#define _PIN_SDnMS2_G	GPIO33
+#define _PIN_A_SD1_EN	GPIO34
+#define _PIN_SDnMS1_G	GPIO35
+#define _PIN_SDnMS3_G	GPIO36
+#define _PIN_SDnRst_G	GPIO37
+#define _PIN_A_SD1Sleep	GPIO38
+#define _PIN_SDnDIR_G	GPIO39
+#define _PIN_SDnStep_G	GPIO40
+#define _PIN_DOOR_POS	GPIO41
+#define _PIN_SET_MOTOR_MINUS	GPIO42
+#define _PIN_S_U0TXD	GPIO43
+#define _PIN_S_U0RXD	GPIO44
+#define _PIN_SET_MOTOR_PLUS	GPIO45
+
+#endif // _INCLUDE_CPU1_H_

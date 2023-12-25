@@ -1,0 +1,12 @@
+#include "config.h"
+#include "cpu0.h"
+
+#include "env.yaml"
+#include "sensor.yaml"
+
+#if GB_CONFIG_DISPLAY == 1
+#include "display.yaml"
+#endif // GB_CONFIG_DISPLAY == 1
+
+#include "network.yaml"
+#include "app0.yaml"
