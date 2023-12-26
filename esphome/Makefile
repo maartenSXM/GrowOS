@@ -24,7 +24,6 @@ endif
 ESPHOME   = esphome
 GB_PREFIX = boot
 GB_LOC    = location.$(LOCATION)
-CPP	  = cpp -undef -nostdinc -D_SERIALNO=$(SERIALNO) 
 
 all:	 compile  
 update0: compile0 upload0
@@ -36,12 +35,9 @@ logs:
 	@/bin/true
 
 define generateYaml
-	@echo "#define _CPU $(1)" > .gen_$(GB_PREFIX)$(1).yaml
-	@cat $(GB_LOC) $(GB_PREFIX)$(1).yaml | grep -v -x 	\
-		'[[:blank:]]*' >> .gen_$(GB_PREFIX)$(1).yaml
-	$(CPP) -include $(GB_LOC) -D_CPU=$(1) 			\
-		$(GB_PREFIX)$(1).yaml | grep -v -x 		\
-		'[[:blank:]]*' > gen_$(GB_PREFIX)$(1).yaml
+	cat $(GB_PREFIX)$(1).yaml | gcc -x c - -E -include $(GB_LOC)	\
+		-D_CPU=$(1) -undef -nostdinc -D_SERIALNO=$(SERIALNO) |	\
+		grep -v -x '[[:blank:]]*' > gen_$(GB_PREFIX)$(1).yaml
 endef
 
 %0:
