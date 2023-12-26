@@ -32,7 +32,7 @@ logs:
 	@echo "Choose logs0 or logs1"
 
 %: %0 %1
-	@/bin/true
+	@/usr/bin/true
 
 define generateYaml
 	cat $(GB_PREFIX)$(1).yaml | gcc -x c - -E -include $(GB_LOC)	\
