@@ -4,9 +4,9 @@
 #include "env.yaml"
 #include "sensor.yaml"
 
-#if GB_CONFIG_DISPLAY == 1
+#if GB_CONFIG_DISPLAY
 #include "display.yaml"
-#endif // GB_CONFIG_DISPLAY == 1
+#endif
 
 #include "network.yaml"
 #include "app0.yaml"

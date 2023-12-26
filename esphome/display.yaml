@@ -8,6 +8,7 @@ spi:
     number: _PIN_TFT_MOSI
 #if GB_CONFIG_CAMERA
     allow_other_uses: true
+#endif // GB_CONFIG_CAMERA
   miso_pin:
     number: _PIN_TFT_MISO
 #if GB_CONFIG_CAMERA
@@ -58,10 +59,14 @@ display:
     auto_clear_enabled: false
     cs_pin:
       number: _PIN_TFT_CS
+#if GB_CONFIG_CAMERA
       allow_other_uses: true
+#endif
     dc_pin:
       number: _PIN_TFT_DC
+#if GB_CONFIG_CAMERA
       allow_other_uses: true
+#endif
     reset_pin: _PIN_TFT_RST
     data_rate: 40MHz
     update_interval: 50ms
@@ -72,10 +77,14 @@ i2c:
   id: i2cBusIntern
   sda: 
     number: _PIN_TWI_SDA
+#if GB_CONFIG_CAMERA
     allow_other_uses: true
+#endif
   scl:
     number: _PIN_TWI_SCK
+#if GB_CONFIG_CAMERA
     allow_other_uses: true
+#endif
   frequency: 400kHz
   scan: false
 

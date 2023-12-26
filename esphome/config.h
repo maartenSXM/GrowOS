@@ -17,7 +17,7 @@
 #define GB_CONFIG_APP0_LED		1	// status LED on _PIN_tempData?
 #define GB_CONFIG_CPU1_DEFAULTS_ON	0	// CPU1 on by default?
 #define GB_CONFIG_DISPLAY		1	// touchscreen display?
-#define GB_CONFIG_TFT_PWR_DEFAULTS_ON 	0	// ... power it on by default?
+#define GB_CONFIG_TFT_PWR_DEFAULTS_ON 	1	// ... power it on by default?
 #define GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON 1	// ... backlight on by default?
 #define GB_CONFIG_BUZZER 		0	// buzzer on board?
 #define GB_CONFIG_BUZZER_MONOTONE	0	// ... monotone? (else melody)
