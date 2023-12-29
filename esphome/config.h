@@ -13,7 +13,7 @@
 
 #if _CPU == 0
 
-#define GB_CONFIG_32_KHZ_XTAL		0	// Use external 32 KHz XTAL?
+#define GB_CONFIG_32_KHZ_XTAL		1	// Use external 32 KHz XTAL?
 #define GB_CONFIG_APP0_LED		1	// status LED on _PIN_tempData?
 #define GB_CONFIG_CPU1_DEFAULTS_ON	0	// CPU1 on by default?
 #define GB_CONFIG_DISPLAY		1	// touchscreen display?

@@ -53,10 +53,10 @@ display:
     transform:
       mirror_y: false
       swap_xy: true
-      mirror_x: true
+      mirror_x: false
     // rotation: 180
     invert_colors: false
-    auto_clear_enabled: false
+    // auto_clear_enabled: false
     cs_pin:
       number: _PIN_TFT_CS
 #if GB_CONFIG_CAMERA
@@ -69,9 +69,35 @@ display:
 #endif
     reset_pin: _PIN_TFT_RST
     data_rate: 40MHz
-    update_interval: 50ms
+    update_interval: 1s
+    pages:
+    - id: page1
+      lambda: |-
+        // it.image(0,0,id(image_beansprouts));
+        it.print(440, 0, id(arial), COLOR_ON, TextAlign::TOP_RIGHT, "Page 1");
+        it.image(0,320-75,id(icon_left));
+        it.image(80,320-75,id(icon_right));
+        it.image(160,320-75,id(icon_up));
+        it.image(240,320-75,id(icon_down));
+        it.image(320,320-75,id(icon_select));
+        it.image(400,320-75,id(icon_cancel));
+        // menu gets half the display width & height
+        it.menu(0, 0, id(my_menu), 240, 160);
+
+    - id: page2
+      lambda: |-
+        // it.image(0,0,id(image_beansprouts));
+        it.print(440, 0, id(arial), COLOR_ON, TextAlign::TOP_RIGHT, "Page 2");
+        it.image(0,320-75,id(icon_left));
+        it.image(80,320-75,id(icon_right));
+        it.image(160,320-75,id(icon_up));
+        it.image(240,320-75,id(icon_down));
+        it.image(320,320-75,id(icon_select));
+        it.image(400,320-75,id(icon_cancel));
+    //  it.menu(0,0,id(my_menu),0,240);
+    //  it.line(0, 0, 100, 50);
     // #include "tests/displayBlocks.yaml"
-#include "tests/displayCircles.yaml"
+    // #include "tests/displayCircles.yaml"
 
 i2c:
   id: i2cBusIntern
@@ -90,14 +116,17 @@ i2c:
 
 touchscreen:
  - platform: ft63x6
-   id: tftTouch
+   id: my_touchScreen
    i2c_id: i2cBusIntern
    interrupt_pin: _PIN_CTP_IRQ
    transform:
      swap_xy: true
+     mirror_x: true
+#if 1
    on_touch:
      lambda: |-
        id(touchx) = touch.x;
        id(touchy) = touch.y;
        printf("x=%d, y=%d\n", touch.x, touch.y);
+#endif
 

@@ -6,6 +6,8 @@
 
 #if GB_CONFIG_DISPLAY
 #include "display.yaml"
+#include "images.yaml"
+#include "menu.yaml"
 #endif
 
 #include "network.yaml"
