@@ -16,18 +16,51 @@ spi:
 #endif // GB_CONFIG_CAMERA
   interface: hardware
 
+color:
+  - id: my_black
+    red: 0%
+    green: 0%
+    blue: 0%
+  - id: my_red
+    red: 100%
+    green: 0%
+    blue: 0%
+  - id: my_green
+    red: 0%
+    green: 100%
+    blue: 0%
+  - id: my_yellow
+    red: 100%
+    green: 100%
+    blue: 0%
+  - id: my_blue
+    red: 0%
+    green: 0%
+    blue: 100%
+  - id: my_magenta
+    red: 100%
+    green: 0%
+    blue: 100%
+  - id: my_cyan
+    red: 0%
+    green: 100%
+    blue: 100%
+  - id: my_white
+    red: 100%
+    green: 100%
+    blue: 100%
+
 font:
   - file: 'fonts/arial.ttf'
     id: arial
     size: 24
 
-// ft63x6 from github://gpambrozio/esphome@FT6336U-touch
-//    mod done is to add swap_x_y directive
-// external_components:
-//   - source:
-//       type: local
-//       path: myComponents
-//     components: [ ft63x6 ]
+// added 3-bit mode to the display driver
+external_components:
+  - source:
+      type: local
+      path: myComponents
+    components: [ ili9xxx ]
 
 globals:
   - id: touchx
@@ -35,6 +68,10 @@ globals:
     restore_value: no
     initial_value: '0'
   - id: touchy
+    type: unsigned int
+    restore_value: no
+    initial_value: '0'
+  - id: my_init_flag
     type: unsigned int
     restore_value: no
     initial_value: '0'
@@ -49,6 +86,7 @@ display:
       height: 320
       offset_height: 0
       offset_width: 0
+    color_palette: 3_BIT
     color_order: bgr
     transform:
       mirror_y: false
@@ -56,7 +94,7 @@ display:
       mirror_x: false
     // rotation: 180
     invert_colors: false
-    // auto_clear_enabled: false
+    auto_clear_enabled: true
     cs_pin:
       number: _PIN_TFT_CS
 #if GB_CONFIG_CAMERA
@@ -69,31 +107,31 @@ display:
 #endif
     reset_pin: _PIN_TFT_RST
     data_rate: 40MHz
-    update_interval: 1s
+    update_interval: 500ms
     pages:
     - id: page1
       lambda: |-
-        // it.image(0,0,id(image_beansprouts));
-        it.print(440, 0, id(arial), COLOR_ON, TextAlign::TOP_RIGHT, "Page 1");
-        it.image(0,320-75,id(icon_left));
-        it.image(80,320-75,id(icon_right));
+        it.print(440, 0, id(arial), id(my_cyan), TextAlign::TOP_RIGHT, "Page 1");
+        it.image(  0,320-75,id(icon_left));
+        it.image( 80,320-75,id(icon_right));
         it.image(160,320-75,id(icon_up));
         it.image(240,320-75,id(icon_down));
         it.image(320,320-75,id(icon_select));
         it.image(400,320-75,id(icon_cancel));
+        // it.image(0,0,id(image_beansprouts));
         // menu gets half the display width & height
         it.menu(0, 0, id(my_menu), 240, 160);
 
     - id: page2
       lambda: |-
-        // it.image(0,0,id(image_beansprouts));
-        it.print(440, 0, id(arial), COLOR_ON, TextAlign::TOP_RIGHT, "Page 2");
-        it.image(0,320-75,id(icon_left));
-        it.image(80,320-75,id(icon_right));
+        it.print(440, 0, id(arial), id(my_magenta), TextAlign::TOP_RIGHT, "Page 2");
+        it.image(  0,320-75,id(icon_left));
+        it.image( 80,320-75,id(icon_right));
         it.image(160,320-75,id(icon_up));
         it.image(240,320-75,id(icon_down));
         it.image(320,320-75,id(icon_select));
         it.image(400,320-75,id(icon_cancel));
+
     //  it.menu(0,0,id(my_menu),0,240);
     //  it.line(0, 0, 100, 50);
     // #include "tests/displayBlocks.yaml"
