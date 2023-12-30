@@ -57,9 +57,10 @@ font:
 
 // added 3-bit mode to the display driver
 external_components:
-  - source:
-      type: local
-      path: myComponents
+//- source:
+//    type: local
+//    path: myComponents
+  - source: 'github://maartenwrs/esphome_components'
     components: [ ili9xxx ]
 
 globals:
