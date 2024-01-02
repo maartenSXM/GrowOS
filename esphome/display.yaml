@@ -18,37 +18,21 @@ spi:
 
 color:
   - id: my_black
-    red: 0%
-    green: 0%
-    blue: 0%
+    hex: '000000'
   - id: my_red
-    red: 100%
-    green: 0%
-    blue: 0%
+    hex: 'FF0000'
   - id: my_green
-    red: 0%
-    green: 100%
-    blue: 0%
+    hex: '00FF00'
   - id: my_yellow
-    red: 100%
-    green: 100%
-    blue: 0%
+    hex: 'FFFF00'
   - id: my_blue
-    red: 0%
-    green: 0%
-    blue: 100%
+    hex: '0000FF'
   - id: my_magenta
-    red: 100%
-    green: 0%
-    blue: 100%
+    hex: 'FF00FF'
   - id: my_cyan
-    red: 0%
-    green: 100%
-    blue: 100%
+    hex: '00FFFF'
   - id: my_white
-    red: 100%
-    green: 100%
-    blue: 100%
+    hex: 'FFFFFF'
 
 font:
   - file: 'fonts/arial.ttf'
@@ -57,10 +41,13 @@ font:
 
 // added 3-bit mode to the display driver
 external_components:
-//- source:
-//    type: local
-//    path: myComponents
+#if _USER_maarten
+  - source:
+      type: local
+      path: ~/git/esphome_components/components
+#else
   - source: 'github://maartenwrs/esphome_components'
+#endif
     components: [ ili9xxx ]
 
 globals:
@@ -113,6 +100,25 @@ display:
     - id: page1
       lambda: |-
         it.print(440, 0, id(arial), id(my_cyan), TextAlign::TOP_RIGHT, "Page 1");
+        // it.image(0,0,id(image_beansprouts));
+        it.filled_circle(140, 120, 20, id(my_red));
+        it.filled_circle(200, 120, 20, id(my_green));
+        it.filled_circle(260, 120, 20, id(my_yellow));
+        it.filled_circle(320, 120, 20, id(my_blue));
+        it.filled_circle(380, 120, 20, id(my_magenta));
+        it.filled_circle(440, 120, 20, id(my_cyan));
+        it.filled_circle(240, 160, 20, id(my_white));
+        it.filled_circle(240, 160, 10, id(my_black));
+
+        it.line(100, 60, 200, 70, id(my_black));
+        it.line(100, 62, 200, 72, id(my_red));
+        it.line(100, 64, 200, 74, id(my_green));
+        it.line(100, 66, 200, 76, id(my_yellow));
+        it.line(100, 68, 200, 78, id(my_blue));
+        it.line(100, 70, 200, 80, id(my_magenta));
+        it.line(100, 72, 200, 82, id(my_cyan));
+        it.line(100, 74, 200, 84, id(my_white));
+
         it.image(  0,320-75,id(icon_left));
         it.image( 80,320-75,id(icon_right));
         it.image(160,320-75,id(icon_up));

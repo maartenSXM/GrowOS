@@ -25,7 +25,7 @@ endif
 ESPHOME = esphome
 GB_BOOT = boot
 GB_LOC  = location.$(LOCATION)
-GCC_CPP	= gcc -x c - -E -undef -nostdinc -include $(GB_LOC)
+GCC_CPP	= gcc -x c - -E -P -undef -nostdinc -include $(GB_LOC)
 DEFINES	= -D_SERIALNO=$(SERIALNO) -D_USER_$(USER)=1
 
 all:	 compile  
