@@ -13,17 +13,22 @@ source venv/bin/activate
 Now after cd-ing into the growOS/esphome directory, it is 
 possible to build and run esphome for CPU 0 like this:
 
-make compile0
-make upload0
-make logs0
+make compile
+make upload
+make logs
 
 To do all three in one shot, use this command:
 
-make run0
+make run
 
-(see the Makefile for more commands, such as 'make update0',
+(see the Makefile for more commands, such as 'make update',
 which does a compile followed by an update, and make rebuild,
 which rebuilds firmware for both CPU 0 and CPU 1)
+
+To build for CPU1, pass CPU=1 to your make command.
+Note that when switching compiling from one CPU number to another,
+a make clean must be performed.  Otherwise you can issue commands
+such as upload for without cleaning between them.
 
 The Makefile chooses a board serial number and network location
 based on $USER and generates a full yaml file for esphome.
@@ -34,9 +39,9 @@ Once the yaml files are generated, instead of driving things
 from the Makefile, it is also possible to issue esphome commands
 directly on the generated yaml file, such as:
 
-esphome compile gen_boot0.yaml
-esphome upload gen_boot0.yaml
-esphome logs gen_boot0.yaml
+esphome compile boot0.gen
+esphome upload boot0.gen
+esphome logs boot0.gen
 
 See esphome -h for more details.
 

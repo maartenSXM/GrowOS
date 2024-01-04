@@ -1,18 +1,6 @@
-# Use this Makefile with target argument <cmd><cpuNum>
-# <cmd> can be any valid esphome command such as:
-#   'clean', 'compile', 'config', 'upload', or 'logs.
-# See 'esphome -h for more help on valid esphome cmds.
-# <cpuNum> is 0 or 1 or blank to issue <cmd> for both cpus.
-#
-# Convenience <cmd> 'update' does a 'compile' and then an 'upload'.
-#
-# Examples:
-# 	make compile0
-# 	make update
-#
-ifeq ($(VIRTUAL_ENV),)
-  $(error You forgot to source esphome.git/venv/bin/activate)
-endif
+FILE = boot.yaml
+SRCS = $(wildcard *.yaml)
+CPU  = 0
 
 ifeq ($(USER),maarten)
   LOCATION = sxm
@@ -22,47 +10,89 @@ else
   SERIALNO = 101
 endif
 
+DEFS = -D_USER_$(USER)=1 -D_SERIALNO=$(SERIALNO) -D_CPU=$(CPU)
+
+# Use this Makefile with a target command from this list:
+# 		config compile upload logs update
+# See 'esphome -h for help on esphome cmds. The default esphome
+# command is 'compile'.
+#
+# Convenience commmand 'update' = 'compile' + 'upload'.
+#
+# Examples:
+# 	make clean
+# 	make update
+#
+# The yaml file $(FILE) defaults to boot.yaml and can be set by
+# editting it above or from the command line: make FILE=foo.yaml
+# boot.yaml is run through the Gnu C PreProcessor (CPP) before running
+# the resulting yaml through esphome. #include, #if, #else, #endif,
+# #define etc can all be used in yaml files processed with CPP.
+#
+# Also, /* */-style and //-style comments can be used in yaml with
+# this approach. The resulting C-preprocessed yaml is stored in
+# file with suffix ".cpr". .cpr files are generated automatically.
+#
+# Remember to #include .cpr files, not .yaml files if they have
+# #-style comments.
+# The filie $(GEN) can be inspected if esphome indicates any specific
+# line numbers have syntax errors.
+# 
+# A convenience define _USER_$(USER) is passed so that personal
+# yaml can be written inside #if _USER_maarten / #endif blocks,
+# if your userid is 'maarten'.
+#
+# Note that CPP directives in lambda functions may not work as
+# expected since they will be processed earlier and not passed to
+# esphome.  This has not been investigated, yet.
+
+ifeq ($(VIRTUAL_ENV),)
+  $(error You forgot to source esphome.git/venv/bin/activate)
+endif
+
 ESPHOME = esphome
-GB_BOOT = boot
-GB_LOC  = location.$(LOCATION)
-GCC_CPP	= gcc -x c - -E -P -undef -nostdinc -include $(GB_LOC)
-DEFINES	= -D_SERIALNO=$(SERIALNO) -D_USER_$(USER)=1
+CMDS	= config compile upload logs discover run
+CPRS	= $(SRCS:.yaml=.cpr)
+GEN	= $(FILE:.yaml=$(CPU).gen)
+CPP	= gcc -x c -undef -nostdinc $(DEFS) -include location.$(LOCATION)
 
 all:	 compile  
-update0: compile0 upload0
-update1: compile1 upload1
-logs:
-	@echo "Choose logs0 or logs1"
+update:  compile upload
+rebuild:
+	rm -rf .esphome
+	make clean
+	make CPU=0
+	make clean
+	make CPU=1
+	make clean
 
-# The c-preprocessor is used to expand #defines & #ifs and also to remove
-# C-style comments. The output is piped through grep to remove blank lines.
-# This Makefile #defines _SERIALNO=<num>, _USER_<username>=1, and _CPU={0,1}
-#
-define genSystem
-	$(GCC_CPP) $(DEFINES) -D_CPU=$(1) < $(GB_BOOT)$(1).yaml		\
-	  | grep -v -x '[[:blank:]]*' > gen_$(GB_BOOT)$(1).yaml
-endef
+$(CMDS): $(CPRS) $(GEN)
+	$(ESPHOME) $@ $(GEN)
 
-# target any verb to both cpus. e.g. compile becomes compile0 & compile1
-%: %0 %1
-	@/usr/bin/true
+$(GEN): $(FILE:.yaml=.cpr)
+	$(CPP) -E -P -MD -MP -MT $@ $< > $@
 
-# strip the trailing 0 off any esphome verb and issue esphome
-%0:
-	@$(call genSystem,0)
-	$(ESPHOME) `basename $@ 0` gen_$(GB_BOOT)0.yaml
+-include $(SRCS:.yaml=.d)
 
-# strip the trailing 1 off any esphome verb and issue it
-%1:
-	@$(call genSystem,1)
-	$(ESPHOME) `basename $@ 1` gen_$(GB_BOOT)1.yaml
+realclean: $(GEN)
+	$(ESPHOME) $@ $^
+	rm -f *.d *.gen *.cpr
 
-# don't let the default Makefile map to Makefile0 & Makefile1
-Makefile: ;
+clean:
+	rm -f *.d *.gen *.cpr
 
-# run esphome clean for both CPUs and also remove the generated yaml
-clean: clean0 clean1
-	@rm -f gen_$(GB_BOOT)*.yaml
+.PHONY: $(CMDS) update clean realclean all
 
-.PHONY: update0 update1 always-create clean all logs *0 *1
+# Strip yaml #-style comments lines and leave cpp directives
+
+empty:=
+space:= $(empty) $(empty)
+
+.PRECIOUS: %.cpr
+%.cpr: %.yaml
+	-@grep '$(subst $(space),,$(patsubst %,^[[:blank:]]*\#%\|,$(CPP_DIRECTIVES)))^[[:blank:]]*[^# ]' $^ > $@
+
+CPP_DIRECTIVES = assert define elif else endif error ident if	\
+	     ifdef ifndef import include include_next line	\
+	     pragma sccs unassert undef warning
 

@@ -8,3 +8,7 @@ location.yaml
 gen_boot*.yaml
 .gen_boot*.yaml
 __pycache__/
+*.cpr
+*.gen
+*.d
+

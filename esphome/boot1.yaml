@@ -1,7 +1,0 @@
-#include "config.h"
-#include "cpu1.h"
-
-#include "env.yaml"
-#include "sensor.yaml"
-#include "network.yaml"
-#include "app1.yaml"
