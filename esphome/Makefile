@@ -1,7 +1,6 @@
 FILE	= main.yaml
 SRCS	= $(wildcard *.yaml)
 CPU	= 0
-CPUDIR	= cpu$(CPU)
 
 ifeq ($(USER),maarten)
   SERIALNO = 100
@@ -52,7 +51,8 @@ endif
 
 ESPHOME = esphome
 CMDS	= config compile upload logs discover run
-CPUDIRS = $(wildcard $(CPUDIR)*)
+CPUDIR	= cpu$(CPU)
+CPUS	= $(subst cpu,,$(wildcard cpu*/))
 PROJECT	= $(CPUDIR).yaml
 
 CPREPROC	= gcc -x c -undef -nostdinc $(DEFS) 
@@ -63,11 +63,6 @@ CPREPROC_FILES	= $(addprefix $(CPUDIR)/,$(filter-out $(PROJECT),$(SRCS)))
 
 all:	 compile  
 update:  compile upload
-rebuild:
-	make CPU=0 realclean
-	make CPU=0
-	make CPU=1 realclean
-	make CPU=1
 
 $(CMDS): $(CPUDIR) $(CPREPROC_FILES) $(PROJECT)
 	$(ESPHOME) $@ $(PROJECT)
@@ -77,13 +72,26 @@ $(PROJECT): $(CPUDIR)/$(FILE)
 
 -include $(wildcard $(CPUDIR)/*.d)
 
-realclean: $(PROJECT) clean
+rebuild:
+	@for cpu in $(CPUS:/=); do		\
+		make CPU=$$cpu espclean;	\
+		make CPU=$$cpu;			\
+	done
+
+realclean: 
+	@for cpu in $(CPUS:/=); do					\
+		make --no-print-directory CPU=$$cpu clean;		\
+	done
+	rm -rf .esphome
+
+espclean: $(PROJECT)
 	$(ESPHOME) clean $(PROJECT)
+	make CPU=$(CPU) clean
 
 clean:
 	rm -rf $(CPUDIR) $(PROJECT)
 
-.PHONY: $(CMDS) update rebuild clean realclean all
+.PHONY: $(CMDS) update rebuild clean espclean realclean all
 
 # Strip yaml #-style comments lines and leave cpp directives
 
