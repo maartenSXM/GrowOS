@@ -3,12 +3,5 @@
 # You can modify this file to suit your needs.
 /.esphome/
 /secrets.yaml
-/archive/
-location.yaml
-gen_boot*.yaml
-.gen_boot*.yaml
-__pycache__/
-*.cpr
-*.gen
-*.d
-
+cpu*
+__pycache__

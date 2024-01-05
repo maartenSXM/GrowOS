@@ -4,6 +4,7 @@ sensor:
 
 #if GB_CONFIG_NET_WIFI
   - platform: wifi_signal
+    id: my_wifi_sensor
     name: "Net WiFi Signal "
     update_interval: 15s
 #endif // GB_CONFIG_NET_WIFI

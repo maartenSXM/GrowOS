@@ -1,16 +1,15 @@
-FILE = boot.yaml
-SRCS = $(wildcard *.yaml)
-CPU  = 0
+FILE	= main.yaml
+SRCS	= $(wildcard *.yaml)
+CPU	= 0
+CPUDIR	= cpu$(CPU)
 
 ifeq ($(USER),maarten)
-  LOCATION = sxm
   SERIALNO = 100
 else
-  LOCATION = pec
   SERIALNO = 101
 endif
 
-DEFS = -D_USER_$(USER)=1 -D_SERIALNO=$(SERIALNO) -D_CPU=$(CPU)
+DEFS = -I$(CPUDIR) -I. -D_USER_$(USER)=1 -D_SERIALNO=$(SERIALNO) -D_CPU=$(CPU)
 
 # Use this Makefile with a target command from this list:
 # 		config compile upload logs update
@@ -18,31 +17,32 @@ DEFS = -D_USER_$(USER)=1 -D_SERIALNO=$(SERIALNO) -D_CPU=$(CPU)
 # command is 'compile'.
 #
 # Convenience commmand 'update' = 'compile' + 'upload'.
+# Convenience commmand 'rebuild' = 'realclean' + 'compile'.
 #
 # Examples:
 # 	make clean
 # 	make update
 #
-# The yaml file $(FILE) defaults to boot.yaml and can be set by
+# The yaml file $(FILE) defaults to main.yaml and can be set by
 # editting it above or from the command line: make FILE=foo.yaml
-# boot.yaml is run through the Gnu C PreProcessor (CPP) before running
-# the resulting yaml through esphome. #include, #if, #else, #endif,
-# #define etc can all be used in yaml files processed with CPP.
+# main.yaml is run through the Gnu C PreProcessor (CPREPROC) before
+# running the resulting yaml through esphome. #include, #if, #else,
+# #endif, # #define etc can be used in $(FILE) and files it includes.
 #
 # Also, /* */-style and //-style comments can be used in yaml with
-# this approach. The resulting C-preprocessed yaml is stored in
-# file with suffix ".cpr". .cpr files are generated automatically.
+# this approach. The resulting C-preprocessed yaml files are stored in
+# directory $(CPUDIR). $(CPUDIR) defaults to cpu$(CPU).
+# $(CPU) defaults to 0. 
 #
-# Remember to #include .cpr files, not .yaml files if they have
-# #-style comments.
-# The filie $(GEN) can be inspected if esphome indicates any specific
-# line numbers have syntax errors.
+# The file ./$(CPUDIR).yaml can be inspected if esphome indicates
+# any specific line numbers have syntax errors. $(PROJECT) defaults to
+# 'cpu0.yaml'.
 # 
 # A convenience define _USER_$(USER) is passed so that personal
 # yaml can be written inside #if _USER_maarten / #endif blocks,
 # if your userid is 'maarten'.
 #
-# Note that CPP directives in lambda functions may not work as
+# Note that CPPROC directives in lambda functions may not work as
 # expected since they will be processed earlier and not passed to
 # esphome.  This has not been investigated, yet.
 
@@ -52,47 +52,51 @@ endif
 
 ESPHOME = esphome
 CMDS	= config compile upload logs discover run
-CPRS	= $(SRCS:.yaml=.cpr)
-GEN	= $(FILE:.yaml=$(CPU).gen)
-CPP	= gcc -x c -undef -nostdinc $(DEFS) -include location.$(LOCATION)
+CPUDIRS = $(wildcard $(CPUDIR)*)
+PROJECT	= $(CPUDIR).yaml
+
+CPREPROC	= gcc -x c -undef -nostdinc $(DEFS) 
+CPREPROC_FILES	= $(addprefix $(CPUDIR)/,$(filter-out $(PROJECT),$(SRCS)))
+
+# move $FILE to the end of the SRCS list
+# YAMLS	= $(addprefix $CPUDIR)/,$(filter-out $(FILE),$(SRCS)) $(FILE))
 
 all:	 compile  
 update:  compile upload
 rebuild:
-	rm -rf .esphome
-	make clean
+	make CPU=0 realclean
 	make CPU=0
-	make clean
+	make CPU=1 realclean
 	make CPU=1
-	make clean
 
-$(CMDS): $(CPRS) $(GEN)
-	$(ESPHOME) $@ $(GEN)
+$(CMDS): $(CPUDIR) $(CPREPROC_FILES) $(PROJECT)
+	$(ESPHOME) $@ $(PROJECT)
 
-$(GEN): $(FILE:.yaml=.cpr)
-	$(CPP) -E -P -MD -MP -MT $@ $< > $@
+$(PROJECT): $(CPUDIR)/$(FILE)
+	$(CPREPROC) -E -P -MD -MP -MT $@ -MF $<.d $< > $@
 
--include $(SRCS:.yaml=.d)
+-include $(wildcard $(CPUDIR)/*.d)
 
-realclean: $(GEN)
-	$(ESPHOME) $@ $^
-	rm -f *.d *.gen *.cpr
+realclean: $(PROJECT) clean
+	$(ESPHOME) clean $(PROJECT)
 
 clean:
-	rm -f *.d *.gen *.cpr
+	rm -rf $(CPUDIR) $(PROJECT)
 
-.PHONY: $(CMDS) update clean realclean all
+.PHONY: $(CMDS) update rebuild clean realclean all
 
 # Strip yaml #-style comments lines and leave cpp directives
 
 empty:=
 space:= $(empty) $(empty)
 
-.PRECIOUS: %.cpr
-%.cpr: %.yaml
-	-@grep '$(subst $(space),,$(patsubst %,^[[:blank:]]*\#%\|,$(CPP_DIRECTIVES)))^[[:blank:]]*[^# ]' $^ > $@
+.PRECIOUS: $(CPUDIR) $(CPREPROC_FILES) $(PROJECT)
+$(CPUDIR)/%.yaml: %.yaml
+	-@grep '$(subst $(space),,$(patsubst %,^[[:blank:]]*\#%\|,$(CPREPROC_DIRECTIVES)))^[[:blank:]]*[^# ]' $^ > $@
 
-CPP_DIRECTIVES = assert define elif else endif error ident if	\
-	     ifdef ifndef import include include_next line	\
+CPREPROC_DIRECTIVES = assert define elif else endif error ident if	\
+	     ifdef ifndef import include include_next line		\
 	     pragma sccs unassert undef warning
 
+$(CPUDIR):
+	-mkdir $@

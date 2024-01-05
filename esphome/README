@@ -39,13 +39,16 @@ Once the yaml files are generated, instead of driving things
 from the Makefile, it is also possible to issue esphome commands
 directly on the generated yaml file, such as:
 
-esphome compile boot0.gen
-esphome upload boot0.gen
-esphome logs boot0.gen
+esphome compile cpu0.yaml
+esphome upload cpu0.yaml
+esphome logs cpu0.yaml
 
 See esphome -h for more details.
 
-Also, it is possible to connect to the growboard's IP address
+There are some intermediate C-preprocessed files stored in
+./cpu0 and ./cpu1.
+
+It is possible to connect to the growboard's IP address
 from a browser to see some published information and flip
 some switches.
 

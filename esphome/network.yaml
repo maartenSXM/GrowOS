@@ -1,4 +1,11 @@
 #if GB_CONFIG_NET_WIFI
+
+#if _USER_maarten
+  #include "location.sxm"
+#else
+  #include "location.pec"
+#endif
+
 // Enable WiFi and IP stack
 wifi:
   ssid: _SUB_WIFI_SSID

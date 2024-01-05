@@ -1,0 +1,20 @@
+# yaml style comments are allowed
+// C-style comments are allowed
+/* traditional C-ctyle comments are too */
+
+#include "config.h"
+#include "pins.h"
+#include "env.yaml"
+#include "sensor.yaml"
+#include "network.yaml"
+
+#if _CPU == 0
+  #if GB_CONFIG_DISPLAY
+    #include "display.yaml"
+    #include "images.yaml"
+    #include "menu.yaml"
+  #endif // GB_CONFIG_DISPLAY
+  #include "app0.yaml"
+#else // _CPU == 1
+  #include "app1.yaml"
+#endif // _CPU == 1

@@ -172,6 +172,7 @@ touchscreen:
      lambda: |-
        id(touchx) = touch.x;
        id(touchy) = touch.y;
-       printf("x=%d, y=%d\n", touch.x, touch.y);
+       #  printf("x=%d, y=%d\n", touch.x, touch.y);
+       printf("x=%d, y=%d\n", id(touchx), id(touchy));
 #endif
 
