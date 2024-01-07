@@ -63,6 +63,10 @@ globals:
     type: unsigned int
     restore_value: no
     initial_value: '0'
+  - id: sntpBootTime
+    type: time_t
+    restore_value: no
+    initial_value: '0'
 
 display:
   - platform: ili9xxx

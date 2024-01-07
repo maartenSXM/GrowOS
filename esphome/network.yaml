@@ -43,10 +43,9 @@ time:
       - _SUB_NTP_SERVER
     on_time_sync:
       then:
-        - logger.log: "Synchronized sntp clock"
-
-          // lambda: |-
-          // id(sntpBootTime) = id(sntpTime);
+        lambda: |-
+          if (id(sntpBootTime) == 0)
+            id(sntpBootTime) = id(sntpTime).now().timestamp;
 #endif // GB_CONFIG_NET_SNTP
 
 #if GB_CONFIG_NET_HA

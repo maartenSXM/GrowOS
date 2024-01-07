@@ -39,6 +39,7 @@ switch:
   - platform: template
     name: "Tristate UART0"
     optimistic: true
+    restore_mode: ALWAYS_OFF
     turn_on_action:
       lambda: |-
         // https://esphome.io/guides/configuration-types.html#pin-schema
@@ -62,8 +63,8 @@ switch:
           txpin->set_pin((gpio_num_t) _PIN_H_U0TXD);
           rxpin->set_pin((gpio_num_t) _PIN_H_U0RXD);
           }
-        txpin->set_flags(gpio::Flags::FLAG_INPUT|gpio::Flags::FLAG_OPEN_DRAIN);
-        rxpin->set_flags(gpio::Flags::FLAG_INPUT|gpio::Flags::FLAG_OPEN_DRAIN);
+        txpin->set_flags(gpio::Flags::FLAG_NONE);
+        rxpin->set_flags(gpio::Flags::FLAG_NONE);
 #endif // _USER_maarten
 
   - platform: gpio

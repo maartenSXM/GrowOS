@@ -72,7 +72,7 @@ binary_sensor:
           display_menu.show: my_menu
     // page_id: home_page_id
   - platform: touchscreen
-    name: Selct Button
+    name: Select Button
     id: button_select
     touchscreen_id: my_touchScreen
     x_min: 320

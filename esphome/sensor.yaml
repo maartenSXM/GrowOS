@@ -40,15 +40,11 @@ text_sensor:
     // update_interval: never
     lambda: |-
       static char str[25];
-      static time_t bootTime;
 
-      if (bootTime == (time_t) 0)
-        {
-        if (!id(sntpTime).now().is_valid())
+      if (id(sntpBootTime) == (time_t) 0)
           return ((std::string) "Unknown");
-        bootTime = id(sntpTime).now().timestamp;
-        strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&bootTime));
-        }
+      if (str[0] == '\0')
+        strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&id(sntpBootTime)));
       return (std::string) str;
 #endif // GB_CONFIG_NET_SNTP
 #endif // GB_CONFIG_NET_WIFI
