@@ -8,6 +8,9 @@
 #define GB_CONFIG_NET_HA		0	// ... Home Assistant?
 #define GB_CONFIG_NET_OTA		1	// ... WiFi update allowed?
 #define GB_CONFIG_NET_WEB_SERVER	1	// ... Built-in web server?
+						//
+#define GB_CONFIG_INTERNAL_TEMP		0	// internal temp sensor ...
+// ... causes reboots: https://github.com/espressif/esp-idf/issues/8088
 
 // cpu0-specific config
 
@@ -15,7 +18,7 @@
 
 #define GB_CONFIG_32_KHZ_XTAL		1	// Use external 32 KHz XTAL?
 #define GB_CONFIG_APP0_LED		1	// status LED on _PIN_tempData?
-#define GB_CONFIG_CPU1_DEFAULTS_ON	0	// CPU1 on by default?
+#define GB_CONFIG_CPU1_DEFAULTS_ON	1	// CPU1 on by default?
 #define GB_CONFIG_DISPLAY		1	// touchscreen display?
 #define GB_CONFIG_TFT_PWR_DEFAULTS_ON 	1	// ... power it on by default?
 #define GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON 1	// ... backlight on by default?

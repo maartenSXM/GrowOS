@@ -56,13 +56,16 @@ CPUS	= $(subst cpu,,$(wildcard cpu*/))
 PROJECT	= $(CPUDIR).yaml
 
 CPREPROC	= gcc -x c -undef -nostdinc $(DEFS) 
-CPREPROC_FILES	= $(addprefix $(CPUDIR)/,$(filter-out $(PROJECT),$(SRCS)))
+CPREPROC_FILES	= $(addprefix $(CPUDIR)/,$(filter-out $(wildcard cpu*.yaml),$(SRCS)))
 
 # move $FILE to the end of the SRCS list
 # YAMLS	= $(addprefix $CPUDIR)/,$(filter-out $(FILE),$(SRCS)) $(FILE))
 
 all:	 compile  
+run:	 update logs
 update:  compile upload
+rebuild: espclean 
+	make CPU=$(CPU) compile
 
 $(CMDS): $(CPUDIR) $(CPREPROC_FILES) $(PROJECT)
 	$(ESPHOME) $@ $(PROJECT)
@@ -72,11 +75,14 @@ $(PROJECT): $(CPUDIR)/$(FILE)
 
 -include $(wildcard $(CPUDIR)/*.d)
 
-rebuild:
-	@for cpu in $(CPUS:/=); do		\
-		make CPU=$$cpu espclean;	\
-		make CPU=$$cpu;			\
-	done
+compile-all:
+	@for cpu in $(CPUS:/=); do make CPU=$$cpu compile; done
+
+clean-all:
+	@for cpu in $(CPUS:/=); do make CPU=$$cpu clean; done
+
+rebuild-all:
+	@for cpu in $(CPUS:/=); do make CPU=$$cpu rebuild; done
 
 realclean: 
 	@for cpu in $(CPUS:/=); do					\
@@ -91,7 +97,7 @@ espclean: $(PROJECT)
 clean:
 	rm -rf $(CPUDIR) $(PROJECT)
 
-.PHONY: $(CMDS) update rebuild clean espclean realclean all
+.PHONY: $(CMDS) update rebuild rebuild-all compile-all clean-all espclean realclean all
 
 # Strip yaml #-style comments lines and leave cpp directives
 

@@ -1,6 +1,8 @@
 sensor:
+#ifdef GB_CONFIG_INTERNAL_TEMP
   - platform: internal_temperature
     name: "System Temperature"
+#endif // GB_CONFIG_INTERNAL_TEMP
 
 #if GB_CONFIG_NET_WIFI
   - platform: wifi_signal

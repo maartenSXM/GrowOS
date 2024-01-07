@@ -5,6 +5,7 @@
 #include "config.h"
 #include "pins.h"
 #include "env.yaml"
+#include "globals.yaml"
 #include "sensor.yaml"
 #include "network.yaml"
 
