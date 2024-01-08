@@ -4,14 +4,14 @@ switch:
     pin: _PIN_SET_MOTOR_MINUS
     name: "12V Motor minus"
     id: motorMinus
-    interlock: [motorPlus]
+    interlock: &motor12Vinterlock [motorMinus, motorPlus]
     interlock_wait_time: 500ms
 
   - platform: gpio
     pin: _PIN_SET_MOTOR_PLUS
     name: "12V Motor plus"
     id: motorPlus
-    interlock: [motorMinus]
+    interlock: *motor12Vinterlock
     interlock_wait_time: 500ms
 
   - platform: gpio

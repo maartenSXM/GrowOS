@@ -4,6 +4,16 @@ CPU	= 0
 
 DEFS = -I$(CPUDIR) -I. -D_USER_$(USER)=1 -D_CPU=$(CPU)
 
+ifeq ($(USER),maarten)
+  ifeq ($(CPU),0)
+    logs jtag: CMDFLAGS = --device /dev/ttyUSB1
+    ota:       CMDFLAGS = --device 192.168.8.134
+  else
+    logs jtag: CMDFLAGS = --device /dev/ttyUSB2
+    ota:       CMDFLAGS = --device 192.168.8.135
+  endif
+endif
+
 # Use this Makefile with a target command from this list:
 # 		config compile upload logs update
 # See 'esphome -h for help on esphome cmds. The default esphome
@@ -62,11 +72,13 @@ CPREPROC_FILES	= $(addprefix $(CPUDIR)/,$(filter-out $(wildcard cpu*.yaml),$(SRC
 all:	 compile  
 run:	 update logs
 update:  compile upload
+jtag: 	 upload
+ota: 	 upload
 rebuild: espclean 
 	make CPU=$(CPU) compile
 
 $(CMDS): $(CPUDIR) $(CPREPROC_FILES) $(PROJECT)
-	$(ESPHOME) $@ $(PROJECT)
+	$(ESPHOME) $@ $(CMDFLAGS) $(PROJECT)
 
 $(PROJECT): $(CPUDIR)/$(FILE)
 	$(CPREPROC) -E -P -MD -MP -MT $@ -MF $<.d $< > $@
@@ -87,7 +99,7 @@ espclean: $(CPUDIR) $(CPREPROC_FILES) $(PROJECT)
 clean:
 	rm -rf $(CPUDIR) $(PROJECT)
 
-.PHONY: $(CMDS) update rebuild espclean realclean all
+.PHONY: $(CMDS) update rebuild jtag ota espclean realclean all
 
 # Strip yaml #-style comments lines and leave cpp directives
 

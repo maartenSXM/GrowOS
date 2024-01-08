@@ -125,6 +125,7 @@ switch:
     output: buzzer_out
     on_turn_on: 
       then:
+        - delay: 0ms
         - output.turn_on: buzzer_out
         - output.ledc.set_frequency:
             id: buzzer_out
@@ -134,6 +135,7 @@ switch:
             level: "50%"
     on_turn_off:
       then:
+        - delay: 0ms
         - output.turn_off: buzzer_out
 
 #else // !GB_CONFIG_BUZZER_MONOTONE

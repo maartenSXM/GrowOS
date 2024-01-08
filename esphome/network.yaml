@@ -8,6 +8,7 @@
 
 // Enable WiFi and IP stack
 wifi:
+  reboot_timeout: 0s    // disable reboot every 15 min if no WiFi
   ssid: _SUB_WIFI_SSID
   password: _SUB_WIFI_PASSWORD
 #if GB_CONFIG_NET_STATIC

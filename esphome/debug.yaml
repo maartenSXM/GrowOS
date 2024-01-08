@@ -1,6 +1,7 @@
 // Enable logging
 logger:
-  baud_rate: 115200
+  # baud_rate: 115200
+  baud_rate: 921600
   hardware_uart: UART0
     # level: ERROR
   level: DEBUG
