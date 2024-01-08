@@ -1,3 +1,12 @@
+
+// Config specific to current USER
+
+#if _USER_maarten
+#define _SERIALNO 100
+#else // _USER_erik
+#define _SERIALNO 101
+#endif
+
 // Config common to both cpu0 and cpu1
 
 #define GB_CONFIG_NET_WIFI		1	// WiFi?

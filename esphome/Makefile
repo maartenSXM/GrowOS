@@ -2,13 +2,7 @@ FILE	= main.yaml
 SRCS	= $(wildcard *.yaml)
 CPU	= 0
 
-ifeq ($(USER),maarten)
-  SERIALNO = 100
-else
-  SERIALNO = 101
-endif
-
-DEFS = -I$(CPUDIR) -I. -D_USER_$(USER)=1 -D_SERIALNO=$(SERIALNO) -D_CPU=$(CPU)
+DEFS = -I$(CPUDIR) -I. -D_USER_$(USER)=1 -D_CPU=$(CPU)
 
 # Use this Makefile with a target command from this list:
 # 		config compile upload logs update
@@ -44,6 +38,10 @@ DEFS = -I$(CPUDIR) -I. -D_USER_$(USER)=1 -D_SERIALNO=$(SERIALNO) -D_CPU=$(CPU)
 # Note that CPPROC directives in lambda functions may not work as
 # expected since they will be processed earlier and not passed to
 # esphome.  This has not been investigated, yet.
+#
+# Any target in this Makefile can be suffixed with -all so that it
+# is run against all the CPUs every specified to this Makefile.
+# e.g. 'make compile-all' or 'make clean-all'.
 
 ifeq ($(VIRTUAL_ENV),)
   $(error You forgot to source esphome.git/venv/bin/activate)
@@ -75,19 +73,11 @@ $(PROJECT): $(CPUDIR)/$(FILE)
 
 -include $(wildcard $(CPUDIR)/*.d)
 
-compile-all:
-	@for cpu in $(CPUS:/=); do make CPU=$$cpu compile; done
-
-clean-all:
-	@for cpu in $(CPUS:/=); do make CPU=$$cpu clean; done
-
-rebuild-all:
-	@for cpu in $(CPUS:/=); do make CPU=$$cpu rebuild; done
+%-all:
+	@for cpu in $(CPUS:/=); do make CPU=$$cpu $(subst -all,,$@); done
 
 realclean: 
-	@for cpu in $(CPUS:/=); do					\
-		make --no-print-directory CPU=$$cpu clean;		\
-	done
+	make clean-all
 	rm -rf .esphome
 
 espclean: $(CPUDIR) $(CPREPROC_FILES) $(PROJECT)
@@ -97,7 +87,7 @@ espclean: $(CPUDIR) $(CPREPROC_FILES) $(PROJECT)
 clean:
 	rm -rf $(CPUDIR) $(PROJECT)
 
-.PHONY: $(CMDS) update rebuild rebuild-all compile-all clean-all espclean realclean all
+.PHONY: $(CMDS) update rebuild espclean realclean all
 
 # Strip yaml #-style comments lines and leave cpp directives
 
