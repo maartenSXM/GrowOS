@@ -90,7 +90,7 @@ realclean:
 	done
 	rm -rf .esphome
 
-espclean: $(PROJECT)
+espclean: $(CPUDIR) $(CPREPROC_FILES) $(PROJECT)
 	$(ESPHOME) clean $(PROJECT)
 	make CPU=$(CPU) clean
 

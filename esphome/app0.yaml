@@ -1,15 +1,3 @@
-#if 0
-// flash the led using a slow software-based PWM
-esphome.on_boot:
- priority: -100
- then:
-   - output.turn_on:
-       my_slow_pwm  
-   - output.set_level:
-       id: my_slow_pwm
-       level: "90%"
-#endif
-
 #if GB_CONFIG_APP0_LED
 light:
   - platform: status_led
@@ -34,12 +22,12 @@ output:
     channel: 2 // xxx config item?
 #endif // GB_CONFIG_BUZZER
 
-#if _USER_maarten
 switch:
+#if GB_CONFIG_TRISTATE_UART_SWITCH
   - platform: template
     name: "Tristate UART0"
     optimistic: true
-    restore_mode: ALWAYS_OFF
+    # restore_mode: ALWAYS_OFF
     turn_on_action:
       lambda: |-
         // https://esphome.io/guides/configuration-types.html#pin-schema
@@ -69,7 +57,7 @@ switch:
         txpin->setup();
         rxpin->set_flags(gpio::Flags::FLAG_NONE);
         rxpin->setup();
-#endif // _USER_maarten
+#endif // GB_CONFIG_TRISTATE_UART_SWITCH
 
   - platform: gpio
     id: switch_H_S_ENABLE

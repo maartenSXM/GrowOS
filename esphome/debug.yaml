@@ -1,0 +1,15 @@
+// Enable logging
+logger:
+  baud_rate: 115200
+  hardware_uart: UART0
+    # level: ERROR
+  level: DEBUG
+  logs:
+    # ili9xxx.component: VERBOSE
+    component: DEBUG
+
+#if GB_CONFIG_DEBUG
+debug:
+  update_interval: 15s
+
+#endif // GB_CONFIG_DEBUG

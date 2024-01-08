@@ -11,6 +11,8 @@
 						//
 #define GB_CONFIG_INTERNAL_TEMP		0	// internal temp sensor ...
 // ... causes reboots: https://github.com/espressif/esp-idf/issues/8088
+//
+#define GB_CONFIG_DEBUG			1	// expose some debug info
 
 // cpu0-specific config
 
@@ -26,6 +28,7 @@
 #define GB_CONFIG_BUZZER_MONOTONE	0	// ... monotone? (else melody)
 #define GB_CONFIG_CAMERA		0	// camera connected?
 #define GB_CONFIG_CAMERA_DEFAULTS_ON	0	// ... on by default?
+#define GB_CONFIG_TRISTATE_UART_SWITCH	0	// defaults on (for now)
 
 #endif // _CPU == 0
  

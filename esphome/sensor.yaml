@@ -1,7 +1,9 @@
+#if (GB_CONFIG_INTERNAL_TEMP || GB_CONFIG_NET_WIFI || GB_CONFIG_DEBUG)
 sensor:
-#ifdef GB_CONFIG_INTERNAL_TEMP
+#if GB_CONFIG_INTERNAL_TEMP
   - platform: internal_temperature
     name: "System Temperature"
+    update_interval: 15s
 #endif // GB_CONFIG_INTERNAL_TEMP
 
 #if GB_CONFIG_NET_WIFI
@@ -11,8 +13,10 @@ sensor:
     update_interval: 15s
 #endif // GB_CONFIG_NET_WIFI
 
+#if GB_CONFIG_DEBUG
   - platform: uptime
     name: System Uptime 
+    update_interval: 15s
 
   - platform: debug
     free:
@@ -23,6 +27,9 @@ sensor:
       name: "System Loop Time"
     psram:
       name: "System Free PSRAM"
+
+#endif // GB_CONFIG_DEBUG
+#endif // (GB_CONFIG_INTERNAL_TEMP || GB_CONFIG_NET_WIFI || GB_CONFIG_DEBUG)
 
 text_sensor:
 #if GB_CONFIG_NET_WIFI
