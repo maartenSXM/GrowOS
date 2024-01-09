@@ -1,3 +1,4 @@
+#define _CPU _PROJNUM
 
 // Config specific to current USER
 
