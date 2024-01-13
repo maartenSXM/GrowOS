@@ -1,4 +1,8 @@
-#define _CPU _PROJNUM
+#ifdef _PROJTAG_0
+#define _CPU 0
+#else
+#define _CPU 1
+#endif
 
 // Config specific to current USER
 
