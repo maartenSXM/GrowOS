@@ -1,14 +1,21 @@
-# This Makefile is based on https://github.com/maartenwrs/espmake
+# This Makefile is from https://github.com/maartenwrs/espmake
+# It is esphome project independent since all esphome project config
+# can be conditionally included from yaml, when this Makefile is used
+# to build an esphome project. Instead of editting this Makefile, 
+# consider adding a main.yaml to your project that #includes yaml
+# files for your project as needed.  That will future-proof your Makefile
+# if you ever need to update it using "make update" from the espmake repo.
 # 
 # A convenience c-preprocessor define _PROJTAG$(PROJTAG) is defined so that
 # project-specific yaml can be written inside, for example, #if _PROJTAG_foo
-# / #endif blocks, when PROJTAG is set to "foo".
+# ... #endif blocks, when PROJTAG is set to "foo".
 # 
 # A convenience c-preprocessor define _USER_$(USER) is defined so that
 # personal yaml can be written inside, for example, #if _USER_maarten
-# / #endif blocks, if your userid is 'maarten'.
+# ... #endif blocks, if your userid is 'maarten'.
 #
-# Please see https://github.com/maartenwrs/espmake/blob/main/README.md for more details.
+# Refer to https://github.com/maartenwrs/espmake/blob/main/README.md
+# for more details.
 
 MAIN	= main.yaml
 SRCS	= $(wildcard *.yaml)
@@ -39,6 +46,7 @@ DEHASH	= $(OUTDIR)/dehash/dehash.sh --cpp
 CPP	= gcc -x c -E -P -undef -nostdinc $(CPPINCS) $(CPPDEFS) 
 
 all:	$(OUTDIR)/dehash $(PROJDIR) $(_YAMLS) $(_MAIN)
+ifneq (,$(findstring esphome,$(VIRTUAL_ENV))) # check if esphome venv
 	-@if [ "$(OUTDIR)" != "." -a -f "secrets.yaml" ]; then 		   \
 	    if [ -L "$(OUTDIR)/secrets.yaml" ]; then 			   \
 	    	rm -f $(OUTDIR)/secrets.yaml;				   \
@@ -48,10 +56,12 @@ all:	$(OUTDIR)/dehash $(PROJDIR) $(_YAMLS) $(_MAIN)
 	    fi;								   \
 	    ln -s $(PREFIX)$(PROJTAG)/secrets.yaml $(OUTDIR)/secrets.yaml; \
 	fi
-	@echo "$(_MAIN) is up to date and ready for commands such as:"
-	@echo "esphome config  $(_MAIN)"
-	@echo "esphome compile $(_MAIN)"
-	@echo "esphome upload  $(_MAIN)"
+	@echo "$(_MAIN) is up to date"
+	esphome compile $(_MAIN)
+else
+	@echo "$(_MAIN) is up to date"
+endif
+
 
 $(_MAIN) $(_YAMLS): $(OUTDIR)/dehash Makefile
 
@@ -72,12 +82,14 @@ $(PROJDIR)/%.yaml: %.yaml
 
 clean:
 	rm -rf $(PROJDIR) $(_MAIN)
+ifneq (,$(findstring esphome,$(VIRTUAL_ENV))) # check if esphome venv
 	@if [ "$(OUTDIR)" != "." -a -f "secrets.yaml" ]; then 	\
 	    if [ -L "$(OUTDIR)/secrets.yaml" ]; then 		\
 	    	echo "rm $(OUTDIR)/secrets.yaml";		\
 	    	rm -f $(OUTDIR)/secrets.yaml;			\
 	    fi;							\
 	fi
+endif
 
 realclean: clean
 	rm -rf $(OUTDIR)/dehash .esphome
@@ -87,7 +99,7 @@ realclean: clean
 
 $(OUTDIR)/dehash:
 	-@mkdir -p $(OUTDIR)
-	cd $(OUTDIR); git clone git@github.com:maartenwrs/dehash
+	cd $(OUTDIR); git clone https://github.com/maartenwrs/dehash
 
 # pull dehash repo and this Makefile from github
 update:

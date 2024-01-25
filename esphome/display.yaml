@@ -39,6 +39,7 @@ font:
     id: arial
     size: 24
 
+#if GB_CONFIG_DISPLAY_3_BIT
 // added 3-bit mode to the display driver
 external_components:
 #if _USER_maarten
@@ -49,6 +50,7 @@ external_components:
   - source: 'github://maartenwrs/esphome_components'
 #endif
     components: [ ili9xxx ]
+#endif // GB_CONFIG_DISPLAY_3_BIT
 
 display:
   - platform: ili9xxx
@@ -60,7 +62,9 @@ display:
       height: 320
       offset_height: 0
       offset_width: 0
+#if GB_CONFIG_DISPLAY_3_BIT
     color_palette: 3_BIT
+#endif // GB_CONFIG_DISPLAY_3_BIT
     color_order: bgr
     transform:
       mirror_y: false
