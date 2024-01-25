@@ -19,7 +19,7 @@ else
   alias logs="esphome logs --device /dev/ttyUSB1 myProj_0.yaml"
   alias logs1="esphome logs --device /dev/ttyUSB2 myProj_1.yaml"
   alias upload="esphome upload --device 192.168.248.10 myProj_0.yaml"
-  alias upload="esphome upload --device 192.168.248.11 myProj_0.yaml"
+  alias upload1="esphome upload --device 192.168.248.11 myProj_0.yaml"
 fi
 
 
