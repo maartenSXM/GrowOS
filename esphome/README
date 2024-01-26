@@ -1,8 +1,10 @@
 To install esphome, do this:
 
+First a word on environements. This requires python, a recommended solution to deal with python versions is to use pyenv.
+See here for how to setup pyenv: https://opensource.com/article/19/5/python-3-default-mac
+
 git clone https://github.com/esphome/esphome.git
-cd esphome
-git checkout dev
+cd esphome && git checkout dev
 ./script/setup
 
 To activate the python virtual environment in a terminal shell,
@@ -49,4 +51,10 @@ from a browser to see some published information and flip
 some switches.
 
 Voila!
+
+
+Notes:
+On first upload without existing esphome firmware, will have to program over serial
+/dev/* will be the path of the serial port, which can be found by looking at the output of dmesg after plugging in the growboard
+Sometimes the "cu." needs to be added for paths such as /dev/usbserial-A50285BI
 
