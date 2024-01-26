@@ -1,21 +1,21 @@
 #if (GB_CONFIG_INTERNAL_TEMP || GB_CONFIG_NET_WIFI || GB_CONFIG_DEBUG)
 sensor:
-#if GB_CONFIG_INTERNAL_TEMP
+  #if GB_CONFIG_INTERNAL_TEMP
   - platform: internal_temperature
     name: "System Temperature"
     update_interval: 15s
-#endif // GB_CONFIG_INTERNAL_TEMP
+  #endif // GB_CONFIG_INTERNAL_TEMP
 
-#if GB_CONFIG_NET_WIFI
+  #if GB_CONFIG_NET_WIFI
   - platform: wifi_signal
     id: my_wifi_sensor
     name: "Net WiFi Signal "
     update_interval: 15s
-#endif // GB_CONFIG_NET_WIFI
+  #endif // GB_CONFIG_NET_WIFI
 
-#if GB_CONFIG_DEBUG
+  #if GB_CONFIG_DEBUG
   - platform: uptime
-    name: System Uptime 
+    name: System Uptime
     update_interval: 15s
 
   - platform: debug
@@ -32,8 +32,8 @@ sensor:
 #endif // (GB_CONFIG_INTERNAL_TEMP || GB_CONFIG_NET_WIFI || GB_CONFIG_DEBUG)
 
 text_sensor:
-#if GB_CONFIG_NET_WIFI
-#if GB_CONFIG_NET_SNTP
+  #if GB_CONFIG_NET_WIFI
+  #if GB_CONFIG_NET_SNTP
   - platform: template
     name: "Net SNTP Time"
     update_interval: 30s
@@ -55,10 +55,10 @@ text_sensor:
       if (str[0] == '\0')
         strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&id(sntpBootTime)));
       return (std::string) str;
-#endif // GB_CONFIG_NET_SNTP
-#endif // GB_CONFIG_NET_WIFI
+  #endif // GB_CONFIG_NET_SNTP
+  #endif // GB_CONFIG_NET_WIFI
 
-#if GB_CONFIG_NET_WIFI
+  #if GB_CONFIG_NET_WIFI
   - platform: wifi_info
     ip_address:
       name: Net IP Address
@@ -66,11 +66,10 @@ text_sensor:
       name: Net WiFi SSID
     mac_address:
       name: Net MAC Address
-#endif // GB_CONFIG_NET_WIFI
+  #endif // GB_CONFIG_NET_WIFI
 
   - platform: debug
     // device:
     //   name: "System Info"
     reset_reason:
       name: "System Reset Reason"
-
