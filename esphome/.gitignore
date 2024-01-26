@@ -4,7 +4,6 @@
 /.esphome/
 /secrets.yaml
 .dehash
-dehash/
 proj.*/
 proj.*.yaml
 Makefile.old
@@ -13,3 +12,5 @@ myProj_0/
 myProj_0.yaml
 myProj_1.yaml
 myProj_1/
+Makefile.new
+cpptext/
