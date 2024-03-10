@@ -1,5 +1,8 @@
 
 switch:
+  - platform: safe_mode
+    name: "Reboot to safe mode"
+
   - platform: gpio
     pin: _PIN_SET_MOTOR_MINUS
     name: "12V Motor minus"

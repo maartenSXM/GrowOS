@@ -11,6 +11,7 @@ wifi:
   reboot_timeout: 0s    // disable reboot every 15 min if no WiFi
   ssid: _SUB_WIFI_SSID
   password: _SUB_WIFI_PASSWORD
+  power_save_mode: none
 #if GB_CONFIG_NET_STATIC
   manual_ip:
 #if _CPU == 0
@@ -58,7 +59,19 @@ api:
 #if GB_CONFIG_NET_OTA
 // Enable over-the-air update
 ota:
+  version: 2
   password: _SUB_OTA_PASSWORD
+  on_begin:
+    then:
+      - logger.log: "OTA start"
+  on_progress:
+    then:
+      - logger.log:
+          format: "OTA progress %0.1f%%"
+          args: ["x"]
+  on_end:
+    then:
+      - logger.log: "OTA end"
 #endif // GB_CONFIG_NET_OTA
 
 #if GB_CONFIG_NET_WEB_SERVER

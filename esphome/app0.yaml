@@ -23,6 +23,9 @@ output:
 #endif // GB_CONFIG_BUZZER
 
 switch:
+  - platform: safe_mode
+    name: "Reboot to safe mode"
+
 #if GB_CONFIG_TRISTATE_UART_SWITCH
   - platform: template
     name: "Tristate UART0"

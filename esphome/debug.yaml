@@ -1,13 +1,20 @@
 // Enable logging
 logger:
+#if _USER_maarten
+  hardware_uart: USB_CDC
+  deassert_rts_dtr: true
+#else
   # baud_rate: 115200
   baud_rate: 921600
   hardware_uart: UART0
+#endif
     # level: ERROR
-  level: DEBUG
+    # level: DEBUG
+    # level: VERBOSE
   logs:
     # ili9xxx.component: VERBOSE
     component: DEBUG
+    # component: VERBOSE
 
 #if GB_CONFIG_DEBUG
 debug:

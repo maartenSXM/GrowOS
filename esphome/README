@@ -5,6 +5,7 @@ See here for how to setup pyenv: https://opensource.com/article/19/5/python-3-de
 
 git clone https://github.com/esphome/esphome.git
 cd esphome && git checkout dev
+vi requirements_dev.txt and comment out clang-tidy (takes too long and not needed)
 ./script/setup
 
 To activate the python virtual environment in a terminal shell,
@@ -17,14 +18,8 @@ source .bashrc or append it's contents into your !/.bashrc.
 
 Now it is possible to build and run esphome for CPU 0 like this:
 
-To generate the yaml for, just run make for CPU0 or make1 for CPU1.
-
-compile
-upload
-logs
-
-To build for CPU1, pass PROJTAG=1 to your make command. Or use the alias
-make1.
+To build, just use 'make' to build for CPU0 or 'make1' alias to build
+for CPU1.
 
 The Makefile chooses a board serial number and network location
 based on $USER and generates a full yaml file for esphome.
@@ -44,7 +39,7 @@ See esphome -h for more details.
 aliases for the above are in ./Bashrc.  Source it or add it to your !/.bashrc.
 
 There are some intermediate C-preprocessed files stored in
-./proj.0 and ./proj.1
+./myProj.0 and ./myProj.1
 
 It is possible to connect to the growboard's IP address
 from a browser to see some published information and flip
@@ -54,7 +49,7 @@ Voila!
 
 
 Notes:
-On first upload without existing esphome firmware, will have to program over serial
-/dev/* will be the path of the serial port, which can be found by looking at the output of dmesg after plugging in the growboard
-Sometimes the "cu." needs to be added for paths such as /dev/usbserial-A50285BI
-
+On first upload without existing esphome firmware, will have to program over 
+/dev/* will be the path of the serial or USB port, which can be found by
+looking at the output of dmesg after plugging in the growboard.  If running
+in a VM, you may have to connect that port to the VM from the host.
