@@ -1,8 +1,8 @@
 image:
-  - file: "images/beansprouts.jpg"
-    id: image_beansprouts
-    resize: 480 x 320
-    type: rgb24
+#  - file: "images/beansprouts.jpg"
+#    id: image_beansprouts
+#    resize: 480 x 320
+#    type: rgb24
   - file: "images/arrow-left-bold-circle-outline-filled.png"
     id: icon_left
     resize: 75 x 75

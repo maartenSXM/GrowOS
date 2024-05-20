@@ -1,7 +1,8 @@
 #if GB_CONFIG_NET_WIFI
 
 #if _USER_maarten
-  #include "location.sxm"
+  #include "location.pec"
+  // #include "location.sxm"
 #else
   #include "location.pec"
 #endif
@@ -60,6 +61,7 @@ api:
 // Enable over-the-air update
 ota:
   version: 2
+  platform: esphome
   password: _SUB_OTA_PASSWORD
   on_begin:
     then:
@@ -78,5 +80,10 @@ ota:
 // Enable web server
 web_server:
 #endif // GB_CONFIG_NET_WEB_SERVER
+
+#if GB_CONFIG_NET_IMPROV_WIFI
+// Enable Improv WiFi component
+improv_serial:
+#endif // GB_CONFIG_IMPROV_WIFI
 
 #endif // GB_CONFIG_NET_WIFI

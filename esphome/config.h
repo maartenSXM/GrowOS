@@ -15,6 +15,7 @@
 // Config common to both cpu0 and cpu1
 
 #define GB_CONFIG_NET_WIFI		1	// WiFi?
+#define GB_CONFIG_NET_IMPROV_WIFI	0	// Improve WiFi provisioning
 #define GB_CONFIG_NET_STATIC		1	// ... using static config?
 #define GB_CONFIG_NET_FALLBACK		0	// ... Fallback config?
 #define GB_CONFIG_NET_PORTAL		0	// ... Provisioning SSID?
@@ -36,12 +37,14 @@
 #define GB_CONFIG_APP0_LED		1	// status LED on _PIN_tempData?
 #define GB_CONFIG_CPU1_DEFAULTS_ON	1	// CPU1 on by default?
 #define GB_CONFIG_DISPLAY		1	// touchscreen display?
-#define GB_CONFIG_DISPLAY_3_BIT		1	// ... 8 color (else 64k)?
+#define GB_CONFIG_DISPLAY_3_BIT		0	// ... 8 color (else 64k)?
+#define GB_CONFIG_DISPLAY_LVGL		1	// try new lvgl layer
 #define GB_CONFIG_TFT_PWR_DEFAULTS_ON 	1	// ... power it on by default?
 #define GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON 1	// ... backlight on by default?
 #define GB_CONFIG_BUZZER 		0	// buzzer on board?
 #define GB_CONFIG_BUZZER_MONOTONE	0	// ... monotone? (else melody)
-#define GB_CONFIG_CAMERA		0	// camera connected?
+#define GB_CONFIG_CAMERA		0	// esphome camera lib
+#define GB_CONFIG_ESP32_CAMERA		0	// espressif C lib
 #define GB_CONFIG_CAMERA_DEFAULTS_ON	0	// ... on by default?
 #define GB_CONFIG_TRISTATE_UART_SWITCH	0	// defaults on (for now)
 

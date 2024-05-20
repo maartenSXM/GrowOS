@@ -1,0 +1,16 @@
+
+lvgl:
+  log_level: INFO
+  displays:
+    - display_id: my_display
+  buffer_size: 25%
+  touchscreens:
+    - touchscreen_id: my_touchScreen
+  pages:
+    - id: main_page
+      widgets:
+        - label:
+            align: CENTER
+            text: 'Hello World!'
+            text_color: 0xFF0000
+

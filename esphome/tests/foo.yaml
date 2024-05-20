@@ -1,0 +1,44 @@
+esphome:
+  name: "foo"
+esp32:
+  board: esp32-s2-kaluga-1
+
+# random pins to show code generation error
+spi: [{clk_pin: 1, mosi_pin: 2, miso_pin: 3}]
+i2c: [{id: i2cBusIntern, sda: 4, scl: 5}]
+
+display:
+  - platform: ili9xxx
+    id: my_display
+    model: ili9488_A
+    cs_pin: 6
+    dc_pin: 7
+    reset_pin: 8
+    dimensions:
+      width: 480
+      height: 320
+
+touchscreen:
+  - platform: ft63x6
+    id: my_touch
+    i2c_id: i2cBusIntern
+    interrupt_pin: 9
+
+external_components:
+#  - source: 'github://pr#6363'
+  - source: 'github://clydebarrow/esphome@lvgl'
+    refresh: 10min
+    components: [lvgl]
+
+lvgl:
+  displays:
+    - display_id: my_display
+  touchscreens:
+    - touchscreen_id: my_touch
+  pages:
+    - id: main_page
+      widgets:
+        - label:
+            align: CENTER
+            text: 'Hello World!'
+
