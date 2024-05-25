@@ -19,7 +19,6 @@ sensor:
     update_interval: 15s
 
   - platform: debug
-    update_interval: 15s
     free:
       name: "System Heap Free"
     block:

@@ -17,7 +17,7 @@ logger:
     # component: VERBOSE
 
 #if GB_CONFIG_DEBUG
-# debug:
-#   update_interval: never
+debug:
+  update_interval: 15s
 
 #endif // GB_CONFIG_DEBUG

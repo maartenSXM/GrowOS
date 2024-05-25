@@ -17,7 +17,7 @@ endif
 		cd $(OUTDIR)/cpptext; git pull; 		\
 	else							\
 		echo "Cloning git repo $(OUTDIR)/cpptext";	\
-		cd $(OUTDIR); git clone git@github.com:maartenwrs/cpptext; \
+		cd $(OUTDIR); git clone git@github.com:maartenSXM/cpptext; \
 	fi
 ifeq (,$(wildcard ./dehash.sh))
 	make

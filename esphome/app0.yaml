@@ -1,5 +1,10 @@
-#if GB_CONFIG_BUZZER || GB_CONFIG_DISPLAY
 output:
+  - platform: slow_pwm
+    pin:
+      number: _PIN_TempData
+      mode: output
+    period: 500ms
+    id: my_led
 
 #if GB_CONFIG_BUZZER
   - platform: ledc
@@ -24,11 +29,10 @@ output:
 #endif // 0
 #endif // GB_CONFIG_DISPLAY
 
-#endif // GB_CONFIG_BUZZER || GB_CONFIG_DISPLAY
-
 #if GB_CONFIG_APP0_LED || GB_CONFIG_DISPLAY
 light:
 
+#if 0 // changed to output to not pollute log
 #if GB_CONFIG_APP0_LED
   - platform: status_led
     id: cpu0_status_led
@@ -43,6 +47,7 @@ light:
             - state: false
               duration: 100ms
 #endif // GB_CONFIG_APP0_LED
+#endif // 0
 
 #if GB_CONFIG_DISPLAY
   - platform: binary
@@ -156,6 +161,35 @@ button:
 
 #endif // !GB_CONFIG_BUZZER_MONOTONE
 #endif // GB_CONFIG_BUZZER
+
+#if GB_CONFIG_LVGL_IDLE && GB_CONFIG_LVGL_ANTIBURN
+  - platform: template
+    name: Antiburn
+    id: switch_antiburn
+    icon: mdi:television-shimmer
+    optimistic: true
+    entity_category: "config"
+    turn_on_action:
+      - logger.log: "Starting Antiburn"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+            - delay: 1s
+      - lvgl.pause:
+          show_snow: true
+    turn_off_action:
+      - logger.log: "Stopping Antiburn"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+            - delay: 1s
+            - lvgl.pause:
+#endif // GB_CONFIG_LVGL_IDLE && GB_CONFIG_LVGL_ANTIBURN
+
 
 #if GB_CONFIG_CAMERA
 esp32_camera:

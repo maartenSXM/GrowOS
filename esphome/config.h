@@ -27,7 +27,7 @@
 #define GB_CONFIG_INTERNAL_TEMP		0	// internal temp sensor ...
 // ... causes reboots: https://github.com/espressif/esp-idf/issues/8088
 //
-#define GB_CONFIG_DEBUG			0	// expose some debug info
+#define GB_CONFIG_DEBUG			1	// expose some debug info
 
 // cpu0-specific config
 
@@ -41,6 +41,7 @@
 #define GB_CONFIG_DISPLAY_LVGL		1	// try new lvgl layer
 #define GB_CONFIG_LVGL_BOOT_LOGO	1	// spinning boot logo
 #define GB_CONFIG_LVGL_IDLE		1	// turn off display when idle
+#define GB_CONFIG_LVGL_ANTIBURN		1	// exercise pixels when idle
 #define GB_CONFIG_TFT_PWR_DEFAULTS_ON 	1	// ... power it on by default?
 #define GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON 1	// ... backlight on by default?
 #define GB_CONFIG_BUZZER 		0	// buzzer on board?
