@@ -1,7 +1,9 @@
 #ifdef _PROJTAG_0
 #define _CPU 0
+#define GB_CPU0
 #else
 #define _CPU 1
+#define GB_CPU1
 #endif
 
 // Config specific to current USER

@@ -59,8 +59,11 @@ light:
 #endif // GB_CONFIG_APP0_LED || GB_CONFIG_DISPLAY
 
 switch:
+  - platform: restart
+    name: "System Reboot"
+
   - platform: safe_mode
-    name: "Reboot to safe mode"
+    name: "System Reboot (safe)"
 
 #if GB_CONFIG_TRISTATE_UART_SWITCH
   - platform: template
@@ -118,9 +121,6 @@ switch:
 #endif // GB_CONFIG_CAMERA_DEFAULTS_ON
 #endif // GB_CONFIG_CAMERA
 #
-  - platform: restart
-    name: "System Reboot"
-
 #if GB_CONFIG_BUZZER
 #if GB_CONFIG_BUZZER_MONOTONE
   - platform: output

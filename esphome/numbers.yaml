@@ -1,5 +1,5 @@
+#if _CPU == 0 && GB_CONFIG_DISPLAY
 number:
-#if GB_CONFIG_DISPLAY
   - platform: template
     name: LVGL Screen timeout
     optimistic: true
