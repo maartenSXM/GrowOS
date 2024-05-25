@@ -1,5 +1,35 @@
-#if GB_CONFIG_APP0_LED
+#if GB_CONFIG_BUZZER || GB_CONFIG_DISPLAY
+output:
+
+#if GB_CONFIG_BUZZER
+  - platform: ledc
+    pin: _PIN_BUZZER
+    id: buzzer_out
+    channel: 2 // xxx config item?
+#endif // GB_CONFIG_BUZZER
+
+#if GB_CONFIG_DISPLAY
+  - platform: gpio
+    id: output_TFT_BACKLIGHT
+    pin:
+      number: _PIN_TFT_BACKLIGHT
+      mode: output
+    inverted: true
+#if 0
+#if GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
+    restore_mode: ALWAYS_ON
+#else
+    restore_mode: ALWAYS_OFF
+#endif // GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
+#endif // 0
+#endif // GB_CONFIG_DISPLAY
+
+#endif // GB_CONFIG_BUZZER || GB_CONFIG_DISPLAY
+
+#if GB_CONFIG_APP0_LED || GB_CONFIG_DISPLAY
 light:
+
+#if GB_CONFIG_APP0_LED
   - platform: status_led
     id: cpu0_status_led
     name: "CPU0 Status LED"
@@ -14,13 +44,14 @@ light:
               duration: 100ms
 #endif // GB_CONFIG_APP0_LED
 
-#if GB_CONFIG_BUZZER
-output:
-  - platform: ledc
-    pin: _PIN_BUZZER
-    id: buzzer_out
-    channel: 2 // xxx config item?
-#endif // GB_CONFIG_BUZZER
+#if GB_CONFIG_DISPLAY
+  - platform: binary
+    id: light_TFT_BACKLIGHT
+    name: "CPU0 Backlight Enable"
+    output: output_TFT_BACKLIGHT
+#endif // GB_CONFIG_DISPLAY
+
+#endif // GB_CONFIG_APP0_LED || GB_CONFIG_DISPLAY
 
 switch:
   - platform: safe_mode
@@ -65,18 +96,6 @@ switch:
     restore_mode: ALWAYS_OFF
 #endif // GB_CONFIG_TFT_PWR_DEFAULTS_ON
 
-  - platform: gpio
-    id: switch_TFT_BACKLIGHT
-    name: "CPU0 Backlight Enable"
-    pin:
-      number: _PIN_TFT_BACKLIGHT
-      mode: output
-    inverted: true
-#if GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
-    restore_mode: ALWAYS_ON
-#else
-    restore_mode: ALWAYS_OFF
-#endif // GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
 #endif // GB_CONFIG_DISPLAY
 
 #if GB_CONFIG_CAMERA

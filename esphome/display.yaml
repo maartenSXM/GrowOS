@@ -103,23 +103,34 @@ i2c:
 #if GB_CONFIG_CAMERA
     allow_other_uses: true
 #endif
-  frequency: 400kHz
-  scan: false
+  frequency: 200kHz
+  scan: true
 
 touchscreen:
  - platform: ft63x6
    id: my_touchScreen
    i2c_id: i2cBusIntern
+   display: my_display
    interrupt_pin: _PIN_CTP_IRQ
+   touch_timeout: 150ms
    transform:
      swap_xy: true
      mirror_x: true
+     mirror_y: true
 #if 1
    on_touch:
-     lambda: |-
-       id(touchx) = touch.x;
-       id(touchy) = touch.y;
-       #  printf("x=%d, y=%d\n", touch.x, touch.y);
-       printf("x=%d, y=%d\n", id(touchx), id(touchy));
+     - lambda: |-
+           printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",
+                    touch.x, touch.y, touch.x_raw, touch.y_raw);
+#endif
+#if GB_CONFIG_LVGL_IDLE
+   on_release:
+     - if:
+         condition: lvgl.is_paused
+         then:
+           - logger.log: "LVGL resuming"
+           - lvgl.resume:
+           - lvgl.widget.redraw:
+           - light.turn_on: light_TFT_BACKLIGHT
 #endif
 

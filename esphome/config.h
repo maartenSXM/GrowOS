@@ -19,7 +19,7 @@
 #define GB_CONFIG_NET_STATIC		1	// ... using static config?
 #define GB_CONFIG_NET_FALLBACK		0	// ... Fallback config?
 #define GB_CONFIG_NET_PORTAL		0	// ... Provisioning SSID?
-#define GB_CONFIG_NET_SNTP		1	// ... Network Time Protocol?
+#define GB_CONFIG_NET_SNTP		0	// ... Network Time Protocol?
 #define GB_CONFIG_NET_HA		0	// ... Home Assistant?
 #define GB_CONFIG_NET_OTA		1	// ... WiFi update allowed?
 #define GB_CONFIG_NET_WEB_SERVER	1	// ... Built-in web server?
@@ -27,7 +27,7 @@
 #define GB_CONFIG_INTERNAL_TEMP		0	// internal temp sensor ...
 // ... causes reboots: https://github.com/espressif/esp-idf/issues/8088
 //
-#define GB_CONFIG_DEBUG			1	// expose some debug info
+#define GB_CONFIG_DEBUG			0	// expose some debug info
 
 // cpu0-specific config
 
@@ -39,6 +39,8 @@
 #define GB_CONFIG_DISPLAY		1	// touchscreen display?
 #define GB_CONFIG_DISPLAY_3_BIT		0	// ... 8 color (else 64k)?
 #define GB_CONFIG_DISPLAY_LVGL		1	// try new lvgl layer
+#define GB_CONFIG_LVGL_BOOT_LOGO	1	// spinning boot logo
+#define GB_CONFIG_LVGL_IDLE		1	// turn off display when idle
 #define GB_CONFIG_TFT_PWR_DEFAULTS_ON 	1	// ... power it on by default?
 #define GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON 1	// ... backlight on by default?
 #define GB_CONFIG_BUZZER 		0	// buzzer on board?

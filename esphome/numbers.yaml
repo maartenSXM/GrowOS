@@ -1,0 +1,14 @@
+number:
+#if GB_CONFIG_DISPLAY
+  - platform: template
+    name: LVGL Screen timeout
+    optimistic: true
+    id: display_timeout
+    unit_of_measurement: "s"
+    initial_value: 45
+    restore_value: true
+    min_value: 10
+    max_value: 180
+    step: 5
+    mode: box
+#endif

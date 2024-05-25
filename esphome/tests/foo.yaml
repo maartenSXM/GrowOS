@@ -1,28 +1,29 @@
 esphome:
-  name: "foo"
-esp32:
-  board: esp32-s2-kaluga-1
+  name: foo
 
-# random pins to show code generation error
-spi: [{clk_pin: 1, mosi_pin: 2, miso_pin: 3}]
-i2c: [{id: i2cBusIntern, sda: 4, scl: 5}]
+esp32:
+  # board: esp32-s2-kaluga-1
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+    version: 5.1.2
+    platform_version: "https://github.com/platformio/platform-espressif32.git#develop"
+
+spi: [{clk_pin: 36, mosi_pin: 35, miso_pin: 37}]
+
+i2c: [{id: my_i2c, sda: 7, scl: 9}]
 
 display:
   - platform: ili9xxx
     id: my_display
-    model: ili9488_A
-    cs_pin: 6
-    dc_pin: 7
-    reset_pin: 8
-    dimensions:
-      width: 480
-      height: 320
+    model: ili9488
+    cs_pin: 33
+    dc_pin: 34
 
 touchscreen:
   - platform: ft63x6
     id: my_touch
-    i2c_id: i2cBusIntern
-    interrupt_pin: 9
+    i2c_id: my_i2c
 
 external_components:
 #  - source: 'github://pr#6363'
@@ -32,13 +33,16 @@ external_components:
 
 lvgl:
   displays:
-    - display_id: my_display
+    display_id: my_display
   touchscreens:
-    - touchscreen_id: my_touch
+    touchscreen_id: my_touch
+  buffer_size: 25%
   pages:
     - id: main_page
       widgets:
         - label:
-            align: CENTER
-            text: 'Hello World!'
+            text: 'Hello World'
+            align: center
+            text_align: center
+            text_color: 0xFFFFFF
 

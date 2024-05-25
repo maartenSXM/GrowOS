@@ -1,20 +1,15 @@
 To install esphome, do this:
 
-First a word on environements. This requires python, a recommended solution to deal with python versions is to use pyenv.
-See here for how to setup pyenv: https://opensource.com/article/19/5/python-3-default-mac
-
+sudo apt install git make python3.10-venv gcc
 git clone https://github.com/esphome/esphome.git
-cd esphome && git checkout dev
+cd esphome
 vi requirements_dev.txt and comment out clang-tidy (takes too long and not needed)
 ./script/setup
 
-To activate the python virtual environment in a terminal shell,
-do this:
+Now inspect the alias in ./Bashrc and adjust to the current directory and then:
 
-source venv/bin/activate
-
-Now after cd-ing into the growOS/esphome directory, either
-source .bashrc or append it's contents into your !/.bashrc.
+source Bashrc 
+growOS
 
 Now it is possible to build and run esphome for CPU 0 like this:
 
@@ -30,26 +25,26 @@ Once the yaml files are generated, instead of driving things
 from the Makefile, it is also possible to issue esphome commands
 directly on the generated yaml file, such as:
 
-esphome compile proj.0.yaml
-esphome upload proj.0.yaml
-esphome logs proj.0.yaml
+esphome compile myProj_0.yaml
+esphome upload myProj_0.yaml
+esphome logs myProj_0.yaml
 
 See esphome -h for more details.
 
-aliases for the above are in ./Bashrc.  Source it or add it to your !/.bashrc.
+aliases for the above are in ./Bashrc. 
 
-There are some intermediate C-preprocessed files stored in
-./myProj.0 and ./myProj.1
+There are some intermediate C-preprocessed files stored in directories
+./myProj_0 and ./myProj_1
 
 It is possible to connect to the growboard's IP address
 from a browser to see some published information and flip
 some switches.
-
-Voila!
-
 
 Notes:
 On first upload without existing esphome firmware, will have to program over 
 /dev/* will be the path of the serial or USB port, which can be found by
 looking at the output of dmesg after plugging in the growboard.  If running
 in a VM, you may have to connect that port to the VM from the host.
+
+To put the ESP32S2 into jtag upload mode, just ground GPIO0 and issue alias
+jtag0 or jtag1, depending on which CPU you are connected to.

@@ -1,5 +1,5 @@
 esphome:
-  name: "lvgl2"
+  name: "lvgl"
   platformio_options:
     upload_speed: 1500000
     board_build.mcu: esp32s2
@@ -10,15 +10,10 @@ esphome:
     board_upload.maximum_size: 1500000
 
 esp32:
-  # board is custom but using kaluga since it is close
   board: esp32-s2-kaluga-1
   variant: esp32s2
   framework:
     type: esp-idf
-    version: 5.1.2
-    # version: dev
-    platform_version: "https://github.com/platformio/platform-espressif32.git#develop"
-    # platform_version: "https://github.com/platformio/platform-espressif32.git"
     sdkconfig_options:
       CONFIG_COMPILER_OPTIMIZATION_SIZE: y
       CONFIG_ESPTOOLPY_FLASHFREQ_40M: y
@@ -77,12 +72,8 @@ display:
     dc_pin: 34
     reset_pin: 7
     data_rate: 40MHz
-    # use this with lvgl (to show it fails to display anything):
     auto_clear_enabled: false
     update_interval: never
-    # use this without lvgl (to show it display a red circle):
-    #auto_clear_enabled: true
-    #update_interval: 500ms
     #pages:
     #- id: page1
     #  lambda: |-
@@ -119,6 +110,15 @@ touchscreen:
        id(touchy) = touch.y;
        printf("x=%d, y=%d\n", id(touchx), id(touchy));
 
+switch:
+  - platform: gpio
+    id: switch_TFT_BACKLIGHT
+    pin:
+      number: 21
+      mode: output
+    inverted: true
+    restore_mode: ALWAYS_ON
+
 lvgl:
   # log_level: INFO
   displays:
@@ -126,6 +126,8 @@ lvgl:
   touchscreens:
     - touchscreen_id: my_touchScreen
   # buffer_size: 100%
+  default_font: montserrat_28
+  disp_bg_color: 0x000000
   pages:
     - id: main_page
       widgets:

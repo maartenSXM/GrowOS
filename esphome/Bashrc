@@ -7,7 +7,9 @@ alias make1="make PROJTAG=1"
 alias compile1="make1; esphome compile myProj_1.yaml"
 
 if [ "$USER" == "maarten" ]; then
-  alias jtag0="esphome upload --device /dev/ttyACM0 myProj_0.yaml"
+  export ESPTOOL_TESTING=1 # as per esptool/esp32s2.py
+  alias jtag='function jtag { _YAML=${1:-myProj_0.yaml}; esphome upload --device /dev/ttyACM0 $_YAML; }; jtag'
+  alias jtag0="jtag myProj_0.yaml"
   alias jtag1="esphome upload --device /dev/ttyACM1 myProj_1.yaml"
   alias logs0="esphome logs --device /dev/ttyACM0 myProj_0.yaml"
   alias logs1="esphome logs --device /dev/ttyACM1 myProj_1.yaml"

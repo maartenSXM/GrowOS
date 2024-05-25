@@ -11,13 +11,13 @@ logger:
     # level: ERROR
     # level: DEBUG
     # level: VERBOSE
-  logs:
+  # logs:
     # ili9xxx.component: VERBOSE
-    component: DEBUG
+    # component: DEBUG
     # component: VERBOSE
 
 #if GB_CONFIG_DEBUG
-debug:
-  update_interval: 15s
+# debug:
+#   update_interval: never
 
 #endif // GB_CONFIG_DEBUG

@@ -19,6 +19,7 @@ sensor:
     update_interval: 15s
 
   - platform: debug
+    update_interval: 15s
     free:
       name: "System Heap Free"
     block:
@@ -68,8 +69,10 @@ text_sensor:
       name: Net MAC Address
   #endif // GB_CONFIG_NET_WIFI
 
+#if GB_CONFIG_DEBUG
   - platform: debug
     // device:
     //   name: "System Info"
     reset_reason:
       name: "System Reset Reason"
+#endif // GB_CONFIG_DEBUG
