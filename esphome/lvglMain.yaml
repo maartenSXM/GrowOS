@@ -1,0 +1,48 @@
+#if GB_CONFIG_LVGL_BOOT_LOGO
+image:
+  - file: 'https://esphome.io/_images/logo.png'
+    id: boot_logo
+    resize: 200x200
+    type: RGB565
+#endif // GB_CONFIG_LVGL_BOOT_LOGO
+
+#define MY_FONT montserrat_18
+
+lvgl:
+  log_level: INFO
+  displays:
+    - display_id: my_display
+  buffer_size: 50%
+  touchscreens:
+    - touchscreen_id: my_touchScreen
+  default_font: MY_FONT
+  disp_bg_color: 0x000000
+  update_interval: 2s
+#if GB_CONFIG_LVGL_IDLE
+  on_idle:
+    timeout: !lambda "return (id(display_timeout).state * 1000);"
+    then:
+      - logger.log: "LVGL is idle"
+      - light.turn_off: light_TFT_BACKLIGHT
+      - lvgl.pause:
+#endif
+
+#include "lvglTheme.yaml"
+
+#include "lvglNavigation.yaml"
+#if GB_CONFIG_LVGL_BOOT_LOGO
+#include "lvglBootLogo.yaml"
+#endif
+
+  pages:
+#include "page1.yaml"
+#include "page2.yaml"
+#include "page3.yaml"
+#include "page4.yaml"
+
+// Next are the page extras that are not part of the lvgl: definition
+
+#include "page1add.yaml"
+#include "page2add.yaml"
+#include "page3add.yaml"
+#include "page4add.yaml"

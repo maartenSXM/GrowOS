@@ -76,18 +76,10 @@ display:
 #if GB_CONFIG_DISPLAY_LVGL
     auto_clear_enabled: false
     update_interval: never
-    # auto_clear_enabled: true
-    # update_interval: 1000ms
-    # pages:
-    # - id: page1
-    #   lambda: |-
-    #     it.filled_circle(200, 120, 100, Color(255,0,0));
-#include "lvglUi.yaml"
 #else // !GB_CONFIG_DISPLAY_LVGL
-    auto_clear_enabled: false
-    # auto_clear_enabled: true
+    auto_clear_enabled: true
     update_interval: 1000ms
-    // define some pages using native esphome graphics
+    // now define some pages using native esphome graphics
 #include "nativeUi.yaml"
 #endif // !GB_CONFIG_DISPLAY_LVGL
 
@@ -112,12 +104,12 @@ touchscreen:
    i2c_id: i2cBusIntern
    display: my_display
    interrupt_pin: _PIN_CTP_IRQ
-   touch_timeout: 150ms
+   touch_timeout: 50ms
    transform:
      swap_xy: true
      mirror_x: true
-     mirror_y: true
-#if 1
+     mirror_y: false
+#if 0
    on_touch:
      - lambda: |-
            printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",
@@ -133,4 +125,3 @@ touchscreen:
            - lvgl.widget.redraw:
            - light.turn_on: light_TFT_BACKLIGHT
 #endif
-

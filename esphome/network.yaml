@@ -45,10 +45,17 @@ time:
     servers:
       - _SUB_NTP_SERVER
     on_time_sync:
-      then:
-        lambda: |-
+      - lambda: |-
           if (id(sntpBootTime) == 0)
             id(sntpBootTime) = id(sntpTime).now().timestamp;
+#if GB_CONFIG_DISPLAY_LVGL
+      - script.execute: time_update
+    on_time:
+      - minutes: '*'
+        seconds: '*'
+        then:
+          - script.execute: time_update
+#endif // GB_CONFIG_DISPLAY_LVGL
 #endif // GB_CONFIG_NET_SNTP
 
 #if GB_CONFIG_NET_HA

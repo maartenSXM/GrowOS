@@ -21,13 +21,14 @@
 #define GB_CONFIG_NET_STATIC		1	// ... using static config?
 #define GB_CONFIG_NET_FALLBACK		0	// ... Fallback config?
 #define GB_CONFIG_NET_PORTAL		0	// ... Provisioning SSID?
-#define GB_CONFIG_NET_SNTP		0	// ... Network Time Protocol?
+#define GB_CONFIG_NET_SNTP		1	// ... Network Time Protocol?
 #define GB_CONFIG_NET_HA		0	// ... Home Assistant?
 #define GB_CONFIG_NET_OTA		1	// ... WiFi update allowed?
 #define GB_CONFIG_NET_WEB_SERVER	1	// ... Built-in web server?
 						//
-#define GB_CONFIG_INTERNAL_TEMP		0	// internal temp sensor ...
+#define GB_CONFIG_INTERNAL_TEMP		1	// internal temp sensor ...
 // ... causes reboots: https://github.com/espressif/esp-idf/issues/8088
+// ... fixed as of esp-idf v5.1.2
 //
 #define GB_CONFIG_DEBUG			1	// expose some debug info
 
