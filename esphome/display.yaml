@@ -1,6 +1,6 @@
-#if !GB_CONFIG_DISPLAY_LVGL
+#if !GB_CONFIG_LVGL
 #include "nativeUiInit.yaml"
-#endif // !GB_CONFIG_DISPLAY_LVGL
+#endif // !GB_CONFIG_LVGL
 
 spi:
   clk_pin:
@@ -21,7 +21,7 @@ spi:
   interface: hardware
 
 // for 3-bit or lvgl displays we need external components
-#if GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_DISPLAY_LVGL
+#if GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_LVGL
 external_components:
 #if GB_CONFIG_DISPLAY_3_BIT
 // added 3-bit mode to the display driver
@@ -34,12 +34,12 @@ external_components:
 #endif
     components: [ ili9xxx ]
 #endif // GB_CONFIG_DISPLAY_3_BIT
-#if GB_CONFIG_DISPLAY_LVGL
+#if GB_CONFIG_LVGL
   - source: 'github://pr#6363'
     refresh: 1000min
     components: [lvgl]
-#endif // GB_CONFIG_DISPLAY_LVGL
-#endif // GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_DISPLAY_LVGL
+#endif // GB_CONFIG_LVGL
+#endif // GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_LVGL
 
 display:
   - platform: ili9xxx
@@ -73,15 +73,15 @@ display:
 #endif
     reset_pin: _PIN_TFT_RST
     data_rate: 40MHz
-#if GB_CONFIG_DISPLAY_LVGL
+#if GB_CONFIG_LVGL
     auto_clear_enabled: false
     update_interval: never
-#else // !GB_CONFIG_DISPLAY_LVGL
+#else // !GB_CONFIG_LVGL
     auto_clear_enabled: true
     update_interval: 1000ms
     // now define some pages using native esphome graphics
 #include "nativeUi.yaml"
-#endif // !GB_CONFIG_DISPLAY_LVGL
+#endif // !GB_CONFIG_LVGL
 
 i2c:
   id: i2cBusIntern
@@ -115,7 +115,7 @@ touchscreen:
            printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",
                     touch.x, touch.y, touch.x_raw, touch.y_raw);
 #endif
-#if GB_CONFIG_LVGL_IDLE
+#if GB_CONFIG_LVGL && GB_CONFIG_LVGL_IDLE
    on_release:
      - if:
          condition: lvgl.is_paused
@@ -124,4 +124,4 @@ touchscreen:
            - lvgl.resume:
            - lvgl.widget.redraw:
            - light.turn_on: light_TFT_BACKLIGHT
-#endif
+#endif // GB_CONFIG_LVGL && GB_CONFIG_LVGL_IDLE

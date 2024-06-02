@@ -14,9 +14,9 @@
 #if _CPU == 0
 # if GB_CONFIG_DISPLAY
 #  include "display.yaml"
-#  if GB_CONFIG_DISPLAY_LVGL
+#  if GB_CONFIG_LVGL
 #   include "lvglMain.yaml"
-#  endif // GB_CONFIG_DISPLAY_LVGL
+#  endif // GB_CONFIG_LVGL
 # endif // GB_CONFIG_DISPLAY
 # include "app0.yaml"
 #else // _CPU == 1

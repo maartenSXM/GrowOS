@@ -4,7 +4,7 @@ sensor:
   - platform: internal_temperature
     name: "System Temperature"
     update_interval: 5s
-    #if GB_CONFIG_DISPLAY_LVGL
+    #if GB_CONFIG_LVGL
     on_value:
       - lvgl.indicator.update:
           id: temperature_needle
@@ -14,7 +14,7 @@ sensor:
           text:
             format: "%.1f°C"
             args: [ 'x' ]
-    #endif
+    #endif // GB_CONFIG_LVGL
   #endif // GB_CONFIG_INTERNAL_TEMP
 
   #if GB_CONFIG_NET_WIFI

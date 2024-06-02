@@ -162,7 +162,7 @@ button:
 #endif // !GB_CONFIG_BUZZER_MONOTONE
 #endif // GB_CONFIG_BUZZER
 
-#if GB_CONFIG_LVGL_IDLE && GB_CONFIG_LVGL_ANTIBURN
+#if GB_CONFIG_LVGL && GB_CONFIG_LVGL_IDLE && GB_CONFIG_LVGL_ANTIBURN
   - platform: template
     name: Antiburn
     id: switch_antiburn
@@ -188,7 +188,7 @@ button:
             - lvgl.widget.redraw:
             - delay: 1s
             - lvgl.pause:
-#endif // GB_CONFIG_LVGL_IDLE && GB_CONFIG_LVGL_ANTIBURN
+#endif // GB_DISPLAY_LVGL && GB_CONFIG_LVGL_IDLE && GB_CONFIG_LVGL_ANTIBURN
 
 
 #if GB_CONFIG_CAMERA

@@ -3,8 +3,7 @@ logger:
 #if _USER_maarten
   hardware_uart: USB_CDC
   deassert_rts_dtr: true
-  # baud_rate: 921600
-  # hardware_uart: UART0
+  baud_rate: 921600
 #else
   # baud_rate: 115200
   baud_rate: 921600

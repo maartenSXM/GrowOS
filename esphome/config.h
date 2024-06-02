@@ -16,8 +16,9 @@
 
 // Config common to both cpu0 and cpu1
 
+#define GB_CONFIG_RUN_FAST		1	// run at 240Mhz, not 160Mhz
 #define GB_CONFIG_NET_WIFI		1	// WiFi?
-#define GB_CONFIG_NET_IMPROV_WIFI	0	// Improve WiFi provisioning
+#define GB_CONFIG_NET_IMPROV_WIFI	1	// Improve WiFi provisioning
 #define GB_CONFIG_NET_STATIC		1	// ... using static config?
 #define GB_CONFIG_NET_FALLBACK		0	// ... Fallback config?
 #define GB_CONFIG_NET_PORTAL		0	// ... Provisioning SSID?
@@ -38,13 +39,10 @@
 
 #define GB_CONFIG_32_KHZ_XTAL		1	// Use external 32 KHz XTAL?
 #define GB_CONFIG_APP0_LED		1	// status LED on _PIN_tempData?
-#define GB_CONFIG_CPU1_DEFAULTS_ON	1	// CPU1 on by default?
+#define GB_CONFIG_CPU1_DEFAULTS_ON	0	// CPU1 on by default?
 #define GB_CONFIG_DISPLAY		1	// touchscreen display?
 #define GB_CONFIG_DISPLAY_3_BIT		0	// ... 8 color (else 64k)?
-#define GB_CONFIG_DISPLAY_LVGL		1	// try new lvgl layer
-#define GB_CONFIG_LVGL_BOOT_LOGO	1	// spinning boot logo
-#define GB_CONFIG_LVGL_IDLE		1	// turn off display when idle
-#define GB_CONFIG_LVGL_ANTIBURN		1	// exercise pixels when idle
+#define GB_CONFIG_LVGL			1	// use lvgl 
 #define GB_CONFIG_TFT_PWR_DEFAULTS_ON 	1	// ... power it on by default?
 #define GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON 1	// ... backlight on by default?
 #define GB_CONFIG_BUZZER 		0	// buzzer on board?
@@ -53,6 +51,12 @@
 #define GB_CONFIG_ESP32_CAMERA		0	// espressif C lib
 #define GB_CONFIG_CAMERA_DEFAULTS_ON	0	// ... on by default?
 #define GB_CONFIG_TRISTATE_UART_SWITCH	0	// defaults on (for now)
+
+#if GB_CONFIG_LVGL
+#define GB_CONFIG_LVGL_BOOT_LOGO	1	// spinning boot logo
+#define GB_CONFIG_LVGL_IDLE		1	// turn off display when idle
+#define GB_CONFIG_LVGL_ANTIBURN		1	// exercise pixels when idle
+#endif // GB_CONFIG_LVGL
 
 #endif // _CPU == 0
  

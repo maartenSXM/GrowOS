@@ -48,3 +48,17 @@ in a VM, you may have to connect that port to the VM from the host.
 
 To put the ESP32S2 into jtag upload mode, just ground GPIO0 and issue alias
 jtag0 or jtag1, depending on which CPU you are connected to.
+
+To erase the flash over JTAG when a CPU is in upload mode, you
+can use the esptool.py script from Espressif like this:
+
+esptool.py --chip esp32s2 erase_flash
+
+Also, from the .esphome/build/gb100cpu0, you can inspect the esp-idf confif
+like this:
+
+   pio run -t menuconfig
+
+Saving the minimal configuration from the menuconfig will show you what
+settings have been tweaked in esp-idf by esphome and platformio.
+

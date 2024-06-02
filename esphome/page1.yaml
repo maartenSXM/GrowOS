@@ -13,6 +13,7 @@
 
         - label:
             align: CENTER
-            text: 'Hello World!'
+            text: 'Hello World, eh!'
+            text_font: montserrat_32
             text_color: 0xFF0000
 

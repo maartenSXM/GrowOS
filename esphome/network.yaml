@@ -48,14 +48,14 @@ time:
       - lambda: |-
           if (id(sntpBootTime) == 0)
             id(sntpBootTime) = id(sntpTime).now().timestamp;
-#if GB_CONFIG_DISPLAY_LVGL
+#if GB_CONFIG_LVGL
       - script.execute: time_update
     on_time:
       - minutes: '*'
         seconds: '*'
         then:
           - script.execute: time_update
-#endif // GB_CONFIG_DISPLAY_LVGL
+#endif // GB_CONFIG_LVGL
 #endif // GB_CONFIG_NET_SNTP
 
 #if GB_CONFIG_NET_HA
@@ -91,6 +91,8 @@ web_server:
 #if GB_CONFIG_NET_IMPROV_WIFI
 // Enable Improv WiFi component
 improv_serial:
+  next_url: "http://example.com/?device_name={{device_name}}&ip_address={{ip_address}}&esphome_version={{esphome_version}}"
+
 #endif // GB_CONFIG_IMPROV_WIFI
 
 #endif // GB_CONFIG_NET_WIFI
