@@ -22,6 +22,7 @@ sensor:
     id: my_wifi_sensor
     name: "Net WiFi Signal "
     update_interval: 15s
+
   #endif // GB_CONFIG_NET_WIFI
 
   #if GB_CONFIG_DEBUG
@@ -66,17 +67,27 @@ text_sensor:
       if (str[0] == '\0')
         strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&id(sntpBootTime)));
       return (std::string) str;
+
+  - platform: template
+    id: wifi_channel
+    name: "Net WiFi Channel"
+    lambda: |-
+      static char str[3]; // one or two digits (or -1) plus NULL
+      sprintf(str, "%2d", idfWifiGetChannelNum());
+      return (std::string) str;
+  
   #endif // GB_CONFIG_NET_SNTP
   #endif // GB_CONFIG_NET_WIFI
 
   #if GB_CONFIG_NET_WIFI
   - platform: wifi_info
     ip_address:
-      name: Net IP Address
+      name: "Net IP Address"
     ssid:
-      name: Net WiFi SSID
+      name: "Net WiFi SSID"
     mac_address:
-      name: Net MAC Address
+      name: "Net MAC Address"
+
   #endif // GB_CONFIG_NET_WIFI
 
 #if GB_CONFIG_DEBUG

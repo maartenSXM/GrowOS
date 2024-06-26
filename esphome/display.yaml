@@ -21,7 +21,7 @@ spi:
   interface: hardware
 
 // for 3-bit or lvgl displays we need external components
-#if GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_LVGL
+#if GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_LVGL || GB_CONFIG_SERIAL_SERVER
 external_components:
 #if GB_CONFIG_DISPLAY_3_BIT
 // added 3-bit mode to the display driver
@@ -39,7 +39,14 @@ external_components:
     refresh: 1000min
     components: [lvgl]
 #endif // GB_CONFIG_LVGL
-#endif // GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_LVGL
+
+#if GB_CONFIG_SERIAL_SERVER
+  - source: 'github://oxan/esphome-stream-server'
+    refresh: 1000min
+    components: [stream_server]
+#endif // GB_CONFIG_SERIAL_SERVER
+
+#endif // GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_LVGL || GB_CONFIG_SERIAL_SERVER
 
 display:
   - platform: ili9xxx

@@ -1,9 +1,14 @@
 // Enable logging
 logger:
 #if _USER_maarten
+#if _CPU==0
   hardware_uart: USB_CDC
   deassert_rts_dtr: true
   baud_rate: 921600
+#else
+  baud_rate: 115200
+  hardware_uart: UART0
+#endif
 #else
   # baud_rate: 115200
   baud_rate: 921600
@@ -20,5 +25,29 @@ logger:
 #if GB_CONFIG_DEBUG
 debug:
   update_interval: 15s
-
 #endif // GB_CONFIG_DEBUG
+
+#if GB_CONFIG_SERIAL_SERVER
+uart:
+  id: uart_bus
+  tx_pin: GPIO43
+  rx_pin: GPIO44
+  baud_rate: 115200 
+
+stream_server:
+  uart_id: uart_bus
+  port: 1234
+
+binary_sensor: // should be in sensor.yaml
+  - platform: stream_server
+    connected:
+      name: Connected
+
+#if 0	// would have to move this to sensor.yaml
+sensor:
+  - platform: stream_server
+    connection_count:
+      name: Number of connections
+#endif
+#endif // GB_CONFIG_SERIAL_SERVER
+

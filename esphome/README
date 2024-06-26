@@ -62,3 +62,37 @@ like this:
 Saving the minimal configuration from the menuconfig will show you what
 settings have been tweaked in esp-idf by esphome and platformio.
 
+If using the GB_CONFIG_CONSOLE options, the UART is accessible over
+TCP port 1234.  To connect to the UART over TCP, run socat in one
+terminal and minicom in another. Or run socat in the background like this:
+
+  socat pty,link=$HOME/ttyV0,waitslave tcp:gb100cpu0.local:1234 &
+  minicom --device ~/ttyV0
+
+To compile and run an esp-idf project directly on one of the CPUs of the
+Growboard, it is possible to do that using the esp-idf frameworks stored
+in ~/.platformio:
+
+   cd ~/.platformio/plackages/framework-espidf
+   sh ./install.sh
+   . ./export.sh
+   cd examples/system/console/advanced
+   idf.py build
+   esptool.py --chip esp32s2 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m 0x1000 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x10000 build/console.bin
+   echo voila!
+
+INSTALL_NOTES
+1. If build results in "No module named pip", then run this on thei python
+   command with the absolute path shown. For example:
+
+     /home/maarten/.platformio/penv/.espidf-5.2.1/bin/python -m ensurepip
+
+2. To prune old platformio toolchains etc, you can see what will be
+   pruned using:
+
+     pio system prune --dry-run
+
+   and you can remove them with:
+
+     pio system prune
+

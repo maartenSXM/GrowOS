@@ -35,14 +35,14 @@ lvgl:
 #endif
 
   pages:
-#include "page1.yaml"
-#include "page2.yaml"
-#include "page3.yaml"
-#include "page4.yaml"
+#include "pages/page1.yaml"
+#include "pages/page2.yaml"
+#include "pages/page3.yaml"
+#include "pages/page4.yaml"
 
 // Next are the page extras that are not part of the lvgl: definition
 
-#include "page1add.yaml"
-#include "page2add.yaml"
-#include "page3add.yaml"
-#include "page4add.yaml"
+#include "pages/page1add.yaml"
+#include "pages/page2add.yaml"
+#include "pages/page3add.yaml"
+#include "pages/page4add.yaml"

@@ -9,10 +9,12 @@
 
 // Enable WiFi and IP stack
 wifi:
+  power_save_mode: none
   reboot_timeout: 0s    // disable reboot every 15 min if no WiFi
+#if GB_CONFIG_NET_DHCP || GB_CONFIG_NET_STATIC
+  fast_connect: on
   ssid: _SUB_WIFI_SSID
   password: _SUB_WIFI_PASSWORD
-  power_save_mode: none
 #if GB_CONFIG_NET_STATIC
   manual_ip:
 #if _CPU == 0
@@ -24,12 +26,12 @@ wifi:
     subnet: _SUB_WIFI_NETMASK
     dns1: _SUB_WIFI_GATEWAY
 #endif // GB_CONFIG_NET_STATIC
-  fast_connect: on
+#endif // GB_CONFIG_NET_DHCP || GB_CONFIG_NET_STATIC
 
 // Enable fallback hotspot (captive portal) in case wifi connection fails
 #if GB_CONFIG_NET_FALLBACK
   ap:
-    ssid: DEF_CAT(gbCpu,_CPU) Hotspot
+    ssid: DEF_CAT3(gbCpu,_CPU,-HotSpot)
     password: _SUB_WIFI_PASSWORD
 #endif // GB_CONFIG_NET_FALLBACK
 
