@@ -17,10 +17,10 @@ color:
     hex: 'FFFFFF'
 
 font:
-  - file: 'fonts/arial.ttf'
+  - file: 'ui/fonts/arial.ttf'
     id: arial
     size: 24
 
-#include "images.yaml"
-#include "menu.yaml"
+#include "ui/images.yaml"
+#include "ui/menu.yaml"
 

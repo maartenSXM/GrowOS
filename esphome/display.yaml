@@ -30,7 +30,7 @@ external_components:
       type: local
       path: ~/git/esphome_components/components
 #else
-  - source: 'github://maartenwrs/esphome_components'
+  - source: 'github://maartenSXM/esphome_components'
 #endif
     components: [ ili9xxx ]
 #endif // GB_CONFIG_DISPLAY_3_BIT

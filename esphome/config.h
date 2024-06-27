@@ -55,6 +55,7 @@
 #define GB_CONFIG_CAMERA_DEFAULTS_ON	0	// ... on by default?
 #define GB_CONFIG_TRISTATE_UART_SWITCH	0	// defaults on (for now)
 #define GB_CONFIG_SERIAL_SERVER		1	// serve uart on port 8888?
+#define GB_CONFIG_USB_ACM		0	// enable tiny usb acm
 
 #if GB_CONFIG_LVGL
 #define GB_CONFIG_LVGL_BOOT_LOGO	1	// spinning boot logo?

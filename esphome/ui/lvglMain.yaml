@@ -27,22 +27,22 @@ lvgl:
       - lvgl.pause:
 #endif
 
-#include "lvglTheme.yaml"
+#include "ui/lvglTheme.yaml"
 
-#include "lvglNavigation.yaml"
+#include "ui/lvglNavigation.yaml"
 #if GB_CONFIG_LVGL_BOOT_LOGO
-#include "lvglBootLogo.yaml"
+#include "ui/lvglBootLogo.yaml"
 #endif
 
   pages:
-#include "pages/page1.yaml"
-#include "pages/page2.yaml"
-#include "pages/page3.yaml"
-#include "pages/page4.yaml"
+#include "ui/page1.yaml"
+#include "ui/page2.yaml"
+#include "ui/page3.yaml"
+#include "ui/page4.yaml"
 
 // Next are the page extras that are not part of the lvgl: definition
 
-#include "pages/page1add.yaml"
-#include "pages/page2add.yaml"
-#include "pages/page3add.yaml"
-#include "pages/page4add.yaml"
+#include "ui/page1add.yaml"
+#include "ui/page2add.yaml"
+#include "ui/page3add.yaml"
+#include "ui/page4add.yaml"

@@ -10,6 +10,7 @@ Now inspect the alias in ./Bashrc and adjust to the current directory and then:
 
 source Bashrc 
 growOS
+(once only do this: pip install gh-folder-download)
 
 Now it is possible to build and run esphome for CPU 0 like this:
 
