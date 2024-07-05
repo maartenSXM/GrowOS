@@ -1,0 +1,7 @@
+telnet is from networking/telnet in git@github.com:nkolban/esp32-snippets.git
+   - modified for growOS
+
+console is from examples/system/console in git@github.com:espressif/esp-idf.git
+
+libtelnet is from git@github.com:seanmiddleditch/libtelnet.git
+  - library.json added to it so it can be built as a library by platformio

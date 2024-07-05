@@ -1,0 +1,68 @@
+This simple serial protocol is designed to be simple and small and
+suitable for manual use by a person on a command line and also for 
+automation by software. The protocol is client-server yet symmetric.
+Each endpoint knowns if it is the server or the client.  The only reason
+is so that the correct client or server channel numbers are used.
+
+The prompts are comprised of a numeric cookie followed by a space and
+a percent sign and second space, which looks a bit like a shell prompt:
+
+7 % 
+
+The cookie is a unique OS incarnation number that only changes from a
+previous unqiue number when the peer reboots.  All commands start
+with a "get" or "set" verb on an object, followed by object-specific
+arguments. For example:
+
+7 % get help
+7 % set gpio 7 off
+
+and after any command response, the return code is display in parentheses
+on its own line before the next prompt:
+
+7 % set gpio 7 off
+(0)
+7 % 
+
+There are 10 bidirectional channels. 
+
+Channels 0 and 1 are for variable length signal messages which
+consist of a 2 byte payload length in ascii followed by up to 99
+bytes of payload. A length of 00 is an echo request message which
+is used for synchronization and the reply is the same message
+on the same signal channel.
+
+Signal messages are 3+ bytes on the wire: channel +  2 byte length + payload.
+Byte messages are   2  bytes on the wire: channel +  1 byte payload.
+Burst messages are 16  bytes on the wire: channel + 15 byte payload.
+
+The channel numbers are sent as a single non-printable extended acsii
+byte shown in brackets and are:
+  0 (245): client signalling len+payload xmit/recv  3+ bytes
+  1 (246): server signalling len+payload xmit/recv  3+ bytes
+  2 (247): client session human   byte   xmit/recv  2  bytes
+  3 (248): client session human   burst  recv only 16  bytes
+  4 (249): server session human   byte   xmit/recv  2  bytes
+  5 (250): server session human   burst  recv only 16  bytes
+  6 (251): client session machine byte   xmit/recv  2  bytes
+  7 (252): client session machine burst  xmit/recv 16  bytes
+  8 (253): server session machine byte   xmit/recv  2  bytes
+  9 (254): server session machine burst  xmit/recv 16  bytes
+
+Channels 2-5 have echo characters going back to the initiator. 
+Channels 6-9 are line oriented ending with \n without echo enabled.
+Channels 6-9 sends begin each line with a 2 character transaction
+    number nn 00-99. If a reply line is of the form (nn/retval),
+    then retval is the return value for that transaction nn, 
+    which the caller should detect.
+
+The link protocol caches received characters until a newline is received
+and then passes it up to the command handler, passing the channel number
+the line was received on. Channels 2-5 implement simple line editting.
+
+Synchronizing the serial stream is done by repeatedly sending echo signal
+messages and waiting for an echo reply message.
+
+Higher level intelligence can choose to implement retransmission on top
+of this protocol. For example, a human might reissue a failed command.
+

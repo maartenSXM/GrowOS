@@ -26,6 +26,10 @@ wifi:
     subnet: _SUB_WIFI_NETMASK
     dns1: _SUB_WIFI_GATEWAY
 #endif // GB_CONFIG_NET_STATIC
+#if 0 && GB_CONFIG_NET_TELNET_SERVER
+  on_connect:
+    lambda: telnetServerInit();
+#endif // GB_CONFIG_NET_TELNET_SERVER
 #endif // GB_CONFIG_NET_DHCP || GB_CONFIG_NET_STATIC
 
 // Enable fallback hotspot (captive portal) in case wifi connection fails
@@ -88,6 +92,8 @@ ota:
 #if GB_CONFIG_NET_WEB_SERVER
 // Enable web server
 web_server:
+  port: 80
+  include_internal: true
 #endif // GB_CONFIG_NET_WEB_SERVER
 
 #if GB_CONFIG_NET_IMPROV_WIFI
@@ -96,5 +102,10 @@ improv_serial:
   next_url: "http://example.com/?device_name={{device_name}}&ip_address={{ip_address}}&esphome_version={{esphome_version}}"
 
 #endif // GB_CONFIG_IMPROV_WIFI
+
+/// xxx test
+http_request:
+  useragent: esphome/device
+  timeout: 10s
 
 #endif // GB_CONFIG_NET_WIFI

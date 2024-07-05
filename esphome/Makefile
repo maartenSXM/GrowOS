@@ -2,12 +2,12 @@
 # Then, the first time make is run, it will install itself under OUTDIR.
 #
 # This Makefile is based on a template from github.com/maartenSXM/cpptext 
-# The only four changes are tagged with # ***			# ***
+# The only four changes are tagged with # ***		    # ***
 
 MAIN	:= main.yaml
 SUFFIX	:= $(suffix $(MAIN))
-DIRS	:= . ui esp-idf						# ***
-SRCS	:= $(foreach dir,$(DIRS),$(wildcard $(dir)/*$(SUFFIX)))	# ***
+DIRS	:= . ui						    # ***
+SRCS	:= $(foreach d,$(DIRS),$(wildcard $(d)/*$(SUFFIX))) # ***
 OUTDIR	:= .
 PREFIX	:= myProj_
 PROJTAG	:= 0
@@ -15,7 +15,7 @@ PROJTAG	:= 0
 -include $(OUTDIR)/cpptext/Makefile.cpptext
 
 # uncomment the next line for esphome projects
--include $(OUTDIR)/cpptext/Makefile.esphome			# ***
+-include $(OUTDIR)/cpptext/Makefile.esphome		    # ***
 
 $(OUTDIR)/cpptext: 
 	-@mkdir -p $(OUTDIR)

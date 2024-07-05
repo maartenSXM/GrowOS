@@ -82,10 +82,13 @@ text_sensor:
   #if GB_CONFIG_NET_WIFI
   - platform: wifi_info
     ip_address:
+      id: wifi_ip_address
       name: "Net IP Address"
     ssid:
+      id: wifi_ip_ssid
       name: "Net WiFi SSID"
     mac_address:
+      id: wifi_ip_mac
       name: "Net MAC Address"
 
   #endif // GB_CONFIG_NET_WIFI

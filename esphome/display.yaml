@@ -20,34 +20,6 @@ spi:
 #endif // GB_CONFIG_CAMERA
   interface: hardware
 
-// for 3-bit or lvgl displays we need external components
-#if GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_LVGL || GB_CONFIG_SERIAL_SERVER
-external_components:
-#if GB_CONFIG_DISPLAY_3_BIT
-// added 3-bit mode to the display driver
-#if _USER_maarten
-  - source:
-      type: local
-      path: ~/git/esphome_components/components
-#else
-  - source: 'github://maartenSXM/esphome_components'
-#endif
-    components: [ ili9xxx ]
-#endif // GB_CONFIG_DISPLAY_3_BIT
-#if GB_CONFIG_LVGL
-  - source: 'github://pr#6363'
-    refresh: 1000min
-    components: [lvgl]
-#endif // GB_CONFIG_LVGL
-
-#if GB_CONFIG_SERIAL_SERVER
-  - source: 'github://oxan/esphome-stream-server'
-    refresh: 1000min
-    components: [stream_server]
-#endif // GB_CONFIG_SERIAL_SERVER
-
-#endif // GB_CONFIG_DISPLAY_3_BIT || GB_CONFIG_LVGL || GB_CONFIG_SERIAL_SERVER
-
 display:
   - platform: ili9xxx
     model: ili9488_A
