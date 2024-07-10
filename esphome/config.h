@@ -1,3 +1,6 @@
+#ifndef __INCLUDE_CONFIG_H__
+#define __INCLUDE_CONFIG_H__
+
 #ifdef _PROJTAG_0
 #define _CPU 0
 #define GOS_CPU0
@@ -84,6 +87,10 @@
 
 #endif // _CPU == 1
 
+// some C preprocess string concatenation macros that are useful
+// for passing esphome and platformio some generated build_flags.
+// See env.yaml for exmaples of how they can be used.
+//
 #define _ID(x) x
 #define _STR(x) #x
 #define STR(x) _STR(x)
@@ -95,3 +102,5 @@
 
 #define GOS_NAME  DEF_NAME(gb,_SERIALNO,cpu,_CPU)
 #define GOS_NAME_STR STR(GOS_NAME)
+
+#endif // __INCLUDE_CONFIG_H__
