@@ -82,6 +82,11 @@ in ~/.platformio:
    esptool.py --chip esp32s2 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m 0x1000 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x10000 build/console.bin
    echo voila!
 
+To validate a partition table part.csv, find gen_esp32part.py path to generate
+the .bin and display it using:
+ python <path>/gen_esp32part.py part.csv part.bin
+ python <path>/gen_esp32part.py part.bin
+
 INSTALL_NOTES
 1. If build results in "No module named pip", then run this on thei python
    command with the absolute path shown. For example:

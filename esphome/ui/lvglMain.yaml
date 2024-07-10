@@ -1,10 +1,10 @@
-#if GB_CONFIG_LVGL_BOOT_LOGO
+#if GOS_CONFIG_LVGL_BOOT_LOGO
 image:
   - file: 'https://esphome.io/_images/logo.png'
     id: boot_logo
     resize: 200x200
     type: RGB565
-#endif // GB_CONFIG_LVGL_BOOT_LOGO
+#endif // GOS_CONFIG_LVGL_BOOT_LOGO
 
 #define MY_FONT montserrat_18
 
@@ -18,7 +18,7 @@ lvgl:
   default_font: MY_FONT
   disp_bg_color: 0x000000
   update_interval: 2s
-#if GB_CONFIG_LVGL_IDLE
+#if GOS_CONFIG_LVGL_IDLE
   on_idle:
     timeout: !lambda "return (id(display_timeout).state * 1000);"
     then:
@@ -30,7 +30,7 @@ lvgl:
 #include "ui/lvglTheme.yaml"
 
 #include "ui/lvglNavigation.yaml"
-#if GB_CONFIG_LVGL_BOOT_LOGO
+#if GOS_CONFIG_LVGL_BOOT_LOGO
 #include "ui/lvglBootLogo.yaml"
 #endif
 

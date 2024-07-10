@@ -2,7 +2,7 @@
     - id: page1
       lambda: |-
         it.print(440, 0, id(arial), id(my_cyan), TextAlign::TOP_RIGHT, "Page 1");
-#if !GB_CONFIG_DISPLAY_3_BIT
+#if !GOS_CONFIG_DISPLAY_3_BIT
 	# to enable this background, uncomment it in images.yaml also
         # it.image(0,0,id(image_beansprouts));
 #endif

@@ -12,12 +12,12 @@
 #include "network.yaml"
 
 #if _CPU == 0
-# if GB_CONFIG_DISPLAY
+# if GOS_CONFIG_DISPLAY
 #  include "display.yaml"
-#  if GB_CONFIG_LVGL
+#  if GOS_CONFIG_LVGL
 #   include "ui/lvglMain.yaml"
-#  endif // GB_CONFIG_LVGL
-# endif // GB_CONFIG_DISPLAY
+#  endif // GOS_CONFIG_LVGL
+# endif // GOS_CONFIG_DISPLAY
 # include "app0.yaml"
 #else // _CPU == 1
 # include "app1.yaml"

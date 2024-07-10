@@ -1,23 +1,23 @@
-#if !GB_CONFIG_LVGL
+#if !GOS_CONFIG_LVGL
 #include "nativeUiInit.yaml"
-#endif // !GB_CONFIG_LVGL
+#endif // !GOS_CONFIG_LVGL
 
 spi:
   clk_pin:
     number: _PIN_TFT_SCLK
-#if GB_CONFIG_CAMERA
+#if GOS_CONFIG_CAMERA
     allow_other_uses: true
-#endif // GB_CONFIG_CAMERA
+#endif // GOS_CONFIG_CAMERA
   mosi_pin:
     number: _PIN_TFT_MOSI
-#if GB_CONFIG_CAMERA
+#if GOS_CONFIG_CAMERA
     allow_other_uses: true
-#endif // GB_CONFIG_CAMERA
+#endif // GOS_CONFIG_CAMERA
   miso_pin:
     number: _PIN_TFT_MISO
-#if GB_CONFIG_CAMERA
+#if GOS_CONFIG_CAMERA
     allow_other_uses: true
-#endif // GB_CONFIG_CAMERA
+#endif // GOS_CONFIG_CAMERA
   interface: hardware
 
 display:
@@ -30,9 +30,9 @@ display:
       height: 320
       offset_height: 0
       offset_width: 0
-#if GB_CONFIG_DISPLAY_3_BIT
+#if GOS_CONFIG_DISPLAY_3_BIT
     color_palette: 3_BIT
-#endif // GB_CONFIG_DISPLAY_3_BIT
+#endif // GOS_CONFIG_DISPLAY_3_BIT
     color_order: bgr
     transform:
       mirror_y: false
@@ -42,36 +42,36 @@ display:
     invert_colors: false
     cs_pin:
       number: _PIN_TFT_CS
-#if GB_CONFIG_CAMERA
+#if GOS_CONFIG_CAMERA
       allow_other_uses: true
 #endif
     dc_pin:
       number: _PIN_TFT_DC
-#if GB_CONFIG_CAMERA
+#if GOS_CONFIG_CAMERA
       allow_other_uses: true
 #endif
     reset_pin: _PIN_TFT_RST
     data_rate: 40MHz
-#if GB_CONFIG_LVGL
+#if GOS_CONFIG_LVGL
     auto_clear_enabled: false
     update_interval: never
-#else // !GB_CONFIG_LVGL
+#else // !GOS_CONFIG_LVGL
     auto_clear_enabled: true
     update_interval: 1000ms
     // now define some pages using native esphome graphics
 #include "nativeUi.yaml"
-#endif // !GB_CONFIG_LVGL
+#endif // !GOS_CONFIG_LVGL
 
 i2c:
   id: i2cBusIntern
   sda: 
     number: _PIN_TWI_SDA
-#if GB_CONFIG_CAMERA
+#if GOS_CONFIG_CAMERA
     allow_other_uses: true
 #endif
   scl:
     number: _PIN_TWI_SCK
-#if GB_CONFIG_CAMERA
+#if GOS_CONFIG_CAMERA
     allow_other_uses: true
 #endif
   frequency: 200kHz
@@ -94,7 +94,7 @@ touchscreen:
            printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",
                     touch.x, touch.y, touch.x_raw, touch.y_raw);
 #endif
-#if GB_CONFIG_LVGL && GB_CONFIG_LVGL_IDLE
+#if GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
    on_release:
      - if:
          condition: lvgl.is_paused
@@ -103,4 +103,4 @@ touchscreen:
            - lvgl.resume:
            - lvgl.widget.redraw:
            - light.turn_on: light_TFT_BACKLIGHT
-#endif // GB_CONFIG_LVGL && GB_CONFIG_LVGL_IDLE
+#endif // GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE

@@ -1,0 +1,26 @@
+# comment
+#include "config.h"
+
+#define GOS_PART_OTADATA_SIZE	8k
+#define GOS_PART_PHY_INIT_SIZE	4k
+
+#if GOS_FLASH_SIZE == GOS_FLASH_SIZE_4MB
+    #define GOS_PART_APP0_SIZE	1800k
+    #define GOS_PART_APP1_SIZE	1800k
+    #if GOS_CONFIG_CONSOLE
+	#define GOS_PART_NVS_SIZE 4k
+	#define GOS_PART_STORAGE
+	#define GOS_PART_STORAGE_SIZE 372k
+    #else
+	#define GOS_PART_NVS_SIZE 4k
+    #endif
+#endif
+
+otadata,  data, ota,      , GOS_PART_OTADATA_SIZE,
+phy_init, data, phy,      , GOS_PART_PHY_INIT_SIZE,
+app0,     app,  ota_0,    , GOS_PART_APP0_SIZE,
+app1,     app,  ota_1,    , GOS_PART_APP1_SIZE,
+nvs,      data, nvs,      , GOS_PART_NVS_SIZE,
+#ifdef GOS_PART_STORAGE
+storage,  data, littlefs, , GOS_PART_STORAGE_SIZE,
+#endif

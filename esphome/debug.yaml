@@ -3,11 +3,13 @@ logger:
 #if _USER_maarten
 #if _CPU==0
   hardware_uart: USB_CDC
-  deassert_rts_dtr: true
-  baud_rate: 921600
+  // deassert_rts_dtr: true
+  //baud_rate: 921600
 #else
-  baud_rate: 115200
-  hardware_uart: UART0
+  hardware_uart: USB_CDC
+  // XXX setup secondary in env.yaml
+  // hardware_uart: UART0
+  // baud_rate: 115200
 #endif
 #else
   # baud_rate: 115200
@@ -22,12 +24,12 @@ logger:
     component: DEBUG
     # component: VERBOSE
 
-#if GB_CONFIG_DEBUG
+#if GOS_CONFIG_DEBUG
 debug:
   update_interval: 15s
-#endif // GB_CONFIG_DEBUG
+#endif // GOS_CONFIG_DEBUG
 
-#if GB_CONFIG_SERIAL_SERVER
+#if GOS_CONFIG_SERIAL_SERVER
 uart:
   id: uart_bus
   tx_pin: GPIO43
@@ -49,5 +51,5 @@ sensor:
     connection_count:
       name: Number of connections
 #endif
-#endif // GB_CONFIG_SERIAL_SERVER
+#endif // GOS_CONFIG_SERIAL_SERVER
 

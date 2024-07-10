@@ -6,14 +6,14 @@ output:
     period: 500ms
     id: my_led
 
-#if GB_CONFIG_BUZZER
+#if GOS_CONFIG_BUZZER
   - platform: ledc
     pin: _PIN_BUZZER
     id: buzzer_out
     channel: 2 // xxx config item?
-#endif // GB_CONFIG_BUZZER
+#endif // GOS_CONFIG_BUZZER
 
-#if GB_CONFIG_DISPLAY
+#if GOS_CONFIG_DISPLAY
   - platform: gpio
     id: output_TFT_BACKLIGHT
     pin:
@@ -21,19 +21,19 @@ output:
       mode: output
     inverted: true
 #if 0
-#if GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
+#if GOS_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
     restore_mode: ALWAYS_ON
 #else
     restore_mode: ALWAYS_OFF
-#endif // GB_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
+#endif // GOS_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
 #endif // 0
-#endif // GB_CONFIG_DISPLAY
+#endif // GOS_CONFIG_DISPLAY
 
-#if GB_CONFIG_APP0_LED || GB_CONFIG_DISPLAY
+#if GOS_CONFIG_APP0_LED || GOS_CONFIG_DISPLAY
 light:
 
 #if 0 // changed to output to not pollute log
-#if GB_CONFIG_APP0_LED
+#if GOS_CONFIG_APP0_LED
   - platform: status_led
     id: cpu0_status_led
     name: "CPU0 Status LED"
@@ -46,17 +46,17 @@ light:
               duration: 400ms
             - state: false
               duration: 100ms
-#endif // GB_CONFIG_APP0_LED
+#endif // GOS_CONFIG_APP0_LED
 #endif // 0
 
-#if GB_CONFIG_DISPLAY
+#if GOS_CONFIG_DISPLAY
   - platform: binary
     id: light_TFT_BACKLIGHT
     name: "CPU0 Backlight Enable"
     output: output_TFT_BACKLIGHT
-#endif // GB_CONFIG_DISPLAY
+#endif // GOS_CONFIG_DISPLAY
 
-#endif // GB_CONFIG_APP0_LED || GB_CONFIG_DISPLAY
+#endif // GOS_CONFIG_APP0_LED || GOS_CONFIG_DISPLAY
 
 switch:
   - platform: restart
@@ -79,7 +79,7 @@ switch:
                   - response->status_code
                   - response->duration_ms
 
-#if GB_CONFIG_NET_TELNET_SERVER
+#if 00 && GOS_CONFIG_NET_TELNET_SERVER
   - platform: template
     name: "Net Telnet Server Init"
     turn_on_action:
@@ -88,7 +88,7 @@ switch:
             ESP_LOGD("telnetd", "Initializaton by switch failed");
         else
             ESP_LOGD("telnetd", "Initializaton succeeded");
-#endif // GB_CONFIG_NET_TELNET_SERVER
+#endif // GOS_CONFIG_NET_TELNET_SERVER
 
   - platform: gpio
     id: switch_H_S_ENABLE
@@ -96,13 +96,13 @@ switch:
     pin:
       number: _PIN_H_S_ENABLE
       mode: output
-#if GB_CONFIG_CPU1_DEFAULTS_ON
+#if GOS_CONFIG_CPU1_DEFAULTS_ON
     restore_mode: ALWAYS_ON
 #else
     restore_mode: ALWAYS_OFF
-#endif // GB_CONFIG_CPU1_DEFAULTS_ON
+#endif // GOS_CONFIG_CPU1_DEFAULTS_ON
 
-#if GB_CONFIG_DISPLAY
+#if GOS_CONFIG_DISPLAY
   - platform: gpio
     id: switch_TFT_PWR_EN
     name: "CPU0 Display Enable"
@@ -110,15 +110,15 @@ switch:
       number: _PIN_TFT_PWR_EN
       mode: output
     inverted: true
-#if GB_CONFIG_TFT_PWR_DEFAULTS_ON
+#if GOS_CONFIG_TFT_PWR_DEFAULTS_ON
     restore_mode: ALWAYS_ON
 #else
     restore_mode: ALWAYS_OFF
-#endif // GB_CONFIG_TFT_PWR_DEFAULTS_ON
+#endif // GOS_CONFIG_TFT_PWR_DEFAULTS_ON
 
-#endif // GB_CONFIG_DISPLAY
+#endif // GOS_CONFIG_DISPLAY
 
-#if GB_CONFIG_CAMERA
+#if GOS_CONFIG_CAMERA
   - platform: gpio
     id: switch_CAMERA
     name: "CPU0 Camera Enable"
@@ -126,15 +126,15 @@ switch:
       number: _PIN_CSI_PWR_EN
       mode: output
     inverted: true
-#if GB_CONFIG_CAMERA_DEFAULTS_ON
+#if GOS_CONFIG_CAMERA_DEFAULTS_ON
     restore_mode: ALWAYS_ON
 #else
     restore_mode: ALWAYS_OFF
-#endif // GB_CONFIG_CAMERA_DEFAULTS_ON
-#endif // GB_CONFIG_CAMERA
+#endif // GOS_CONFIG_CAMERA_DEFAULTS_ON
+#endif // GOS_CONFIG_CAMERA
 #
-#if GB_CONFIG_BUZZER
-#if GB_CONFIG_BUZZER_MONOTONE
+#if GOS_CONFIG_BUZZER
+#if GOS_CONFIG_BUZZER_MONOTONE
   - platform: output
     name: "CPU0 Buzzer"
     id: buzzer
@@ -154,7 +154,7 @@ switch:
         - delay: 0ms
         - output.turn_off: buzzer_out
 
-#else // !GB_CONFIG_BUZZER_MONOTONE
+#else // !GOS_CONFIG_BUZZER_MONOTONE
 
 rtttl:
   output: buzzer_out
@@ -171,10 +171,10 @@ button:
       then:
         - rtttl.stop
 
-#endif // !GB_CONFIG_BUZZER_MONOTONE
-#endif // GB_CONFIG_BUZZER
+#endif // !GOS_CONFIG_BUZZER_MONOTONE
+#endif // GOS_CONFIG_BUZZER
 
-#if GB_CONFIG_LVGL && GB_CONFIG_LVGL_IDLE && GB_CONFIG_LVGL_ANTIBURN
+#if GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE && GOS_CONFIG_LVGL_ANTIBURN
   - platform: template
     name: Antiburn
     id: switch_antiburn
@@ -200,10 +200,10 @@ button:
             - lvgl.widget.redraw:
             - delay: 1s
             - lvgl.pause:
-#endif // GB_DISPLAY_LVGL && GB_CONFIG_LVGL_IDLE && GB_CONFIG_LVGL_ANTIBURN
+#endif // GOS_DISPLAY_LVGL && GOS_CONFIG_LVGL_IDLE && GOS_CONFIG_LVGL_ANTIBURN
 
 
-#if GB_CONFIG_CAMERA
+#if GOS_CONFIG_CAMERA
 esp32_camera:
   // HW settings
   external_clock:
@@ -238,5 +238,5 @@ esp32_camera:
   // Image settings
   name: My Camera
   // ...
-#endif // GB_CONFIG_CAMERA
+#endif // GOS_CONFIG_CAMERA
 

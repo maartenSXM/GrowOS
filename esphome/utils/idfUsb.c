@@ -7,6 +7,7 @@
 #include "freertos/queue.h"
 #include "tinyusb.h"
 #include "tusb_cdc_acm.h"
+#include "sdkconfig.h"
 
 #define CONFIG_TINYUSB_CDC_RX_BUFSIZE	64
 // #define CONFIG_TINYUSB_CDC_COUNT	1

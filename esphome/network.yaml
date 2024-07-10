@@ -1,4 +1,4 @@
-#if GB_CONFIG_NET_WIFI
+#if GOS_CONFIG_NET_WIFI
 
 #if _USER_maarten
   #include "location.pec"
@@ -11,11 +11,11 @@
 wifi:
   power_save_mode: none
   reboot_timeout: 0s    // disable reboot every 15 min if no WiFi
-#if GB_CONFIG_NET_DHCP || GB_CONFIG_NET_STATIC
+#if GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
   fast_connect: on
   ssid: _SUB_WIFI_SSID
   password: _SUB_WIFI_PASSWORD
-#if GB_CONFIG_NET_STATIC
+#if GOS_CONFIG_NET_STATIC
   manual_ip:
 #if _CPU == 0
     static_ip: _SUB_WIFI_ADDR_0
@@ -25,25 +25,25 @@ wifi:
     gateway: _SUB_WIFI_GATEWAY
     subnet: _SUB_WIFI_NETMASK
     dns1: _SUB_WIFI_GATEWAY
-#endif // GB_CONFIG_NET_STATIC
-#if 0 && GB_CONFIG_NET_TELNET_SERVER
+#endif // GOS_CONFIG_NET_STATIC
+#if 0 && GOS_CONFIG_NET_TELNET_SERVER
   on_connect:
     lambda: telnetServerInit();
-#endif // GB_CONFIG_NET_TELNET_SERVER
-#endif // GB_CONFIG_NET_DHCP || GB_CONFIG_NET_STATIC
+#endif // GOS_CONFIG_NET_TELNET_SERVER
+#endif // GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
 
 // Enable fallback hotspot (captive portal) in case wifi connection fails
-#if GB_CONFIG_NET_FALLBACK
+#if GOS_CONFIG_NET_FALLBACK
   ap:
     ssid: DEF_CAT3(gbCpu,_CPU,-HotSpot)
     password: _SUB_WIFI_PASSWORD
-#endif // GB_CONFIG_NET_FALLBACK
+#endif // GOS_CONFIG_NET_FALLBACK
 
-#if GB_CONFIG_NET_PORTAL
+#if GOS_CONFIG_NET_PORTAL
 captive_portal:
-#endif // GB_CONFIG_NET_PORTAL
+#endif // GOS_CONFIG_NET_PORTAL
     
-#if GB_CONFIG_NET_SNTP
+#if GOS_CONFIG_NET_SNTP
 time:
   - platform: sntp
     id: sntpTime
@@ -54,23 +54,23 @@ time:
       - lambda: |-
           if (id(sntpBootTime) == 0)
             id(sntpBootTime) = id(sntpTime).now().timestamp;
-#if GB_CONFIG_LVGL
+#if GOS_CONFIG_LVGL
       - script.execute: time_update
     on_time:
       - minutes: '*'
         seconds: '*'
         then:
           - script.execute: time_update
-#endif // GB_CONFIG_LVGL
-#endif // GB_CONFIG_NET_SNTP
+#endif // GOS_CONFIG_LVGL
+#endif // GOS_CONFIG_NET_SNTP
 
-#if GB_CONFIG_NET_HA
+#if GOS_CONFIG_NET_HA
 // Enable Home Assistant API
 api:
   password: _SUB_HA_PASSWORD
-#endif // GB_CONFIG_NET_OTA
+#endif // GOS_CONFIG_NET_OTA
 
-#if GB_CONFIG_NET_OTA
+#if GOS_CONFIG_NET_OTA
 // Enable over-the-air update
 ota:
   version: 2
@@ -87,25 +87,25 @@ ota:
   on_end:
     then:
       - logger.log: "OTA end"
-#endif // GB_CONFIG_NET_OTA
+#endif // GOS_CONFIG_NET_OTA
 
-#if GB_CONFIG_NET_WEB_SERVER
+#if GOS_CONFIG_NET_WEB_SERVER
 // Enable web server
 web_server:
   port: 80
   include_internal: true
-#endif // GB_CONFIG_NET_WEB_SERVER
+#endif // GOS_CONFIG_NET_WEB_SERVER
 
-#if GB_CONFIG_NET_IMPROV_WIFI
+#if GOS_CONFIG_NET_IMPROV_WIFI
 // Enable Improv WiFi component
 improv_serial:
   next_url: "http://example.com/?device_name={{device_name}}&ip_address={{ip_address}}&esphome_version={{esphome_version}}"
 
-#endif // GB_CONFIG_IMPROV_WIFI
+#endif // GOS_CONFIG_IMPROV_WIFI
 
 /// xxx test
 http_request:
   useragent: esphome/device
   timeout: 10s
 
-#endif // GB_CONFIG_NET_WIFI
+#endif // GOS_CONFIG_NET_WIFI

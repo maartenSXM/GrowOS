@@ -25,15 +25,15 @@
 #include "driver/uart.h"
 #include "esp_idf_version.h"
 
+#include "config.h"
 #include "libtelnet.h"
-
 #include "webApi.h"
 
 #define UART_NAME   "/dev/uart/0"
 #define UART_NUM   UART_NUM_0
 
-#define GREETING "\nWelcome to GrowOS!\n\n%% "
-#define PROMPT	 "%% "
+// #define PROMPT	 "%% "
+#define PROMPT	 "\x1b[92mGrowOS %%\x1b[0m "
 
 static int uart_fd = -1;
 
@@ -103,7 +103,7 @@ static void doTelnet(int sd)
 	{ TELNET_TELOPT_ZMP,       TELNET_WONT, TELNET_DO   },
 	{ TELNET_TELOPT_MSSP,      TELNET_WONT, TELNET_DO   },
 	{ TELNET_TELOPT_BINARY,    TELNET_WONT, TELNET_DO   },
-	{ TELNET_TELOPT_NAWS,      TELNET_WONT, TELNET_DONT },
+	{ TELNET_TELOPT_NAWS,      TELNET_WILL, TELNET_DONT },
 	{ -1, 0, 0 }
     };
 
@@ -113,7 +113,8 @@ static void doTelnet(int sd)
 
     tnHandle = telnet_init (myTelnetOpts, myTelnetCallback, 0, (void *) sd);
 
-    printf (GREETING);
+    printf ("\n\x1b[92;1mWelcome to %s!\n\n", GOS_NAME_STR);
+    printf (PROMPT);
 
     FD_ZERO (&rfds);
   
@@ -205,7 +206,8 @@ void telnetMyListen
     	return;
         }
 
-    if (listen(ssock, 5) < 0)
+    // only one telnet client at a time, to save resources
+    if (listen(ssock, 1) < 0)
 	{
     	ESP_LOGE(td_tag, "listen: %d (%s)", errno, strerror(errno));
     	return;
@@ -227,9 +229,10 @@ void telnetMyListen
 	saveStdout = stdout;
 	stdout = fdopen (csock, "w");     // redirect printf() to csock
 	
-	// enable line buffering didn't work, so turn it off
 	// setvbuf(stdout, NULL, _IOLBF, 256);
 	// setlinebuf (stdout);
+
+	// enable line buffering didn't work, so turn it off
 	setvbuf(stdout, NULL, _IONBF, 0);
 
     	doTelnet (csock);
