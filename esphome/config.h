@@ -1,7 +1,7 @@
 #ifndef __INCLUDE_CONFIG_H__
 #define __INCLUDE_CONFIG_H__
 
-#ifdef _PROJTAG_0
+#ifdef GOS_PROJTAG_0
 #define _CPU 0
 #define GOS_CPU0
 #else
@@ -12,9 +12,9 @@
 #define GOS_FLASH_SIZE_4MB	4
 // Config specific to current USER
 
-#if _USER_maarten
+#if GOS_USER_maarten
 #define _SERIALNO 100
-#else // _USER_erik
+#else // GOS_USER_erik
 #define _SERIALNO 101
 #endif
 
@@ -46,7 +46,6 @@
 
 #if _CPU == 0
 
-#undef GOS_CONFIG_TINYUSB
 #define GOS_CONFIG_TINYUSB		0
 #define GOS_CONFIG_CONSOLE		0	// configure console?
 #define GOS_CONFIG_32_KHZ_XTAL		1	// Use external 32 KHz XTAL?

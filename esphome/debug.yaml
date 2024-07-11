@@ -1,6 +1,6 @@
 // Enable logging
 logger:
-#if _USER_maarten
+#if GOS_USER_maarten
 #if _CPU==0
   hardware_uart: USB_CDC
   // deassert_rts_dtr: true

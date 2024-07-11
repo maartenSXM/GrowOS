@@ -1,6 +1,6 @@
 #if GOS_CONFIG_NET_WIFI
 
-#if _USER_maarten
+#if GOS_USER_maarten
   #include "location.pec"
   // #include "location.sxm"
 #else
