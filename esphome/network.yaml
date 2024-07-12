@@ -93,6 +93,7 @@ ota:
 // Enable web server
 web_server:
   port: 80
+  version: 3
   include_internal: true
 #endif // GOS_CONFIG_NET_WEB_SERVER
 

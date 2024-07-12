@@ -16,7 +16,7 @@ if [ "$USER" == "maarten" ]; then
   alias logs1="esphome logs --device /dev/ttyACM1 myProj_1.yaml"
   # alias upload0="esphome upload --device 192.168.8.10 myProj_0.yaml"
   # alias upload1="esphome upload --device 192.168.8.11 myProj_1.yaml"
-  alias upload0="esphome upload --device 192.168.248.20 myProj_0.yaml"
+  alias upload0="esphome upload --device 192.168.248.20 --file ./.esphome/build/gb100cpu0/.pio/build/gb100cpu0/firmware.bin myProj_0.yaml"
   alias upload1="esphome upload --device 192.168.248.21 myProj_1.yaml"
   alias j0="esptool.py --before default_reset --after no_reset --baud 1500000 --port /dev/ttyACM0 --chip esp32s2 write_flash -z --flash_size detect 0x10000 /home/maarten/git/growOS/esphome/.esphome/build/gb100cpu0/.pioenvs/gb100cpu0/firmware.bin 0x1000 /home/maarten/git/growOS/esphome/.esphome/build/gb100cpu0/.pioenvs/gb100cpu0/bootloader.bin 0x8000 /home/maarten/git/growOS/esphome/.esphome/build/gb100cpu0/.pioenvs/gb100cpu0/partitions.bin 0x9000 /home/maarten/git/growOS/esphome/.esphome/build/gb100cpu0/.pioenvs/gb100cpu0/ota_data_initial.bin"
 else
