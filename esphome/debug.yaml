@@ -1,16 +1,16 @@
 // Enable logging
 logger:
 #if GOS_USER_maarten
-#if _CPU==0
+#ifdef GOS_PROJTAG_0
   hardware_uart: USB_CDC
   // deassert_rts_dtr: true
   //baud_rate: 921600
-#else
+#else // ! GOS_PROJTAG_0
   hardware_uart: USB_CDC
   // XXX setup secondary in env.yaml
   // hardware_uart: UART0
   // baud_rate: 115200
-#endif
+#endif // ! GOS_PROJTAG_0
 #else
   # baud_rate: 115200
   baud_rate: 921600

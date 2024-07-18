@@ -1,5 +1,4 @@
-# comment
-#include "config.h"
+#include "gos.h"
 
 #define GOS_PART_OTADATA_SIZE	8k
 #define GOS_PART_PHY_INIT_SIZE	4k

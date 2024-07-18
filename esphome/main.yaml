@@ -2,8 +2,8 @@
 // C-style comments are allowed
 /* traditional C-ctyle comments are too */
 
-#include "config.h"
-#include "pins.h"
+#include "gos.h"
+
 #include "env.yaml"
 #include "globals.yaml"
 #include "numbers.yaml"
@@ -11,7 +11,7 @@
 #include "sensor.yaml"
 #include "network.yaml"
 
-#if _CPU == 0
+#ifdef GOS_PROJTAG_0
 # if GOS_CONFIG_DISPLAY
 #  include "display.yaml"
 #  if GOS_CONFIG_LVGL
@@ -19,6 +19,6 @@
 #  endif // GOS_CONFIG_LVGL
 # endif // GOS_CONFIG_DISPLAY
 # include "app0.yaml"
-#else // _CPU == 1
+#else // ! GOS_PROJTAG_0
 # include "app1.yaml"
-#endif // _CPU == 1
+#endif // ! GOS_PROJTAG_0

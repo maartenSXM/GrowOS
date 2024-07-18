@@ -3,7 +3,8 @@ globals:
     type: unsigned int
     restore_value: no
     initial_value: "0"
-  #if _CPU == 0 && GOS_CONFIG_DISPLAY
+  #ifdef GOS_PROJTAG_0
+  #if GOS_CONFIG_DISPLAY
   - id: touchx
     type: unsigned int
     restore_value: no
@@ -13,6 +14,7 @@ globals:
     restore_value: no
     initial_value: "0"
   #endif // GOS_CONFIG_DISPLAY
+  #endif // GOS_PROJTAG_0
   #if GOS_CONFIG_NET_SNTP
   - id: sntpBootTime
     type: time_t

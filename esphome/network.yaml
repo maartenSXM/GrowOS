@@ -17,7 +17,7 @@ wifi:
   password: _SUB_WIFI_PASSWORD
 #if GOS_CONFIG_NET_STATIC
   manual_ip:
-#if _CPU == 0
+#ifdef GOS_PROJTAG_0 
     static_ip: _SUB_WIFI_ADDR_0
 #else
     static_ip: _SUB_WIFI_ADDR_1
@@ -35,7 +35,7 @@ wifi:
 // Enable fallback hotspot (captive portal) in case wifi connection fails
 #if GOS_CONFIG_NET_FALLBACK
   ap:
-    ssid: DEF_CAT3(gbCpu,_CPU,-HotSpot)
+    ssid: DEF_CAT4(gos,GOS_PROJTAG,-HotSpot,_SERIALNO)
     password: _SUB_WIFI_PASSWORD
 #endif // GOS_CONFIG_NET_FALLBACK
 

@@ -1,7 +1,7 @@
-#ifndef _INCLUDE_CPU_H_
-#define _INCLUDE_CPU_H_
+#ifndef _INCLUDE_PINS_H_
+#define _INCLUDE_PINS_H_
 
-#if _CPU == 0
+#ifdef GOS_PROJTAG_0
 #define _PIN_H_0		0
 #define _PIN_CSI_VSYNC		1
 #define _PIN_CSI_D9		2
@@ -46,7 +46,7 @@
 #define _PIN_H_U0RXD		44
 #define _PIN_VBAT_CE		45
 
-#else // _CPU == 1
+#else // ! GOS_PROJTAG_0
  
 #define _PIN_S_0		0
 #define _PIN_ACT_AUX		1
@@ -84,6 +84,6 @@
 #define _PIN_S_U0RXD		44
 #define _PIN_SET_MOTOR_PLUS	45
 
-#endif // _CPU == 1
+#endif // ! GOS_PROJTAG_0
 
-#endif // _INCLUDE_CPU_H_
+#endif // _INCLUDE_PINS_H_

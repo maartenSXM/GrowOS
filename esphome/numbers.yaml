@@ -1,4 +1,5 @@
-#if _CPU == 0 && GOS_CONFIG_DISPLAY
+#ifdef GOS_PROJTAG_0
+#if GOS_CONFIG_DISPLAY
 number:
   - platform: template
     name: LVGL Screen timeout
@@ -11,4 +12,5 @@ number:
     max_value: 180
     step: 5
     mode: box
+#endif
 #endif

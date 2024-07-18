@@ -1,14 +1,6 @@
 #ifndef __INCLUDE_CONFIG_H__
 #define __INCLUDE_CONFIG_H__
 
-#ifdef GOS_PROJTAG_0
-#define _CPU 0
-#define GOS_CPU0
-#else
-#define _CPU 1
-#define GOS_CPU1
-#endif
-
 #define GOS_FLASH_SIZE_4MB	4
 // Config specific to current USER
 
@@ -44,7 +36,7 @@
 
 // cpu0-specific config
 
-#if _CPU == 0
+#ifdef GOS_PROJTAG_0
 
 #define GOS_CONFIG_TINYUSB		0
 #define GOS_CONFIG_CONSOLE		0	// configure console?
@@ -70,11 +62,11 @@
 #define GOS_CONFIG_LVGL_ANTIBURN		1	// exercise pixels when idle?
 #endif // GOS_CONFIG_LVGL
 
-#endif // _CPU == 0
+#endif // GOS_PROJTAG_0
  
 // cpu1-specific config
 
-#if _CPU == 1
+#ifdef GOS_PROJTAG_1
 #define GOS_CONFIG_LVGL			0	// use lvgl?
 #define GOS_CONFIG_DISPLAY_3_BIT	0	// ... 8 color (else 64k)?
 #define GOS_CONFIG_CONSOLE		0	// esp-idf console?
@@ -84,22 +76,6 @@
 #define GOS_CONFIG_NET_FALLBACK		0	// ... Fallback HotSpot?
 #define GOS_CONFIG_USB_ACM		0	// enable tiny usb acm
 
-#endif // _CPU == 1
-
-// some C preprocess string concatenation macros that are useful
-// for passing esphome and platformio some generated build_flags.
-// See env.yaml for exmaples of how they can be used.
-//
-#define _ID(x) x
-#define _STR(x) #x
-#define STR(x) _STR(x)
-#define DEF_CAT4(w,x,y,z) STR(_ID(w)_ID(x)_ID(y)_ID(z))
-#define DEF_CAT3(w,x,y)   STR(_ID(w)_ID(x)_ID(y))
-#define DEF_CAT2(w,x)     STR(_ID(w)_ID(x))
-#define DEF_CAT(w,x)      STR(_ID(w)_ID(x))
-#define DEF_NAME(w,x,y,z) _ID(w)_ID(x)_ID(y)_ID(z)
-
-#define GOS_NAME  DEF_NAME(gb,_SERIALNO,cpu,_CPU)
-#define GOS_NAME_STR STR(GOS_NAME)
+#endif // GOS_PROJTAG_1
 
 #endif // __INCLUDE_CONFIG_H__
