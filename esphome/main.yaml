@@ -1,8 +1,25 @@
-#  yaml style comments are allowed
-// C-style comments are allowed
-/* traditional C-ctyle comments are too */
+#  yaml style comments are allowed and stripped by $(CPT_HOME)/dehash.sh
+
+// C-style comments are stripped by the C preprocessor
+/* traditional C-ctyle comments are also stripped by the C preprocessor */
+/* #default BLORT ... is a c preprocessor macro that generates:
+ *	#ifndef BLORT
+ *	#define BLORT ...
+ *	#endif
+ * and it is expanded by $(CPT_HOME)/dehash.sh. It is not
+ * supported natively by the C preprocessor.
+ */
 
 #include "gos.h"
+
+#include "bsp.yaml"		    // from directory bsps/GOS_BSP
+
+// if bsp.yaml did not set these c preprocessor defines, default them
+
+#default GOS_BSP_APP	    growBoardCpu0.yaml
+#default GOS_BSP_SERIAL_NUM 000
+#default GOS_BSP_esphome_name \
+		    GOS_STRINGIFY4(gos,GOS_PROJTAG,-,GOS_BSP_SERIAL_NUM)
 
 #include "env.yaml"
 #include "globals.yaml"
@@ -11,14 +28,14 @@
 #include "sensor.yaml"
 #include "network.yaml"
 
-#ifdef GOS_PROJTAG_0
-# if GOS_CONFIG_DISPLAY
-#  include "display.yaml"
-#  if GOS_CONFIG_LVGL
-#   include "ui/lvglMain.yaml"
-#  endif // GOS_CONFIG_LVGL
-# endif // GOS_CONFIG_DISPLAY
-# include "app0.yaml"
-#else // ! GOS_PROJTAG_0
-# include "app1.yaml"
-#endif // ! GOS_PROJTAG_0
+// now include the app from ./apps
+
+#default GOS_APP GOS_BSP_APP
+#include GOS_STRINGIFY(GOS_APP)	    // from directory apps
+
+#if GOS_CONFIG_DISPLAY
+# include "display.yaml"
+# if GOS_CONFIG_LVGL
+#  include "ui/lvglMain.yaml"
+# endif // GOS_CONFIG_LVGL
+#endif // GOS_CONFIG_DISPLAY

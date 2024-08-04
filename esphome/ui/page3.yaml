@@ -48,7 +48,7 @@
                   align: CENTER
                   text: "Enter code and \uF00C"
                   text_align: CENTER
-        - btnmatrix:
+        - buttonmatrix:
             id: lvgl_keypad
             x: 170
             y: 85

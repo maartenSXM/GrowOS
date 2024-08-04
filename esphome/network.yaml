@@ -35,7 +35,7 @@ wifi:
 // Enable fallback hotspot (captive portal) in case wifi connection fails
 #if GOS_CONFIG_NET_FALLBACK
   ap:
-    ssid: DEF_CAT4(gos,GOS_PROJTAG,-HotSpot,_SERIALNO)
+    ssid: GOS_STRINGIFY4(gos,GOS_PROJTAG,-HotSpot,_SERIALNO)
     password: _SUB_WIFI_PASSWORD
 #endif // GOS_CONFIG_NET_FALLBACK
 

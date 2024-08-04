@@ -1,9 +1,0 @@
-BSPS	:= $(filter-out bsps/legacy,$(wildcard bsps/*))
-MAKEBSP := make -f Makefile --no-print-directory OUTDIR=$(OUTDIR)
-
-$(MAKECMDGOALS):
-	@for bsp in $(BSPS); do					    \
-	    printf "Makefile.bsps: building $$bsp\n";		    \
-	    $(MAKEBSP) GOS_BSP=`basename $$bsp` $(MAKECMDGOALS);    \
-	done
-

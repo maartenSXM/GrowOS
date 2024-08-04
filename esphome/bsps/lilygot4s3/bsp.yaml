@@ -1,0 +1,92 @@
+#ifndef _GOS_INCLUDE_BSP_YAML_
+#define _GOS_INCLUDE_BSP_YAML_
+
+#include "pins.h"
+
+// advertise and setup hardware supported by this BSP
+
+#define GOS_BSP_esp32_board	    esp32-s3-devkitc-1
+#define GOS_BSP_esp32_variant	    esp32s3
+#define GOS_BSP_esp32_flash_size    16MB
+
+#define GOS_BSP_esphome_name	    lilygot4s3
+#define GOS_BSP_esphome_mcu         esp32s2
+#define GOS_BSP_esphome_flash_size  GOS_BSP_esp32_flash_size
+#define GOS_BSP_esphome_flash_mode  dio
+#define GOS_BSP_esphome_f_flash     80000000L
+#define GOS_BSP_esphome_f_cpu       240000000L
+
+#define GOS_BSP_HAS_psram
+psram:
+  id: gosBsp_psram
+  mode: octal
+  speed: 80MHz
+
+#define GOS_BSP_HAS_spi
+spi:
+  id: gosBsp_spi
+  type: quad
+  clk_pin: _PIN_SPI_CLK
+  data_pins:
+    - _PIN_SPI_SI0
+    - _PIN_SPI_SI1
+    - _PIN_SPI_SI2
+    - _PIN_SPI_SI3
+
+#define GOS_BSP_HAS_i2c
+i2c:
+  id: gosBsp_i2c
+  sda: _PIN_II2C_SDA
+  scl: _PIN_II2C_SCL
+
+#define GOS_BSP_HAS_touchscreen
+// #define GOS_BSP_NEEDS_cst226
+touchscreen:
+  - platform: cst226
+    id: gosBsp_touchscreen
+    interrupt_pin: _PIN_V_EN
+    reset_pin: _PIN_TP_RST
+    transform:
+      mirror_x: true
+      mirror_y: true
+#if 0
+    on_touch:
+      - lambda: |-
+           printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",
+                    touch.x, touch.y, touch.x_raw, touch.y_raw);
+#endif
+#if GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
+    on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - logger.log: "LVGL resuming"
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+#ifdef GOS_BSP_HAS_backlight // T4 S3 does not have one under sw control
+            - light.turn_on: light_TFT_BACKLIGHT
+#endif
+#endif // GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
+
+#define GOS_BSP_HAS_display
+#define GOS_BSP_NEEDS_qspi_amoled
+display:
+  - platform: qspi_amoled
+    id: gosBsp_display
+    model: RM690B0
+    data_rate: 80MHz
+    spi_mode: mode0
+    dimensions:
+      width: 450
+      height: 600
+      offset_width: 16
+    color_order: rgb
+    invert_colors: false
+    brightness: 255
+    cs_pin: _PIN_SPI_CS
+    reset_pin: _PIN_SPI_RST
+    enable_pin: _PIN_VDD_EV
+    update_interval: never
+    auto_clear_enabled: false
+
+#endif // _GOS_INCLUDE_BSP_YAML_

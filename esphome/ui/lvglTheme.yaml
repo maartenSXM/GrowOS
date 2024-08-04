@@ -3,7 +3,7 @@
     label:
       text_font: MY_FONT # set all labels to use our custom defined font
 
-    btn:
+    button:
       bg_color: 0x2F8CD8
       bg_grad_color: 0x005782
       bg_grad_dir: VER
@@ -11,21 +11,21 @@
       border_color: 0x0077b3
       border_width: 1
       text_color: 0xFFFFFF
-      pressed: # set some btn colors to be different in pressed state
+      pressed: # set some button colors to be different in pressed state
         bg_color: 0x006699
         bg_grad_color: 0x00334d
-      checked: # set some btn colors to be different in checked state
+      checked: # set some button colors to be different in checked state
         bg_color: 0x1d5f96
         bg_grad_color: 0x03324A
         text_color: 0xfff300
 
-    btnmatrix:
+    buttonmatrix:
       bg_opa: TRANSP
       border_color: 0x0077b3
       border_width: 0
       text_color: 0xFFFFFF
       pad_all: 0
-      items: # set all our btnmatrix buttons to use our custom styles and font
+      items: # set all our buttonmatrix buttons to use our custom styles and font
         bg_color: 0x2F8CD8
         bg_grad_color: 0x005782
         bg_grad_dir: VER

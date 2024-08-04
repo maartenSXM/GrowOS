@@ -6,6 +6,10 @@ cd esphome
 vi requirements_dev.txt and comment out clang-tidy (takes too long and not needed)
 ./script/setup
 
+Then in stall yq tool using:
+sudo snap install yq
+or, on MacOS: brew install yq
+
 Now inspect the alias in ./Bashrc and adjust to the current directory and then:
 
 source Bashrc 

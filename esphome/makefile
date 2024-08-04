@@ -2,25 +2,35 @@
 #
 #       github.com/maartenSXM/cpptext
 #
-# This makefile automatically installs cpptext and then includes "./Makefile.bsps"
+# This makefile installs cpptext from git, if necessary, and then builds bsps
 
-# Disable built-in rules and variables
-MAKEFLAGS += --no-builtin-rules
-MAKEFLAGS += --no-builtin-variables
+MAKEFLAGS    += --no-builtin-rules
+MAKEFLAGS    += --no-builtin-variables
 MAKECMDGOALS ?= all
 
-OUTDIR := .
+GOS_BUILD    := gos
+CPT_CLONE    := $(GOS_BUILD)
+CPT_URL	     :=git@github.com:maartenSXM/cpptext
 
-ifeq (,$(wildcard $(OUTDIR)/cpptext))
+# install cppttext into $(GOS_BUILD) if it is not there, and then restart
+ifeq (,$(wildcard $(CPT_CLONE)/cpptext))
     ifeq (1,$(BAIL))
         $(error "$(firstword $(MAKEFILE_LIST)): Loop detected. Bailing out.")
     endif
 
 $(MAKECMDGOALS): 
-	mkdir -p $(OUTDIR)
-	git -C $(OUTDIR) clone git@github.com:maartenSXM/cpptext
+	mkdir -p $(CPT_CLONE)
+	git -C $(CPT_CLONE) clone $(CPT_URL)
 	$(MAKE) BAIL=1 --no-print-directory $(MAKECMDGOALS)
 else
-    include Makefile.bsps
-endif
+# build all BSPs found in ./bsps except in ./bsps/legacy, unless BSP specified
+BSP     ?= $(filter-out bsps/legacy,$(wildcard bsps/*))
+MAKEBSP := make -f Makefile --no-print-directory	    \
+	    GOS_BUILD=$(GOS_BUILD) CPT_HOME=$(CPT_CLONE)/cpptext
 
+$(MAKECMDGOALS):
+	@for bsp in $(BSP); do                                      \
+	    printf "makefile: building $$bsp with: make $(MAKECMDGOALS) \n"; \
+	    $(MAKEBSP) GOS_BSP=`basename $$bsp` $(MAKECMDGOALS);    \
+	done
+endif

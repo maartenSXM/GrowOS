@@ -113,7 +113,8 @@ static void doTelnet(int sd)
 
     tnHandle = telnet_init (myTelnetOpts, myTelnetCallback, 0, (void *) sd);
 
-    printf ("\n\x1b[92;1mWelcome to %s!\n\n", GOS_NAME_STR);
+    printf ("\n\x1b[92;1mWelcome to %s!\n\n",
+					GOS_STRINGIFY(GOS_BSP_esphome_name));
     printf (PROMPT);
 
     FD_ZERO (&rfds);

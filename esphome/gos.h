@@ -8,22 +8,14 @@
 // for passing esphome and platformio some generated build_flags.
 // See env.yaml for exmaples of how they can be used.
 //
-#define _ID(x) x
-#define _STR(x) #x
-#define STR(x) _STR(x)
-#define DEF_CAT4(w,x,y,z) STR(_ID(w)_ID(x)_ID(y)_ID(z))
-#define DEF_CAT3(w,x,y)   STR(_ID(w)_ID(x)_ID(y))
-#define DEF_CAT2(w,x)     STR(_ID(w)_ID(x))
-#define DEF_CAT(w,x)      STR(_ID(w)_ID(x))
-#define DEF_NAME(w,x,y,z) _ID(w)_ID(x)_ID(y)_ID(z)
-
-#if GOS_USER_maarten
-#define _SERIALNO 100
-#else // GOS_USER_erik
-#define _SERIALNO 101
-#endif
-
-#define GOS_NAME DEF_NAME(gb,_SERIALNO,cpu,GOS_PROJTAG)
-#define GOS_NAME_STR STR(GOS_NAME)
+#define GOS_ID(x) x
+#define GOS_STRINGIFY_(x)   #x
+#define GOS_STRINGIFY(x)    GOS_STRINGIFY_(x)
+#define GOS_STRINGIFY4(w,x,y,z)	\
+			    GOS_STRINGIFY(GOS_ID(w)GOS_ID(x)GOS_ID(y)GOS_ID(z))
+#define GOS_STRINGIFY3(w,x,y)	\
+			    GOS_STRINGIFY(GOS_ID(w)GOS_ID(x)GOS_ID(y))
+#define GOS_STRINGIFY2(w,x)	\
+			    GOS_STRINGIFY(GOS_ID(w)GOS_ID(x))
 
 #endif // __INCLUDE_GOS_H__

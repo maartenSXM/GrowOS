@@ -2,13 +2,6 @@
 #define __INCLUDE_CONFIG_H__
 
 #define GOS_FLASH_SIZE_4MB	4
-// Config specific to current USER
-
-#if GOS_USER_maarten
-#define _SERIALNO 100
-#else // GOS_USER_erik
-#define _SERIALNO 101
-#endif
 
 // Config common to both cpu0 and cpu1
 
@@ -41,7 +34,11 @@
 #define GOS_CONFIG_TINYUSB		0
 #define GOS_CONFIG_CONSOLE		0	// configure console?
 #define GOS_CONFIG_32_KHZ_XTAL		1	// Use external 32 KHz XTAL?
+#ifdef GOS_BSP_growBoard
 #define GOS_CONFIG_APP0_LED		1	// status LED on _PIN_tempData?
+#else
+#define GOS_CONFIG_APP0_LED		0	// status LED on _PIN_tempData?
+#endif
 #define GOS_CONFIG_CPU1_DEFAULTS_ON	0	// CPU1 on by default?
 #define GOS_CONFIG_LVGL			1	// use lvgl ?
 #define GOS_CONFIG_DISPLAY		1	// touchscreen display?

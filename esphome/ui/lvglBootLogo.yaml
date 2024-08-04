@@ -10,7 +10,7 @@
           pad_all: 0
           border_width: 0
           widgets:
-            - img:
+            - image:
                 align: CENTER
                 src: boot_logo
                 y: -40

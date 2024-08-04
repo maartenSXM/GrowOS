@@ -4,5 +4,5 @@ MAKEBSP := $(MAKE) -C ../.. --no-print-directory
 BSP = $(shell basename $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 $(MAKECMDGOALS): 
-	@$(MAKEBSP) BSPS=$(BSP) $(MAKECMDGOALS)
+	@$(MAKEBSP) BSPS=$(BSP)
 

@@ -11,10 +11,10 @@ image:
 lvgl:
   log_level: INFO
   displays:
-    - display_id: my_display
+    - display_id: gosBsp_display
   buffer_size: 50%
   touchscreens:
-    - touchscreen_id: my_touchScreen
+    - touchscreen_id: gosBsp_touchscreen
   default_font: MY_FONT
   disp_bg_color: 0x000000
   update_interval: 2s
@@ -23,7 +23,9 @@ lvgl:
     timeout: !lambda "return (id(display_timeout).state * 1000);"
     then:
       - logger.log: "LVGL is idle"
+#ifdef GOS_BSP_HAS_backlight
       - light.turn_off: light_TFT_BACKLIGHT
+#endif
       - lvgl.pause:
 #endif
 

@@ -1,6 +1,6 @@
   top_layer:
     widgets:
-      - btnmatrix:
+      - buttonmatrix:
           align: bottom_mid
           styles: header_footer
           pad_all: 0

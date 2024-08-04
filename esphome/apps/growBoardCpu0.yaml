@@ -1,10 +1,19 @@
+#ifdef GOS_BSP_HAS_backlight
+#define GOS_BSP_NEEDS_light
+#define GOS_BSP_NEEDS_output
+#endif
+
+#ifdef GOS_BSP_NEEDS_output
+
 output:
+#if GOS_CONFIG_APP0_LED
   - platform: slow_pwm
     pin:
       number: _PIN_TempData
       mode: output
     period: 500ms
     id: my_led
+#endif // GOS_CONFIG_APP0_LED
 
 #if GOS_CONFIG_BUZZER
   - platform: ledc
@@ -13,50 +22,28 @@ output:
     channel: 2 // xxx config item?
 #endif // GOS_CONFIG_BUZZER
 
-#if GOS_CONFIG_DISPLAY
+#ifdef GOS_BSP_HAS_backlight
   - platform: gpio
     id: output_TFT_BACKLIGHT
     pin:
-      number: _PIN_TFT_BACKLIGHT
+      number: GOS_BSP_BACKLIGHT_PIN
       mode: output
     inverted: true
-#if 0
-#if GOS_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
-    restore_mode: ALWAYS_ON
-#else
-    restore_mode: ALWAYS_OFF
-#endif // GOS_CONFIG_TFT_BACKLIGHT_DEFAULTS_ON
-#endif // 0
-#endif // GOS_CONFIG_DISPLAY
+#endif // GOS_BSP_HAS_backlight
 
-#if GOS_CONFIG_APP0_LED || GOS_CONFIG_DISPLAY
+#endif // GOS_BSP_NEEDS_output
+
+#ifdef GOS_BSP_NEEDS_light
 light:
 
-#if 0 // changed to output to not pollute log
-#if GOS_CONFIG_APP0_LED
-  - platform: status_led
-    id: cpu0_status_led
-    name: "CPU0 Status LED"
-    pin: _PIN_TempData
-    effects:
-      - strobe:
-          name: blink
-          colors:
-            - state: true
-              duration: 400ms
-            - state: false
-              duration: 100ms
-#endif // GOS_CONFIG_APP0_LED
-#endif // 0
-
-#if GOS_CONFIG_DISPLAY
+#ifdef GOS_BSP_HAS_backlight
   - platform: binary
     id: light_TFT_BACKLIGHT
-    name: "CPU0 Backlight Enable"
+    name: "Backlight Enable"
     output: output_TFT_BACKLIGHT
-#endif // GOS_CONFIG_DISPLAY
+#endif // GOS_BSP_HAS_backlight
 
-#endif // GOS_CONFIG_APP0_LED || GOS_CONFIG_DISPLAY
+#endif // GOS_BSP_NEEDS_light
 
 switch:
   - platform: restart

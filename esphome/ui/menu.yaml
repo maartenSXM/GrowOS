@@ -1,11 +1,11 @@
 graphical_display_menu:
   id: my_menu
   // no display specified: advanced drawing mode
-  // display: my_display
+  // display: gosBsp_display
   font: arial
   on_redraw:
     then:
-      component.update: my_display
+      component.update: gosBsp_display
   active: true
   mode: rotary
   items:
@@ -18,13 +18,13 @@ binary_sensor:
   - platform: touchscreen
     name: Left Button
     id: button_left
-    touchscreen_id: my_touchScreen
+    touchscreen_id: gosBsp_touchScreen
     x_min: 0
     x_max: 79
     y_min: 240
     y_max: 320
     on_press:
-      - display.page.show_previous: my_display
+      - display.page.show_previous: gosBsp_display
     // page_id: home_page_id
   - platform: touchscreen
     name: Right Button
@@ -35,7 +35,7 @@ binary_sensor:
     y_min: 240
     y_max: 320
     on_press:
-      - display.page.show_next: my_display
+      - display.page.show_next: gosBsp_display
     // page_id: home_page_id
   - platform: touchscreen
     name: Up Button
