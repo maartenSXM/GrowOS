@@ -2,30 +2,36 @@ alias git_diff='git diff HEAD@{1}'
 alias search="find . -type f -print0 | xargs -0 grep -i"
 alias esp='cd ~/git/growOS/esphome'
 alias get_esphome='source ~/git/esphome.git/venv/bin/activate; esp'
-alias make0="make PROJTAG=0"
-alias make1="make PROJTAG=1"
-alias compile0="make0; esphome compile myProj_0.yaml"
-alias compile1="make1; esphome compile myProj_1.yaml"
+
+alias make0="make BSP=growBoardCpu0"
+alias make1="make BSP=growBoardCpu1"
 
 if [ "$USER" == "maarten" ]; then
-  export ESPTOOL_TESTING=1 # as per esptool/esp32s2.py
-  alias jtag='function jtag { _YAML=${1:-myProj_0.yaml}; esphome -v upload  --device /dev/ttyACM0 $_YAML; }; jtag'
-  alias jtag0="jtag myProj_0.yaml"
-  alias jtag1="esphome upload --device /dev/ttyACM1 myProj_1.yaml"
-  alias logs0="esphome logs --device /dev/ttyACM0 myProj_0.yaml"
-  alias logs1="esphome logs --device /dev/ttyACM1 myProj_1.yaml"
-  # alias upload0="esphome upload --device 192.168.8.10 myProj_0.yaml"
-  # alias upload1="esphome upload --device 192.168.8.11 myProj_1.yaml"
-  alias upload0="esphome upload --device 192.168.248.20 --file ./.esphome/build/gb100cpu0/.pio/build/gb100cpu0/firmware.bin myProj_0.yaml"
-  alias upload1="esphome upload --device 192.168.248.21 myProj_1.yaml"
-  alias j0="esptool.py --before default_reset --after no_reset --baud 1500000 --port /dev/ttyACM0 --chip esp32s2 write_flash -z --flash_size detect 0x10000 /home/maarten/git/growOS/esphome/.esphome/build/gb100cpu0/.pioenvs/gb100cpu0/firmware.bin 0x1000 /home/maarten/git/growOS/esphome/.esphome/build/gb100cpu0/.pioenvs/gb100cpu0/bootloader.bin 0x8000 /home/maarten/git/growOS/esphome/.esphome/build/gb100cpu0/.pioenvs/gb100cpu0/partitions.bin 0x9000 /home/maarten/git/growOS/esphome/.esphome/build/gb100cpu0/.pioenvs/gb100cpu0/ota_data_initial.bin"
+  export _GB_IP_CPU0=192.168.248.20
+  export _GB_IP_CPU1=192.168.248.21
 else
-  alias jtag="esphome upload --device /dev/ttyUSB1 myProj_0.yaml"
-  alias jtag1="esphome upload --device /dev/ttyUSB2 myProj_1.yaml"
-  alias logs="esphome logs --device /dev/ttyUSB1 myProj_0.yaml"
-  alias logs1="esphome logs --device /dev/ttyUSB2 myProj_1.yaml"
-  alias upload="esphome upload --device 192.168.248.10 myProj_0.yaml"
-  alias upload1="esphome upload --device 192.168.248.11 myProj_0.yaml"
+  export _GB_IP_CPU0=192.168.248.10
+  export _GB_IP_CPU1=192.168.248.11
 fi
+
+alias esp_usb='function esp_usb { _VERB=${1}; _DEV=${2}; _PRJ=${3}; _BSP=${4:-growBoardCpu${_PRJ}}; cd gos/${_BSP}; esphome -v ${_VERB} --device /dev/ttyACM${_DEV} esphome.yaml; cd -;}; esp_usb'
+
+# jtag upload for cpu 0 or cpu 1 on /dev/ttyACM0
+alias jtag0="esp_usb upload 0 0"
+alias jtag1="esp_usb upload 0 1"
+
+# jtag logs for cpu 0 or cpu 1 on /dev/ttyACM0
+alias logs0="esp_usb logs 0 0"
+alias logs0="esp_usb logs 0 0"
+
+# this alias uses an indirect reference ${!_IP} to choose the correct IP variable
+alias esp_upload='function esp_upload { _PRJ=${1}; _IP=_GB_IP_CPU${_PRJ}; cd gos/growBoardCpu${_PRJ}; esphome -v upload --device ${!_IP} --file .esphome/build/growboard${_PRJ}/.pio/build/growboard${_PRJ}/firmware.bin ${_PRJ}.yaml; cd -;}; esp_upload'
+
+# network upload for cpu 0 or cpu 1 on 192.168.248.20+tag
+alias upload0="esp_upload 0"
+alias upload1="esp_upload 1"
+
+export ESPTOOL_TESTING=1 # as per esptool/esp32s2.py
+alias j0="cd gos/growBoardCpu0/.esphome/build/growboard0/.pioenvs/growboard0; esptool.py --before default_reset --after no_reset --baud 1500000 --port /dev/ttyACM0 --chip esp32s2 write_flash -z --flash_size detect 0x10000 firmware.bin 0x1000 bootloader.bin 0x8000 partitions.bin 0x9000 ota_data_initial.bin; cd -"
 
 

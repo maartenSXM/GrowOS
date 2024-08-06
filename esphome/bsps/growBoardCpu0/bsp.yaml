@@ -1,0 +1,297 @@
+#ifndef _GOS_INCLUDE_BSP_YAML_
+#define _GOS_INCLUDE_BSP_YAML_
+
+#define GOS_BSP_esphome_name	growboard0
+
+#include "bsp.h"
+
+#include "bsps/common/esp32s2.yaml"
+#include "bsps/common/bspAll.yaml"
+
+#if GOS_CONFIG_CAMERA
+#define GOS_BSP_SHAREGOS_BSP_PINS	true
+#else
+#define GOS_BSP_SHAREGOS_BSP_PINS	false
+#endif
+
+psram:
+  id: gosBsp_psram
+  mode: octal
+#if GOS_BSP_CONFIG_RUN_FAST
+  speed: 80MHz
+#else
+  speed: 40MHz
+#endif
+
+spi:
+  id: gosBsp_spi
+  clk_pin:
+    number: GOS_BSP_PIN_TFT_SCLK
+    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+  mosi_pin:
+    number: GOS_BSP_PIN_TFT_MOSI
+    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+  miso_pin:
+    number: GOS_BSP_PIN_TFT_MISO
+    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+  interface: hardware
+
+i2c:
+  id: gosBsp_i2c
+  sda:
+    number: GOS_BSP_PIN_TWI_SDA
+    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+  scl:
+    number: GOS_BSP_PIN_TWI_SCK
+    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+  frequency: 200kHz
+  scan: true
+
+output:
+  - platform: gpio
+    id: gosBsp_output_gpio_backlight
+    pin:
+      number: GOS_BSP_PIN_TFT_BACKLIGHT
+      mode: output
+    inverted: true
+
+light:
+  - platform: binary
+    id: gosBsp_light_binary_backlight
+    name: "Backlight Enable"
+    output: gosBsp_output_gpio_backlight
+
+touchscreen:
+  - platform: ft63x6
+    id: gosBsp_touchscreen
+    i2c_id: gosBsp_i2c
+    display: gosBsp_display
+    interrupt_pin: GOS_BSP_PIN_CTP_IRQ
+    touch_timeout: 50ms
+    transform:
+      swap_xy: true
+      mirror_x: true
+      mirror_y: false
+#if 0
+    on_touch:
+      - lambda: |-
+           printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",
+                    touch.x, touch.y, touch.x_raw, touch.y_raw);
+#endif
+
+#if GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
+    on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - logger.log: "LVGL resuming"
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+            - light.turn_on: gosBsp_light_binary_backlight
+#endif // GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
+
+display:
+  - platform: ili9xxx
+    id: gosBsp_display
+    model: ili9488_A
+    spi_mode: mode3
+    dimensions:
+      width: 480
+      height: 320
+      offset_height: 0
+      offset_width: 0
+#if GOS_CONFIG_DISPLAY_3_BIT
+    color_palette: 3_BIT
+#endif // GOS_CONFIG_DISPLAY_3_BIT
+    color_order: bgr
+    transform:
+      mirror_y: false
+      swap_xy: true
+      mirror_x: false
+    // rotation: 180
+    invert_colors: false
+    cs_pin:
+      number: GOS_BSP_PIN_TFT_CS
+      allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+    dc_pin:
+      number: GOS_BSP_PIN_TFT_DC
+      allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+    reset_pin: GOS_BSP_PIN_TFT_RST
+    data_rate: 40MHz
+#if GOS_CONFIG_LVGL
+    auto_clear_enabled: false
+    update_interval: never
+#else // !GOS_CONFIG_LVGL
+    auto_clear_enabled: true
+    update_interval: 1000ms
+    // now define some pages using native esphome graphics
+#include "nativeUi.yaml"
+#endif // !GOS_CONFIG_LVGL
+
+#if GOS_CONFIG_DISPLAY_3_BIT
+external_components:
+#if GOS_USER_maarten
+  - source:
+      type: local
+      path: ~/git/esphome_components/components
+#else
+  - source: 'github://maartenSXM/esphome_components'
+#endif
+    components: [ili9xxx]
+#endif // GOS_CONFIG_DISPLAY_3_BIT
+
+output:
+  - platform: slow_pwm
+    id: gosBsp_output_slow_pwm_led
+    pin:
+      number: GOS_BSP_PIN_TempData
+      mode: output
+    period: 500ms
+
+esphome:
+  on_boot:
+  - priority: 600
+    then:
+      - output.turn_on: gosBsp_output_slow_pwm_led
+      - output.set_level:
+          id: gosBsp_output_slow_pwm_led
+          level: "90%"
+
+#if GOS_CONFIG_BUZZER
+output:
+  - platform: ledc
+    id: gosBsp_output_buzzer
+    pin: GOS_BSP_PIN_BUZZER
+    id: buzzer_out
+    channel: 2 // xxx config item?
+#endif // GOS_CONFIG_BUZZER
+
+switch:
+  - platform: gpio
+    id: switch_H_S_ENABLE
+    name: "CPU1 Enable"
+    pin:
+      number: GOS_BSP_PIN_H_S_ENABLE
+      mode: output
+#if GOS_CONFIG_CPU1_DEFAULTS_ON
+    restore_mode: ALWAYS_ON
+#else
+    restore_mode: ALWAYS_OFF
+#endif // GOS_CONFIG_CPU1_DEFAULTS_ON
+
+switch:
+  - platform: gpio
+    id: switch_TFT_PWR_EN
+    name: "CPU0 Display Enable"
+    pin:
+      number: GOS_BSP_PIN_TFT_PWR_EN
+      mode: output
+    inverted: true
+    restore_mode: ALWAYS_ON
+
+#if GOS_CONFIG_BUZZER
+#if GOS_CONFIG_BUZZER_MONOTONE
+switch:
+  - platform: output
+    name: "CPU0 Buzzer"
+    id: buzzer
+    output: buzzer_out
+    on_turn_on: 
+      then:
+        - delay: 0ms
+        - output.turn_on: buzzer_out
+        - output.ledc.set_frequency:
+            id: buzzer_out
+            frequency: "1000Hz"
+        - output.set_level:
+            id: buzzer_out
+            level: "50%"
+    on_turn_off:
+      then:
+        - delay: 0ms
+        - output.turn_off: buzzer_out
+
+#else // !GOS_CONFIG_BUZZER_MONOTONE
+
+rtttl:
+  output: buzzer_out
+
+button:
+  - platform: template
+    name: "Buzzer play"
+    on_press:
+      then:
+        - rtttl.play: 'mission_imp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,g,8p,g,8p,a#,p,c7,p,g,8p,g,8p,f,p,f#,p,a#,g,2d,32p,a#,g,2c#,32p,a#,g,2c,a#5,8c,2p,32p,a#5,g5,2f#,32p,a#5,g5,2f,32p,a#5,g5,2e,d#,8d'
+  - platform: template
+    name: "Buzzer stop"  
+    on_press:
+      then:
+        - rtttl.stop
+
+#endif // !GOS_CONFIG_BUZZER_MONOTONE
+#endif // GOS_CONFIG_BUZZER
+
+#if GOS_CONFIG_ESP32_CAMERA
+esp32:
+  framework:
+    sdkconfig_options:
+      CONFIG_OV2640_SUPPORT: y
+      CONFIG_SCCB_HARDWARE_I2C_PORT1: y
+      CONFIG_SCCB_CLK_FREQ: "100000"
+      CONFIG_CAMERA_TASK_STACK_SIZE: "2048"
+      CONFIG_CAMERA_NO_AFFINITY: y
+      CONFIG_CAMERA_DMA_BUFFER_SIZE_MAX: "32768"
+      # CONFIG_LCD_CAM_ISR_IRAM_SAFE: y
+      // added for GOS_CONFIG_ESP32_CAMERA to build
+      // CONFIG_IDF_TARGET_ESP32: "1"
+#endif // GOS_CONFIG_ESP32_CAMERA
+
+#if GOS_CONFIG_CAMERA
+
+switch:
+  - platform: gpio
+    id: gosBsp_switch_gpio_esp32_camera
+    name: "CPU0 Camera Enable"
+    pin:
+      number: GOS_BSP_PIN_CSI_PWR_EN
+      mode: output
+    inverted: true
+    restore_mode: ALWAYS_OFF
+
+esp32_camera:
+  // HW settings
+  external_clock:
+    pin:
+      number: GOS_BSP_PIN_CSI_XCLK
+      allow_other_uses: true
+    frequency: 20MHz
+  i2c_pins:
+    sda:
+      number: GOS_BSP_PIN_TWI_SDA
+      allow_other_uses: true
+    scl:
+      number: GOS_BSP_PIN_TWI_SCK
+      allow_other_uses: true
+  data_pins:
+    [
+    {number: GOS_BSP_PIN_CSI_D2, allow_other_uses: true},
+    {number: GOS_BSP_PIN_CSI_D3, allow_other_uses: true},
+    GOS_BSP_PIN_CSI_D4,
+    {number: GOS_BSP_PIN_CSI_D5, allow_other_uses: true},
+    GOS_BSP_PIN_CSI_D6,
+    GOS_BSP_PIN_CSI_D7,
+    GOS_BSP_PIN_CSI_D8,
+    GOS_BSP_PIN_CSI_D9
+    ]
+  vsync_pin: GOS_BSP_PIN_CSI_VSYNC
+  href_pin:
+    number: GOS_BSP_PIN_CSI_HREF
+    allow_other_uses: true
+  pixel_clock_pin: GOS_BSP_PIN_CSI_PCLK
+
+  // Image settings
+  name: MyCamera
+  // ...
+#endif // GOS_CONFIG_CAMERA
+
+#endif // _GOS_INCLUDE_BSP_YAML_

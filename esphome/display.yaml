@@ -1,4 +1,0 @@
-#if !GOS_CONFIG_LVGL
-#include "nativeUiInit.yaml"
-#endif // !GOS_CONFIG_LVGL
-

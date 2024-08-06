@@ -1,0 +1,67 @@
+#ifndef _GOS_INCLUDE_BSP_COMMON_ESP32S3_
+#define _GOS_INCLUDE_BSP_COMMON_ESP32S3_
+
+#default GOS_BSP_esp32_board         esp32-s3-devkitc-1
+#default GOS_BSP_esp32_variant       esp32s3
+#default GOS_BSP_esp32_flash_size    16MB
+
+esp32:
+  board:      GOS_BSP_esp32_board
+  variant:    GOS_BSP_esp32_variant
+  flash_size: GOS_BSP_esp32_flash_size
+  framework:
+    sdkconfig_options:
+#if GOS_BSP_CONFIG_RUN_FAST
+      CONFIG_SOC_MEMSPI_SRC_FREQ_80M_SUPPORTED: y
+      CONFIG_ESPTOOLPY_FLASHFREQ_40M: y
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_MHZ: "240"
+      CONFIG_ESPTOOLPY_FLASHMODE_DOUT: y
+      CONFIG_ESPTOOLPY_FLASHMODE: "dio"	// xxx something faster?
+      // CONFIG_SPIRAM_SPEED_120M: y    // xxx experimental
+      // CONFIG_SPIRAM_MODE_OCT: y      // xxx experimental
+
+#else
+      CONFIG_ESPTOOLPY_FLASHFREQ_40M: y
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_160: y
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_MHZ: "160"
+      CONFIG_ESPTOOLPY_FLASHMODE_DOUT: y
+      CONFIG_ESPTOOLPY_FLASHMODE: "qio"
+#endif
+      CONFIG_ESPTOOLPY_OCT_FLASH: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+      CONFIG_SPI_FLASH_VERIFY_WRITE: y
+
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB: y
+#ifdef GOS_BSP_HAS_32_KHZ_XTAL
+      CONFIG_ESP32S3_RTC_CLK_SRC_EXT_CRYS: y
+      CONFIG_ESP32S3_RTC_CLK_CAL_CYCLES: "576"
+#endif // GOS_BSP_HAS_32_KHZ_XTAL
+
+#default GOS_BSP_esphome_name        esp32s3
+#default GOS_BSP_esphome_mcu         esp32s3
+#default GOS_BSP_esphome_flash_size  GOS_BSP_esp32_flash_size
+
+#ifdef GOS_BSP_CONFIG_RUN_FAST
+  #default GOS_BSP_esphome_upload_speed 1500000
+  #default GOS_BSP_esphome_f_cpu        240000000L
+  #default GOS_BSP_esphome_f_flash      80000000L
+  #default GOS_BSP_esphome_flash_mode   dio		// XXX something faster?
+#else
+  #default GOS_BSP_esphome_upload_speed 921600
+  #default GOS_BSP_esphome_f_cpu        160000000L
+  #default GOS_BSP_esphome_f_flash      40000000L
+  #default GOS_BSP_esphome_flash_mode   dio
+#endif
+
+esphome:
+  platformio_options:
+    upload_speed:	    GOS_BSP_esphome_upload_speed
+    board_build.mcu:	    GOS_BSP_esphome_mcu
+    board_build.flash_size: GOS_BSP_esphome_flash_size
+    board_build.flash_mode: GOS_BSP_esphome_flash_mode
+    board_build.f_flash:    GOS_BSP_esphome_f_flash
+    board_build.f_cpu:	    GOS_BSP_esphome_f_cpu
+
+#endif // _GOS_INCLUDE_BSP_COMMON_ESP32S3_

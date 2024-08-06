@@ -1,0 +1,216 @@
+#if GOS_CONFIG_NET_WIFI
+
+#if GOS_USER_maarten
+  #include "location.pec"
+  // #include "location.sxm"
+#else
+  #include "location.pec"
+#endif
+
+// Enable WiFi and IP stack
+wifi:
+  // power_save_mode: none
+  reboot_timeout: 0s    // disable reboot every 15 min if no WiFi
+#if GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
+  fast_connect: on
+  ssid: _SUB_WIFI_SSID
+  password: _SUB_WIFI_PASSWORD
+#if GOS_CONFIG_NET_STATIC
+  manual_ip:
+#ifdef GOS_BSP_growBoardCpu0 // XXX parameterize 
+    static_ip: _SUB_WIFI_ADDR_0
+#else
+    static_ip: _SUB_WIFI_ADDR_1
+#endif
+    gateway: _SUB_WIFI_GATEWAY
+    subnet: _SUB_WIFI_NETMASK
+    dns1: _SUB_WIFI_GATEWAY
+#endif // GOS_CONFIG_NET_STATIC
+#if 0 && GOS_CONFIG_NET_TELNET_SERVER
+  on_connect:
+    lambda: telnetServerInit();
+#endif // GOS_CONFIG_NET_TELNET_SERVER
+#endif // GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
+
+// Enable fallback hotspot (captive portal) in case wifi connection fails
+#if GOS_CONFIG_NET_FALLBACK
+  ap:
+    ssid: GOS_STRINGIFY3(GOS_PROJECT,-,GOS_BSP_SERIAL_NUM)
+    password: _SUB_WIFI_PASSWORD
+#endif // GOS_CONFIG_NET_FALLBACK
+
+#if GOS_CONFIG_NET_PORTAL
+captive_portal:
+#endif // GOS_CONFIG_NET_PORTAL
+    
+#if GOS_CONFIG_NET_SNTP
+globals:
+  - id: sntpBootTime
+    type: time_t
+    restore_value: no
+    initial_value: "0"
+
+time:
+  - platform: sntp
+    id: sntpTime
+    timezone: _SUB_NTP_TIMEZONE
+    servers:
+      - _SUB_NTP_SERVER
+    on_time_sync:
+      - lambda: |-
+          if (id(sntpBootTime) == 0)
+            id(sntpBootTime) = id(sntpTime).now().timestamp;
+#if GOS_CONFIG_LVGL
+      - script.execute: time_update
+    on_time:
+      - minutes: '*'
+        seconds: '*'
+        then:
+          - script.execute: time_update
+#endif // GOS_CONFIG_LVGL
+
+text_sensor:
+  - platform: template
+    name: "Net SNTP Time"
+    update_interval: 30s
+    lambda: |-
+      auto time_text = (std::string) "Unknown";
+      if (id(sntpTime).now().is_valid())
+        time_text = id(sntpTime).now().strftime("%d/%m/%Y %H:%M:%S");
+      return time_text;
+
+text_sensor:
+  - platform: template
+    id: sntpBootTimeText
+    name: "System Boot Time"
+    // update_interval: never
+    lambda: |-
+      static char str[25];
+
+      if (id(sntpBootTime) == (time_t) 0)
+          return ((std::string) "Unknown");
+      if (str[0] == '\0')
+        strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&id(sntpBootTime)));
+      return (std::string) str;
+
+#endif // GOS_CONFIG_NET_SNTP
+
+#if GOS_CONFIG_NET_HA
+// Enable Home Assistant API
+api:
+  password: _SUB_HA_PASSWORD
+#endif // GOS_CONFIG_NET_OTA
+
+#if GOS_CONFIG_NET_OTA
+// Enable over-the-air update
+ota:
+  version: 2
+  platform: esphome
+  password: _SUB_OTA_PASSWORD
+  on_begin:
+    then:
+      - logger.log: "OTA start"
+  on_progress:
+    then:
+      - logger.log:
+          format: "OTA progress %0.1f%%"
+          args: ["x"]
+  on_end:
+    then:
+      - logger.log: "OTA end"
+#endif // GOS_CONFIG_NET_OTA
+
+#if GOS_CONFIG_NET_WEB_SERVER
+// Enable web server
+web_server:
+  port: 80
+  version: 3
+  include_internal: true
+#endif // GOS_CONFIG_NET_WEB_SERVER
+
+#if GOS_CONFIG_NET_IMPROV_WIFI
+#ifdef GOS_BSP_HAS_esp32_ble
+esp32_improv:
+  authorizer: none
+#else
+// Enable Improv WiFi component
+improv_serial:
+  next_url: "http://example.com/?device_name={{device_name}}&ip_address={{ip_address}}&esphome_version={{esphome_version}}"
+#endif
+#endif // GOS_CONFIG_IMPROV_WIFI
+
+/// xxx test
+http_request:
+  useragent: esphome/device
+  timeout: 10s
+
+/// xxx test
+switch:
+  - platform: template
+    name: "http request get test"
+    restore_mode: ALWAYS_OFF
+    turn_on_action:
+    - http_request.get:
+        url: "http://127.0.0.1/sensor/net_wifi_signal_"
+        on_response:
+          then:
+            - logger.log:
+                format: "Response status: %d, duration_ms: %lu ms"
+                args:
+                  - response->status_code
+                  - response->duration_ms
+
+#if GOS_CONFIG_NET_TELNET_SERVER
+#if 1 // xxx for now auto-initialize the telnet server
+esphome:
+  on_boot:
+  - priority: 200
+    then:
+      lambda: |-
+        if (telnetServerInit() == ESP_FAIL)
+            ESP_LOGD("telnetd", "Initializaton by switch failed");
+        else
+            ESP_LOGD("telnetd", "Initializaton succeeded");
+#else
+// enable switch for telnet - xxx make the manual switch the default for
+// security - ideally with a timeout to turn it back off after a while.
+switch:
+  - platform: template
+    name: "Net Telnet Server Init"
+    turn_on_action:
+      lambda: |-
+        if (telnetServerInit() == ESP_FAIL)
+            ESP_LOGD("telnetd", "Initializaton by switch failed");
+        else
+            ESP_LOGD("telnetd", "Initializaton succeeded");
+#endif
+#endif // GOS_CONFIG_TELNET_SERVER
+
+text_sensor:
+  - platform: template
+    id: wifi_channel
+    name: "Net WiFi Channel"
+    lambda: |-
+      static char str[3]; // one or two digits (or -1) plus NULL
+      sprintf(str, "%2d", idfWifiGetChannelNum());
+      return (std::string) str;
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      id: wifi_ip_address
+      name: "Net IP Address"
+    ssid:
+      id: wifi_ip_ssid
+      name: "Net WiFi SSID"
+    mac_address:
+      id: wifi_ip_mac
+      name: "Net MAC Address"
+
+sensor:
+  - platform: wifi_signal
+    id: my_wifi_sensor
+    name: "Net WiFi Signal "
+    update_interval: 15s
+
+#endif // GOS_CONFIG_NET_WIFI

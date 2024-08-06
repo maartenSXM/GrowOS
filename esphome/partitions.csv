@@ -1,4 +1,4 @@
-#include "gos.h"
+#include "gos/gos.h"
 
 #define GOS_PART_OTADATA_SIZE	8k
 #define GOS_PART_PHY_INIT_SIZE	4k
@@ -6,6 +6,26 @@
 #if GOS_FLASH_SIZE == GOS_FLASH_SIZE_4MB
     #define GOS_PART_APP0_SIZE	1800k
     #define GOS_PART_APP1_SIZE	1800k
+    #if GOS_CONFIG_CONSOLE
+	#define GOS_PART_NVS_SIZE 4k
+	#define GOS_PART_STORAGE
+	#define GOS_PART_STORAGE_SIZE 372k
+    #else
+	#define GOS_PART_NVS_SIZE 4k
+    #endif
+#elif GOS_FLASH_SIZE == GOS_FLASH_SIZE_8MB
+    #define GOS_PART_APP0_SIZE	3800k
+    #define GOS_PART_APP1_SIZE	3800k
+    #if GOS_CONFIG_CONSOLE
+	#define GOS_PART_NVS_SIZE 4k
+	#define GOS_PART_STORAGE
+	#define GOS_PART_STORAGE_SIZE 372k
+    #else
+	#define GOS_PART_NVS_SIZE 4k
+    #endif
+#elif GOS_FLASH_SIZE == GOS_FLASH_SIZE_16MB
+    #define GOS_PART_APP0_SIZE	7800k
+    #define GOS_PART_APP1_SIZE	7800k
     #if GOS_CONFIG_CONSOLE
 	#define GOS_PART_NVS_SIZE 4k
 	#define GOS_PART_STORAGE

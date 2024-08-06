@@ -8,9 +8,9 @@ MAKEFLAGS    += --no-builtin-rules
 MAKEFLAGS    += --no-builtin-variables
 MAKECMDGOALS ?= all
 
-GOS_BUILD    := gos
+GOS_BUILD    := build
 CPT_CLONE    := $(GOS_BUILD)
-CPT_URL	     :=git@github.com:maartenSXM/cpptext
+CPT_URL	     := git@github.com:maartenSXM/cpptext
 
 # install cppttext into $(GOS_BUILD) if it is not there, and then restart
 ifeq (,$(wildcard $(CPT_CLONE)/cpptext))
@@ -23,14 +23,18 @@ $(MAKECMDGOALS):
 	git -C $(CPT_CLONE) clone $(CPT_URL)
 	$(MAKE) BAIL=1 --no-print-directory $(MAKECMDGOALS)
 else
-# build all BSPs found in ./bsps except in ./bsps/legacy, unless BSP specified
-BSP     ?= $(filter-out bsps/legacy,$(wildcard bsps/*))
-MAKEBSP := make -f Makefile --no-print-directory	    \
-	    GOS_BUILD=$(GOS_BUILD) CPT_HOME=$(CPT_CLONE)/cpptext
+MAKEBSP := make -f Makefile --no-print-directory	
+# build all BSPs found in ./bsps unless GOS_BSP aka BSP is pecified
+ifneq (,$(GOS_BSP))
+BSP := $(GOS_BSP)
+else
+BSP ?= $(filter-out bsps/common bsps/unsupported,$(wildcard bsps/*))
+endif
 
 $(MAKECMDGOALS):
-	@for bsp in $(BSP); do                                      \
-	    printf "makefile: building $$bsp with: make $(MAKECMDGOALS) \n"; \
+	@for bsp in $(BSP); do					    \
+	    printf "makefile: invoking \"make ";		    \
+	    printf "GOS_BSP=`basename $$bsp` $(MAKECMDGOALS)\"\n";  \
 	    $(MAKEBSP) GOS_BSP=`basename $$bsp` $(MAKECMDGOALS);    \
 	done
 endif

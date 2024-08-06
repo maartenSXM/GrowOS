@@ -1,108 +1,46 @@
-To install esphome, do this:
+GrowOS (GOS) is motivated by the following requirements:
 
-sudo apt install git make python3.10-venv gcc
-git clone https://github.com/esphome/esphome.git
-cd esphome
-vi requirements_dev.txt and comment out clang-tidy (takes too long and not needed)
-./script/setup
+REQ1. Shall provide a configuration mechanism to externally change,
+      include and exclude esphome device code to avoid hardcoding.
 
-Then in stall yq tool using:
-sudo snap install yq
-or, on MacOS: brew install yq
+REQ2. Shall separate out hardware-specific software to enable
+      application software reuse across multiple hardware platforms.
 
-Now inspect the alias in ./Bashrc and adjust to the current directory and then:
+REQ3. Shall separate out system software to enable system software
+      reuse across multiple applications.
 
-source Bashrc 
-growOS
-(once only do this: pip install gh-folder-download)
+REQ4. Shall provide build-level integration platform features that can
+      accomodate multiple board support packages (BSPs) and applications.
 
-Now it is possible to build and run esphome for CPU 0 like this:
+REQ5. Shall be intuitive and natural for old school C programmers, including
+      those who are esphome newbies, to configure and build with GOS.
 
-To build, just use 'make' to build for CPU0 or 'make1' alias to build
-for CPU1.
+GOS attempts to satisfy the above requirements using these techniques:
 
-The Makefile chooses a board serial number and network location
-based on $USER and generates a full yaml file for esphome.
-For now, only two userids (erik and maarten) are supported.
-The files location.pec and location.sxm have that localization.
+ - GOS uses make and a tool called cpptext to construct a yaml file using
+   the C preprocessor in such a way that it can be processed by esphome.
+   This enables #define and #ifdef etc to co-exist with yaml # comments.
 
-Once the yaml files are generated, instead of driving things
-from the Makefile, it is also possible to issue esphome commands
-directly on the generated yaml file, such as:
+ - GOS uses a tool called yq for its yaml  merge feature which enables
+   yaml map keys to be declared multiple times in separate files.  This
+   enables, for example, a system level reboot switch: to be declared
+   in a system level yaml file and an application switch: to be declared
+   separately in a yaml file specific to an application.
 
-esphome compile myProj_0.yaml
-esphome upload myProj_0.yaml
-esphome logs myProj_0.yaml
+   GOS extends yq's capability to also allow such declarations to be made
+   multiple times in one GOS yaml file even though this technically breaks
+   the yaml specification. However, once the esphome yaml file is constructed
+   by the GOS build system, the multiple yaml map key declarations are merged
+   and the yaml is correct according to teh yaml specification.
+ 
+ - GOS has a notion of a board support package (BSP) for esphome yaml.
+   Each GOS BSP has a bsp.yaml that declares hardware and advertises
+   (using #define) what hardware it supports. Each BSP also has exports a
+   pins.h file for C or C++ code to use if needed. That pins.h file is also
+   used by bsp.yaml so that hardware pins are only defined in one file.
 
-See esphome -h for more details.
-
-aliases for the above are in ./Bashrc. 
-
-There are some intermediate C-preprocessed files stored in directories
-./myProj_0 and ./myProj_1
-
-It is possible to connect to the growboard's IP address
-from a browser to see some published information and flip
-some switches.
-
-Notes:
-On first upload without existing esphome firmware, will have to program over 
-/dev/* will be the path of the serial or USB port, which can be found by
-looking at the output of dmesg after plugging in the growboard.  If running
-in a VM, you may have to connect that port to the VM from the host.
-
-To put the ESP32S2 into jtag upload mode, just ground GPIO0 and issue alias
-jtag0 or jtag1, depending on which CPU you are connected to.
-
-To erase the flash over JTAG when a CPU is in upload mode, you
-can use the esptool.py script from Espressif like this:
-
-esptool.py --chip esp32s2 erase_flash
-
-Also, from the .esphome/build/gb100cpu0, you can inspect the esp-idf confif
-like this:
-
-   pio run -t menuconfig
-
-Saving the minimal configuration from the menuconfig will show you what
-settings have been tweaked in esp-idf by esphome and platformio.
-
-If using the GB_CONFIG_CONSOLE options, the UART is accessible over
-TCP port 1234.  To connect to the UART over TCP, run socat in one
-terminal and minicom in another. Or run socat in the background like this:
-
-  socat pty,link=$HOME/ttyV0,waitslave tcp:gb100cpu0.local:1234 &
-  minicom --device ~/ttyV0
-
-To compile and run an esp-idf project directly on one of the CPUs of the
-Growboard, it is possible to do that using the esp-idf frameworks stored
-in ~/.platformio:
-
-   cd ~/.platformio/plackages/framework-espidf
-   sh ./install.sh
-   . ./export.sh
-   cd examples/system/console/advanced
-   idf.py build
-   esptool.py --chip esp32s2 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m 0x1000 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x10000 build/console.bin
-   echo voila!
-
-To validate a partition table part.csv, find gen_esp32part.py path to generate
-the .bin and display it using:
- python <path>/gen_esp32part.py part.csv part.bin
- python <path>/gen_esp32part.py part.bin
-
-INSTALL_NOTES
-1. If build results in "No module named pip", then run this on thei python
-   command with the absolute path shown. For example:
-
-     /home/maarten/.platformio/penv/.espidf-5.2.1/bin/python -m ensurepip
-
-2. To prune old platformio toolchains etc, you can see what will be
-   pruned using:
-
-     pio system prune --dry-run
-
-   and you can remove them with:
-
-     pio system prune
+ - GOS has a notion of a project. A GOS project is a configuration that
+   connects an application to a BSP.  The configuration mechanism uses
+   C preprocessor #defines and make variables to allow a project to
+   configure BSP, application and system-level features at build time. 
 

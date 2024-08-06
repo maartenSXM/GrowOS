@@ -1,0 +1,79 @@
+#ifndef _GOS_INCLUDE_BSP_YAML_
+#define _GOS_INCLUDE_BSP_YAML_
+
+#define GOS_BSP_esphome_name    growboard1
+
+#include "bsp.h"
+
+#include "bsps/common/esp32s2.yaml"
+#include "bsps/common/bspAll.yaml"
+
+psram:
+  id: gosBsp_psram
+  mode: octal
+#if GOS_BSP_CONFIG_RUN_FAST
+  speed: 80MHz
+#else
+  speed: 40MHz
+#endif
+
+spi:
+  id: gosBsp_spi
+  clk_pin: GOS_BSP_PIN_TFT_SCLK
+  mosi_pin: GOS_BSP_PIN_TFT_MOSI
+  miso_pin: GOS_BSP_PIN_TFT_MISO
+  interface: hardware
+
+i2c:
+  id: gosBsp_i2c
+  sda: GOS_BSP_PIN_TWI_SDA
+  scl: GOS_BSP_PIN_TWI_SCK
+  frequency: 200kHz
+  scan: true
+
+switch:
+  - platform: gpio
+    pin: GOS_BSP_PIN_SET_MOTOR_MINUS
+    name: "12V Motor minus"
+    id: motorMinus
+    interlock: &motor12Vinterlock [motorMinus, motorPlus]
+    interlock_wait_time: 500ms
+
+  - platform: gpio
+    pin: GOS_BSP_PIN_SET_MOTOR_PLUS
+    name: "12V Motor plus"
+    id: motorPlus
+    interlock: *motor12Vinterlock
+    interlock_wait_time: 500ms
+
+  - platform: gpio
+    pin: GOS_BSP_PIN_DLOCK_GND_EN
+    name: "12V Door Lock Enable"
+    id: actDoorLockEnable
+
+  - platform: gpio
+    pin: GOS_BSP_PIN_ACT_AIR
+    name: "12V Air pump"
+    id: actAirPump
+
+  - platform: gpio
+    pin: GOS_BSP_PIN_ACT_12V
+    name: "12V Small Fan"
+    id: actSmallFan
+
+  - platform: gpio
+    pin: GOS_BSP_PIN_ACT_LED
+    name: "AC Led Panel"
+    id: actLedPanel
+
+  - platform: gpio
+    pin: GOS_BSP_PIN_ACT_PUMP
+    name: "AC Water Pump"
+    id: actWaterPump
+
+  - platform: gpio
+    pin: GOS_BSP_PIN_ACT_AUX
+    name: "AC Aux Heater"
+    id: actAuxHeater
+
+#endif // _GOS_INCLUDE_BSP_YAML_

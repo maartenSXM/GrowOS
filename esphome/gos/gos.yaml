@@ -1,0 +1,5 @@
+switch:
+  - platform: restart
+    name: "System Reboot"
+  - platform: safe_mode
+    name: "System Reboot (safe)"
