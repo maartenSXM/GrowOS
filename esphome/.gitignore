@@ -16,3 +16,4 @@ Makefile.new
 cpptext/
 utils/webApi
 build
+*.old
