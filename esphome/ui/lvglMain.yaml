@@ -23,8 +23,10 @@ number:
 
 lvgl:
   log_level: INFO
+#if 0
   displays:
     - display_id: gosBsp_display
+#endif
   buffer_size: 50%
   touchscreens:
     - touchscreen_id: gosBsp_touchscreen

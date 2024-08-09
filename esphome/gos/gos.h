@@ -18,7 +18,7 @@
 #define GOS_STRINGIFY3(w,x,y)	GOS_STRINGIFY(GOS_X(w)GOS_X(x)GOS_X(y))
 #define GOS_STRINGIFY4(w,x,y,z) GOS_STRINGIFY(GOS_X(w)GOS_X(x)GOS_X(y)GOS_X(z))
 
-#include GOS_STRINGIFY3(bsps/,GOS_BSP,/configBsp.h)
+#include GOS_STRINGIFY2(GOS_BSP,/configBsp.h)
 #include "bsps/common/configBspAll.h"
 #include "configAll.h"
 

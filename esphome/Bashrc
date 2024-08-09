@@ -3,8 +3,8 @@ alias search="find . -type f -print0 | xargs -0 grep -i"
 alias esp='cd ~/git/growOS/esphome'
 alias get_esphome='source ~/git/esphome.git/venv/bin/activate; esp'
 
-alias make0="make BSP=growBoardCpu0"
-alias make1="make BSP=growBoardCpu1"
+alias make0="make PRJ=projects/growBoard0.mk"
+alias make1="make PRJ=projects/growBoard1.mk"
 
 if [ "$USER" == "maarten" ]; then
   export _GB_IP_CPU0=192.168.248.20
