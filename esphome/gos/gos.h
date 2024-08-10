@@ -1,12 +1,6 @@
 #ifndef __INCLUDE_GOS_H__
 #define __INCLUDE_GOS_H__
 
-// these are defined so they can be used in c preprocessor comparisons
-#define GOS_FLASH_SIZE_2MB  2
-#define GOS_FLASH_SIZE_4MB  4
-#define GOS_FLASH_SIZE_8MB  8
-#define GOS_FLASH_SIZE_16MB 16
-
 // some C preprocess string concatenation macros that are useful
 // for passing esphome and platformio some generated build_flags.
 // See env.yaml for exmaples of how they can be used.
@@ -18,8 +12,16 @@
 #define GOS_STRINGIFY3(w,x,y)	GOS_STRINGIFY(GOS_X(w)GOS_X(x)GOS_X(y))
 #define GOS_STRINGIFY4(w,x,y,z) GOS_STRINGIFY(GOS_X(w)GOS_X(x)GOS_X(y)GOS_X(z))
 
-#include GOS_STRINGIFY2(GOS_BSP,/configBsp.h)
+// Configuration files are included intentionally in this order:
+//  1. GOS_BSP_PATH/bsp.h which advertises BSP hardware available
+//  2. GOS_CONFIG_PATH which defines and configures project features
+//  3. bsps/common/configBspAll.h which implements project hardware featues
+//  4. projects/configAll.h which implements project software features
+
+#include GOS_STRINGIFY2(GOS_BSP_PATH,/bsp.h)
+#include GOS_STRINGIFY(GOS_CONFIG_PATH)
+
 #include "bsps/common/configBspAll.h"
-#include "configAll.h"
+#include "projects/configAll.h"
 
 #endif // __INCLUDE_GOS_H__

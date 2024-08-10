@@ -12,6 +12,8 @@
 #define GOS_BSP_HAS_sensor_internal_temperature
 #define GOS_BSP_HAS_wifi
 
+#define GOS_BSP_HAS_FLASH_16MB
+
 // GOS_BSP_PIN_ suffices are the pin labels from the PDF schematic here:
 //   github.com/Xinyuan-LilyGO/LilyGo-AMOLED-Series/blob/master/schematic/T4-S3-AMOLED.pdf
 

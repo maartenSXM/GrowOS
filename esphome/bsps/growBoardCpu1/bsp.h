@@ -9,6 +9,8 @@
 #define GOS_BSP_HAS_sensor_internal_temperature
 #define GOS_BSP_HAS_wifi
 
+#define GOS_BSP_HAS_FLASH_4MB
+
 #define GOS_BSP_PIN_S_0			0
 #define GOS_BSP_PIN_ACT_AUX		1
 #define GOS_BSP_PIN_ACT_PUMP		2

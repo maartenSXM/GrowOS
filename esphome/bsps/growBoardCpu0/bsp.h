@@ -18,6 +18,7 @@
 #define GOS_BSP_HAS_sensor_internal_temperature
 
 #define GOS_BSP_HAS_32_KHZ_XTAL
+#define GOS_BSP_HAS_FLASH_4MB
 
 #define GOS_BSP_PIN_H_0			0
 #define GOS_BSP_PIN_CSI_VSYNC		1

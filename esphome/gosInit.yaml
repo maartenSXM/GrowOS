@@ -20,7 +20,7 @@ text_sensor:
 
 #include "gos/gos.h"
 
-#include GOS_STRINGIFY2(GOS_BSP,/bsp.yaml)
+#include GOS_STRINGIFY2(GOS_BSP_PATH,/bsp.yaml)
 
 // if BSP yaml did not set these c preprocessor defines, default them
 
@@ -33,10 +33,10 @@ text_sensor:
 #include "gos/debug.yaml"
 #include "gos/network.yaml"
 
-// now include the app from ./apps
+// now include the application 
 
-#default GOS_APP GOS_BSP_APP
-#include GOS_STRINGIFY(GOS_APP)
+#default GOS_APP_PATH GOS_BSP_APP_PATH
+#include GOS_STRINGIFY(GOS_APP_PATH)
 
 #if GOS_CONFIG_DISPLAY 
 #ifndef GOS_BSP_HAS_display

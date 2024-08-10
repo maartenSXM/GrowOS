@@ -3,7 +3,7 @@
 #define GOS_PART_OTADATA_SIZE	8k
 #define GOS_PART_PHY_INIT_SIZE	4k
 
-#if GOS_FLASH_SIZE == GOS_FLASH_SIZE_4MB
+#if defined(GOS_BSP_HAS_FLASH_4MB)
     #define GOS_PART_APP0_SIZE	1800k
     #define GOS_PART_APP1_SIZE	1800k
     #if GOS_CONFIG_CONSOLE
@@ -13,7 +13,7 @@
     #else
 	#define GOS_PART_NVS_SIZE 4k
     #endif
-#elif GOS_FLASH_SIZE == GOS_FLASH_SIZE_8MB
+#elif defined(GOS_BSP_HAS_FLASH_8MB) 
     #define GOS_PART_APP0_SIZE	3800k
     #define GOS_PART_APP1_SIZE	3800k
     #if GOS_CONFIG_CONSOLE
@@ -23,7 +23,7 @@
     #else
 	#define GOS_PART_NVS_SIZE 4k
     #endif
-#elif GOS_FLASH_SIZE == GOS_FLASH_SIZE_16MB
+#elif defined(GOS_BSP_HAS_FLASH_16MB) 
     #define GOS_PART_APP0_SIZE	7800k
     #define GOS_PART_APP1_SIZE	7800k
     #if GOS_CONFIG_CONSOLE
@@ -33,6 +33,8 @@
     #else
 	#define GOS_PART_NVS_SIZE 4k
     #endif
+#elif
+    #error "partitions.csv: Unknown flash size"
 #endif
 
 otadata,  data, ota,      , GOS_PART_OTADATA_SIZE,

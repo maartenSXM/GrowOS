@@ -17,3 +17,4 @@ cpptext/
 utils/webApi
 build
 *.old
+.gosprj
