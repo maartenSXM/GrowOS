@@ -13,7 +13,7 @@
 #define GOS_CONFIG_NET_FALLBACK		0	// ... Fallback HotSpot?
 #define GOS_CONFIG_NET_PORTAL		0	// ... Provisioning SSID?
 #define GOS_CONFIG_NET_MDNS		1	// ... mDNS service lookup?
-#define GOS_CONFIG_NET_SNTP		1	// ... Network Time Protocol?
+#define GOS_CONFIG_NET_NTP		1	// ... Network Time Protocol?
 #define GOS_CONFIG_NET_HA		0	// ... Home Assistant?
 #define GOS_CONFIG_NET_OTA		1	// ... WiFi update allowed?
 #define GOS_CONFIG_NET_WEB_SERVER	1	// ... Built-in web server?

@@ -1,35 +1,48 @@
-# This Makefile" is based on github.com/maartenSXM/cpptext/blob/main/Makefile
+# This Makefile uses a git submodule cpptext to build GOS esphome projects
+# from ./projects/*.mk.  Use "make PRJ=projects/project.mk" to select a
+# specific GOS project file otherwise $(GOS_PROJECT_PATH_DEFAULT) is selected.
 #
-# This Makefile installs cpptext from git into ./builds/cpptext, if necessary,
-# and then builds GOS esphome projects from projects/*.mk using cpptext's
-# Makefile fragments as configured by the selected GOS project.
+# There is also a makeall.sh script that will build all the GOS projects
+# for a specific BSP.
 
-# Use "make PRJ=projects/project.mk" to select a specific GOS project
-# otherwise $(GOS_DEFAULT_PROJECT) is selected.
+GOS_PROJECT_PATH_DEFAULT := projects/growBoard0.mk
 
-# make variables starting with CPT_ are used by $(CPT_HOME)/Makefile.cpptext.
-# Variables starting with CPT_ESP_ are used by $(CPT_HOME)/Makefile.esphome.
+# A GrowOS project file must defines the following make variables:
+#  - GOS_APP_PATH    to define the project's application yaml file path
+#  - GOS_CONFIG_PATH to define the project's config file header file path
+#  - GOS_BSP_PATH    to define the project's board support package directory path
 
-# Variables that start with GOS_ are used by this Makefile and by
-# whatever GOS project files (makefile fragment) included below.
+# GOS project files are typically found in ./projects/ but can reside
+# anywhere inside or outside of the GOS file tree as long as the path
+# specified is relative to this directory.
 
-GOS_DEFAULT_PROJECT := projects/growBoard0.mk
+# Makefile variables set below with ?= can be overridden by a project file.
+# Makefile variables set below with += can be prepended  by a project file.
+
+# Makefile variables starting with CPT_     are for cpptext/Makefile.cpptext.
+# Makefile variables starting with CPT_ESP_ are for cpptext/Makefile.esphome.
+
+# Makefile variables starting with GOS_ are used by this Makefile and
+# by the selected GOS project file.  Some are also available to yaml
+# since GOS preprocesses yaml. Those are also passed further down to
+# platformio builds for use in C and C++ code. Refer to the definition
+# of CPT_EXTRA_DEFS below for more comments on exactly which GOS_
+# variables are passed, and how they are defined.
 
 MAKECMDGOALS ?= all
 MAKE         := $(MAKE) --no-print-directory
 MAKEFILE     := $(lastword $(MAKEFILE_LIST))
 
-# Check that $(CPT_HOME) exists and if it doesn't, install it.
+# If cpptext submodule is empty, this must be a fresh clone - so get submodules.
 
-CPT_HOME       := build/cpptext
-
-ifeq (,$(wildcard $(CPT_HOME)))
-
+ifeq (,$(wildcard cpptext/.git))
 $(MAKECMDGOALS): 
-	@printf "$(MAKEFILE): installing cpptext from $(CPT_URL).\n"
-	mkdir -p $(dir $(CPT_HOME))
-	git -C $(dir $(CPT_HOME)) clone git@github.com:maartenSXM/cpptext
-	@printf "$(MAKEFILE): cpptext installed. Restarting make.\n"
+	@printf "$(MAKEFILE): Retreiving submodule cpptext\n"
+	git submodule init
+	git submodule update
+	@printf "$(MAKEFILE): Adding esphome libary support to libtelnet\n"
+	cp -p libaries/libtelnet.json libraries/libtelnet/library.json
+	@printf "$(MAKEFILE): Restarting \"make $(MAKECMDGOALS)\"\n"
 	$(MAKE) $(MAKECMDGOALS)
 else
 
@@ -46,30 +59,31 @@ else
   ifneq (,$(wildcard .gosprj))	    # check if a GOS project is remembered
     PRJ := $(shell cat .gosprj)
   else
-    PRJ : = $(GOS_DEFAULT_PROJECT)
+    PRJ : = $(GOS_PROJECT_PATH_DEFAULT)
   endif
 endif
 
-# Include the selected GOS project Makefile fragment. A GOS project
-# at minimum defines an application (GOS_APP), a config file (GOS_CONFIG)
-# and a path to a board support package directory (GOS_BSP).
+GOS_PROJECT_PATH = $(PRJ)
 
-# GOS projects are typically found in ./projects/ but can reside anywhere
-# inside or outside of the GOS file tree as long as the paths specified
-# are relative to GOS_HOME.
+# Include the selected GOS project (Makefile fragment).
 
-# The variables set below with ?= can be overridden by a GOS project file.
-# The variables set below with += can be prepended by a GOS project file.
+include $(GOS_PROJECT_PATH)
 
-include $(PRJ)
+ifeq (,$(GOS_CONFIG_PATH))
+  $(error Makefile: $(GOS_PROJECT_PATH) did not define GOS_CONFIG_PATH)
+endif
+ifeq (,$(GOS_BSP_PATH))
+  $(error Makefile: $(GOS_PROJECT_PATH) did not define GOS_BSP_PATH)
+endif
+ifeq (,$(GOS_APP_PATH))
+  $(error Makefile: $(GOS_PROJECT_PATH) did not define GOS_APP_PATH)
+endif
 
-# PRJNAME is the project file path minus the directory and suffix, if any.
+# CPT_BUILD_DIR is were GOS projects are built.  It can be changed here. The
+# GOS_HOME C preprocessor definition, set below, may also have to change if
+# CPT_BUILD_DIR changes. Refer to the GOS_HOME comments below for more details.
 
-PRJNAME       := $(basename $(notdir $(PRJ)))
-
-# The cpptext build dir for GOS projects
-
-CPT_BUILD_DIR := build/$(PRJNAME)
+CPT_BUILD_DIR := build/$(basename $(notdir $(GOS_PROJECT_PATH)))
 
 # CPT_GEN is the set of files that cpptext runs the C preprocessor on.
 # They can include files from CPT_SRCS (defined below) since the cpptext
@@ -88,7 +102,7 @@ GOS_DIRS ?= gos apps ui bsps/common $(GOS_BSP)
 
 CPT_SRCS += $(foreach d,$(GOS_DIRS),$(wildcard $(d)/*.yaml)) $(CPT_GEN)
 
-# The next two defines are used by $(CPT_HOME)/Makefile.esphome.
+# The next two defines are used by cpptext/Makefile.esphome.
 
 # CPT_ESP_INIT is the file to run yamlmerge.sh on so that esphome
 # map keys (AKA esphome components) can be repeated.  Otherwise,
@@ -97,7 +111,7 @@ CPT_SRCS += $(foreach d,$(GOS_DIRS),$(wildcard $(d)/*.yaml)) $(CPT_GEN)
 
 CPT_ESP_INIT ?= gosInit.yaml
 
-# CPT_ESP_YAML is the output of $(CPT_HOME)/yamlmerge.sh which has
+# CPT_ESP_YAML is the output of cpptext/yamlmerge.sh which has
 # all the esphome component definitions merged together to form
 # legitimate yaml that esphome tools can parse.
 
@@ -111,59 +125,64 @@ GOS_DEPS ?= utils libraries/libtelnet libraries/console
 CPT_ESP_DEPS += $(foreach d,$(GOS_DEPS),$(wildcard $(d)/*.c) \
 		$(wildcard $(d)/*.cpp) $(wildcard $(d)/*.h))
 
-# If there is no secrets.h file but there is one in .., copy it
+# If there is a secrets.h file in ./ or ../, use it
 
-ifeq (,$(wildcard secrets.h))
-  ifeq (,$(wildcard ../secrets.h))
-    $(shell cp -p ../secrets.h .))
+ifneq (,$(wildcard ./secrets.h))
+  CPT_EXTRA_FLAGS += -include ./secrets.h
+else
+  ifneq (,$(wildcard ../secrets.h))
+    CPT_EXTRA_FLAGS += -include ../secrets.h
   endif
 endif
 
-# If there is a secrets.h file, tell cpptext about it
+# GOS_BSP_PATH is added to include paths so #include "bsp.h" is BSP-specific.
 
-ifneq (,$(wildcard secrets.h))
-CPT_EXTRA_FLAGS += -include secrets.h
-endif
+CPT_EXTRA_INCS += -I $(GOS_BSP_PATH)
 
-# Add GOS_BSP to include paths so that #include "bsp.h" is BSP-specific
-CPT_EXTRA_INCS += -I $(GOS_BSP)
+# This strips the directory and suffix, if any, for use creating cpp defines.
 
-# As with PRJNAME, CFGNAME & BSPNAME strip the directory and suffix, if any.
+PROJECT_NAME := $(basename $(notdir $(GOS_PROJECT_PATH)))
+CONFIG_NAME  := $(basename $(notdir $(GOS_CONFIG_PATH)))
+BSP_NAME     := $(basename $(notdir $(GOS_BSP_PATH)))
+APP_NAME     := $(basename $(notdir $(GOS_APP_PATH)))
 
-CFGNAME := $(basename $(notdir $(GOS_CONFIG)))
-BSPNAME := $(basename $(notdir $(GOS_BSP)))
-APPNAME := $(basename $(notdir $(GOS_APP)))
-
-# Note #ifdef GOS_PROJECT_<ppp> can be used for project-specific code
-#  and #ifdef GOS_APP_<aaa>     can be used for app-specific code
-#  and #ifdef GOS_CONFIG_<ccc>  can be used for config-specific code
-#  and #ifdef GOS_BSP_<bbb>     can be used for bsp-specific code
+# Note that #ifdef GOS_PROJECT_<ppp>   can be used for project-specific code
+#       and #ifdef GOS_CONFIG_<ccc>    can be used for config-specific code
+#       and #ifdef GOS_BSP_<bbb>       can be used for bsp-specific code
+#       and #ifdef GOS_APP_<aaa>       can be used for app-specific code
+#       and #ifdef GOS_USER_<username> can be used for user-specific code
 # where ppp/aaa/ccc/bbb are the basenames from the project, config
-# and app file names and the bsp directory path name, respectively.
+# and app file paths and the bsp directory path, respectively.
 
-CPT_EXTRA_DEFS += -D GOS_HOME=../..			\
-		  -D GOS_PROJDIR=$(CPT_BUILD_DIR)	\
-		  -D GOS_PROJECT_PATH=$(PRJ)		\
-		  -D GOS_PROJECT_NAME=$(PRJNAME)	\
-		  -D GOS_PROJECT_$(PRJNAME)=1		\
-		  -D GOS_APP_PATH=$(GOS_APP)		\
-		  -D GOS_APP_NAME=$(APPNAME)		\
-		  -D GOS_APP_$(APPNAME)=1		\
-		  -D GOS_CONFIG_PATH=$(GOS_CONFIG)	\
-		  -D GOS_CONFIG_NAME=$(CFGNAME)		\
-		  -D GOS_CONFIG_$(CFGNAME)=1		\
-		  -D GOS_BSP_PATH=$(GOS_BSP)		\
-		  -D GOS_BSP_NAME=$(BSPNAME)		\
-		  -D GOS_BSP_$(BSPNAME)=1		\
-		  -D GOS_USER=$(USER)			\
+CPT_EXTRA_DEFS += -D GOS_HOME=../..				\
+		  -D GOS_BUILD_PATH=$(CPT_BUILD_DIR)		\
+		  -D GOS_PROJECT_PATH=$(GOS_PROJECT_PATH)	\
+		  -D GOS_PROJECT_NAME=$(PROJECT_NAME)		\
+		  -D GOS_PROJECT_$(PROJECT_NAME)=1		\
+		  -D GOS_CONFIG_PATH=$(GOS_CONFIG_PATH)		\
+		  -D GOS_CONFIG_NAME=$(CONFIG_NAME)		\
+		  -D GOS_CONFIG_$(CONFIG_NAME)=1		\
+		  -D GOS_BSP_PATH=$(GOS_BSP_PATH)		\
+		  -D GOS_BSP_NAME=$(BSP_NAME)			\
+		  -D GOS_BSP_$(BSP_NAME)=1			\
+		  -D GOS_APP_PATH=$(GOS_APP_PATH)		\
+		  -D GOS_APP_NAME=$(APP_NAME)			\
+		  -D GOS_APP_$(APP_NAME)=1			\
+		  -D GOS_USER=$(USER)				\
 		  -D GOS_USER_$(USER)=1
 
-# GOS_HOME is set above to two levels up i.e. ../.. because the
-# generated esphome.yaml ends up in build/$(PRJNAME) which is
-# two levels down from here. It can be used in yaml or C/C++
-# files to refer to files and directories under this directory.
+# The reason GOS_HOME is set above to two levels up i.e. ../.. is because
+# the generated esphome.yaml ends up in $(CPT_BUILD_DIR) which is
+# build/$(PROJECT_NAME) which is two levels down from this directory.
+# GOS_HOME is used in yaml or C/C++ files to refer to files and directories
+# under this directory and is define as a relative so that build trees
+# are reproducable regardless of where they are built.
 
-include $(CPT_HOME)/Makefile.cpptext
+# Now include the cpptext Makefile fragment that will dehash GOS yamls files.
+# In turn, it will include cpptext/Makefile.esphome which handles the esphome
+# file generation and platformio build steps.
 
-endif	# From the ifeq check for cpptext at the top of this Makefile.
+include cpptext/Makefile.cpptext
+
+endif	# From the git submodule install check at the top of this Makefile.
 

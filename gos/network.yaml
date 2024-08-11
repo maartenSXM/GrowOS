@@ -1,18 +1,44 @@
+// If you received a build error regarding secrets.h, you are in
+// the right place. Follow the instructions after this massive
+// #if ... #endif statment
+
+// secrets.h check:
+#if (GOS_CONFIG_NET_WIFI    && (!defined(_SECRET_WIFI_SSID)	    || \
+				!defined(_SECRET_WIFI_PASSWORD)))   || \
+    (GOS_CONFIG_NET_STATIC  && (!defined(_SECRET_WIFI_ADDR)	    || \
+				!defined(_SECRET_WIFI_GATEWAY)	    || \
+				!defined(_SECRET_WIFI_NETMASK)))    || \
+    (GOS_CONFIG_NET_NTP	    && (!defined(_SECRET_NTP_TIMEZONE)	    || \
+				!defined(_SECRET_NTP_SERVER)))	    || \
+    (GOS_CONFIG_NET_HA	    && (!defined(_SECRET_HA_PASSWORD)))	    || \
+    (GOS_CONFIG_NET_OTA	    && (!defined(_SECRET_OTA_PASSWORD)))
+
+#error secrets.h incomplete. Refer to gos/network.yaml for details.
+
+#if _YOU_RECEIVED_THE_ABOVE_ERROR_
+
+  To fix this, create a file called secrets.h in the GOS root directory   
+  or immediately above it and copy these lines into it. For each #define,
+  insert your private information immediation before the /* <comment> */
+  text. Make sure to never share secrets.h publicly.
+  
+  To see how these secrets are used, see the yaml code lower in the file.
+<snip>
+#define _SECRET_WIFI_ADDR     /* e.g. 192.168.1.2	*/
+#define _SECRET_WIFI_GATEWAY  /* e.g. 192.168.1.1	*/
+#define _SECRET_WIFI_NETMASK  /* e.g. 255.255.255.0	*/
+#define _SECRET_WIFI_SSID     /* no example provided	*/
+#define _SECRET_WIFI_PASSWORD /* no example provided	*/
+#define _SECRET_NTP_TIMEZONE  /* e.g. America/Toronto	*/
+#define _SECRET_NTP_SERVER    /* e.g. pool.ntp.org	*/
+#define _SECRET_HA_PASSWORD   /* no example provided	*/
+#define _SECRET_OTA_PASSWORD  /* no example provided	*/
+<snip>
+
+#endif // _YOU_RECEIVED_THE_ABOVE_ERROR_
+#endif // secrets.h check
+
 #if GOS_CONFIG_NET_WIFI
-
-#if GOS_USER_maarten
-#default _NET_WIFI_ADDR_0   192.168.248.20
-#default _NET_WIFI_ADDR_1   192.168.248.21
-#else
-#default _NET_WIFI_ADDR_0   192.168.248.10
-#default _NET_WIFI_ADDR_1   192.168.248.11
-#endif
-
-#default _NET_WIFI_GATEWAY  192.168.248.1
-#default _NET_WIFI_NETMASK  255.255.255.0
-#default _NET_NTP_TIMEZONE  America/Toronto
-#default _NET_NTP_SERVER    pool.ntp.org
-
 // Enable WiFi and IP stack
 wifi:
   // power_save_mode: none
@@ -23,14 +49,10 @@ wifi:
   password: _SECRET_WIFI_PASSWORD
 #if GOS_CONFIG_NET_STATIC
   manual_ip:
-#ifdef GOS_BSP_growBoardCpu0 // XXX parameterize 
-    static_ip: _NET_WIFI_ADDR_0
-#else
-    static_ip: _NET_WIFI_ADDR_1
-#endif
-    gateway: _NET_WIFI_GATEWAY
-    subnet: _NET_WIFI_NETMASK
-    dns1: _NET_WIFI_GATEWAY
+    static_ip: _SECRET_WIFI_ADDR
+    gateway: _SECRET_WIFI_GATEWAY
+    subnet: _SECRET_WIFI_NETMASK
+    dns1: _SECRET_WIFI_GATEWAY
 #endif // GOS_CONFIG_NET_STATIC
 #if 0 && GOS_CONFIG_NET_TELNET_SERVER
   on_connect:
@@ -49,7 +71,7 @@ wifi:
 captive_portal:
 #endif // GOS_CONFIG_NET_PORTAL
     
-#if GOS_CONFIG_NET_SNTP
+#if GOS_CONFIG_NET_NTP
 globals:
   - id: sntpBootTime
     type: time_t
@@ -59,9 +81,9 @@ globals:
 time:
   - platform: sntp
     id: sntpTime
-    timezone: _NET_NTP_TIMEZONE
+    timezone: _SECRET_NTP_TIMEZONE
     servers:
-      - _NET_NTP_SERVER
+      - _SECRET_NTP_SERVER
     on_time_sync:
       - lambda: |-
           if (id(sntpBootTime) == 0)
@@ -77,7 +99,7 @@ time:
 
 text_sensor:
   - platform: template
-    name: "Net SNTP Time"
+    name: "Network Time"
     update_interval: 30s
     lambda: |-
       auto time_text = (std::string) "Unknown";
@@ -99,7 +121,7 @@ text_sensor:
         strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&id(sntpBootTime)));
       return (std::string) str;
 
-#endif // GOS_CONFIG_NET_SNTP
+#endif // GOS_CONFIG_NET_NTP
 
 #if GOS_CONFIG_NET_HA
 // Enable Home Assistant API
@@ -145,12 +167,12 @@ improv_serial:
 #endif
 #endif // GOS_CONFIG_IMPROV_WIFI
 
-/// xxx test
+// xxx test
 http_request:
   useragent: esphome/device
   timeout: 10s
 
-/// xxx test
+// xxx test
 switch:
   - platform: template
     name: "http request get test"
