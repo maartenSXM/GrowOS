@@ -10,7 +10,7 @@ REQ3. Shall separate out system software to enable system software
       reuse across multiple applications.
 
 REQ4. Shall provide build-level integration platform features that can
-      accomodate multiple board support packages (BSPs) and applications.
+      accommodate multiple board support packages (BSPs) and applications.
 
 REQ5. Shall be intuitive and natural for old school C programmers, including
       those who are esphome newbies, to configure and build with GOS.
@@ -31,7 +31,7 @@ GOS attempts to satisfy the above requirements using these techniques:
    multiple times in one GOS yaml file even though this technically breaks
    the yaml specification. However, once the esphome yaml file is constructed
    by the GOS build system, the multiple yaml map key declarations are merged
-   and the yaml is correct according to teh yaml specification.
+   and the yaml is correct according to the yaml specification.
  
  - GOS has a notion of a board support package (BSP) for esphome yaml.
    Each GOS BSP has a bsp.yaml that declares hardware and advertises
@@ -44,3 +44,9 @@ GOS attempts to satisfy the above requirements using these techniques:
    C preprocessor #defines and make variables to allow a project to
    configure BSP, application and system-level features at build time. 
 
+ - GOS applications, configurations and system services attempt to
+   adapt to the hardware or available and/or provide error messages
+   such as indicating that it is not possible to run on such a BSP
+
+ - GOS provides mechanisms for C, C++ and yaml code to adapt to the
+   current project, BSP, application and username.
