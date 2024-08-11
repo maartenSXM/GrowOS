@@ -1,0 +1,26 @@
+{
+  "name": "libtelnet",
+  "version": "1.0.0",
+  "description": "libtelnet helps implement telnet clients and servers",
+  "keywords": "telnet",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seanmiddleditch/libtelnet.git"
+  },
+  "authors": [
+    {
+      "name": "seanmiddleditch"
+    }
+  ],
+  "license": "Public Domain",
+  "dependencies": {},
+  "frameworks": "*",
+  "platforms": "*",
+  "build": {
+    "srcFilter": [
+      "+<./*>",
+      "-<util/>",
+      "-<test/>"
+    ]
+  }
+}

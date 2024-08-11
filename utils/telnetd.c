@@ -20,8 +20,10 @@
 #include <lwip/sockets.h>
 
 #include "esp_log.h"
-#include "esp_vfs.h"
-#include "esp_vfs_dev.h"
+#include "esp_vfs.h"		// 5.2
+#include "esp_vfs_dev.h"	// 5.2
+// #include "uart_vfs.h"		// 5.3
+// #include "uart_vfs_dev.h"	// 5.3
 #include "driver/uart.h"
 #include "esp_idf_version.h"
 
@@ -442,7 +444,7 @@ static void telnetd(void *data)
     esp_vfs_dev_uart_use_driver(0);	    // 5.2
 
     // uart_vfs_dev_register();		    // 5.3
-    // uart_vfs_dev_use_driver(UART_NUM);   // 5.3
+    // uart_vfs_dev_use_driver(UART_NUM);	    // 5.3
 
     telnetMyListen (myRecvHandler);
 

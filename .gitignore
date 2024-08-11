@@ -13,8 +13,9 @@ myProj_0.yaml
 myProj_1.yaml
 myProj_1/
 Makefile.new
-cpptext/
 utils/webApi
 build
 *.old
 .gosprj
+cpptext/*
+libraries/libtelnet/*
