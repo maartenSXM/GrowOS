@@ -1,0 +1,9 @@
+esphome:
+  name: minv5
+
+esp32:
+  board: esp32-s2-kaluga-1
+  framework:
+    type: esp-idf
+    version: 5.2.1
+    platform_version: "https://github.com/platformio/platform-espressif32.git#v6.6.0"

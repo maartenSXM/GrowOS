@@ -1,0 +1,21 @@
+    lambda: |-
+      static int col = 255; // lets use 8 shades of r, g and b each
+      static int prevx = 0, prevy = 0;
+      if (id(touchx) != 0 && id(touchy) != 0)
+        {
+        int dx = id(touchx) > prevx ? id(touchx) - prevx : prevx - id(touchx);
+        int dy = id(touchy) > prevy ? id(touchy) - prevy : prevy - id(touchy);
+        int h = sqrt(dx*dx + dy*dy); // speed
+        int s = (int) (((float) h / (float) 50) * 30); // circle size
+        int r = (col & 0x7) << 5;   // r from 565 bgr color to 8-bits red
+        int g = (col & 0x38) << 2;  // g from 565 bgr color to 8-bits green
+        int b = (col & 0x1c0) >> 1; // b from 565 bgr color to 8-bits blue
+        // printf("r=%d, g=%d, b=%d\n", r, g, b);
+        it.filled_circle(id(touchx), id(touchy), s + 10, Color(r,g,b));
+        it.circle(id(touchx), id(touchy), s + 10, Color(0,0,0)); // outline 
+        prevx = id(touchx), id(touchx) = 0;
+        prevy = id(touchy), id(touchy) = 0;
+        if (-- col == 0)
+          col = 255;
+        }
+

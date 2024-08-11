@@ -1,0 +1,26 @@
+color:
+  - id: my_black
+    hex: '000000'
+  - id: my_red
+    hex: 'FF0000'
+  - id: my_green
+    hex: '00FF00'
+  - id: my_yellow
+    hex: 'FFFF00'
+  - id: my_blue
+    hex: '0000FF'
+  - id: my_magenta
+    hex: 'FF00FF'
+  - id: my_cyan
+    hex: '00FFFF'
+  - id: my_white
+    hex: 'FFFFFF'
+
+font:
+  - file: 'ui/fonts/arial.ttf'
+    id: arial
+    size: 24
+
+#include "ui/images.yaml"
+#include "ui/menu.yaml"
+

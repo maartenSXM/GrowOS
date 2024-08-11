@@ -1,0 +1,89 @@
+#ifndef _GOS_INCLUDE_BSP_YAML_
+#define _GOS_INCLUDE_BSP_YAML_
+
+#define GOS_BSP_esphome_name	    lilygot4
+
+#include "bsp.h"
+
+#include "bsps/common/esp32s3.yaml"
+#include "bsps/common/bspAll.yaml"
+
+esp32_ble:
+
+psram:
+  id: gosBsp_psram
+  mode: octal
+  speed: 80MHz
+
+spi:
+  id: gosBsp_spi
+  type: quad
+  clk_pin: GOS_BSP_PIN_SPI_CLK
+  data_pins:
+    - GOS_BSP_PIN_SPI_SI0
+    - GOS_BSP_PIN_SPI_SI1
+    - GOS_BSP_PIN_SPI_SI2
+    - GOS_BSP_PIN_SPI_SI3
+
+i2c:
+  id: gosBsp_i2c
+  sda: GOS_BSP_PIN_II2C_SDA
+  scl: GOS_BSP_PIN_II2C_SCL
+
+touchscreen:
+  - platform: cst226
+    id: gosBsp_touchscreen
+    interrupt_pin: GOS_BSP_PIN_TP_INT
+    reset_pin: GOS_BSP_PIN_TP_RST
+    transform:
+      mirror_x: true
+      mirror_y: true
+#if 0
+    on_touch:
+      - lambda: |-
+           printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",
+                    touch.x, touch.y, touch.x_raw, touch.y_raw);
+#endif
+#if GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
+    on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - logger.log: "LVGL resuming"
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+#ifdef GOS_BSP_HAS_backlight // T4 S3 does not have one under sw control
+            - light.turn_on: light_TFT_BACKLIGHT
+#endif
+#endif // GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
+
+display:
+  - platform: qspi_amoled
+    id: gosBsp_display
+    model: RM690B0
+    data_rate: 80MHz
+    spi_mode: mode0
+    dimensions:
+      width: 450
+      height: 600
+      offset_width: 16
+    color_order: rgb
+    invert_colors: false
+    brightness: 255
+    cs_pin: GOS_BSP_PIN_SPI_CS
+    reset_pin: GOS_BSP_PIN_SPI_RST
+    enable_pin: GOS_BSP_PIN_VDD_EV
+    update_interval: never
+    auto_clear_enabled: false
+
+#if 0 // XXX merged?
+external_components:
+  - source: 'github://clydebarrow/esphome@cst226'
+    refresh: 10min
+    components: [ cst226 ]
+  - source: 'github://clydebarrow/esphome@amoled'
+    components: [ qspi_amoled ]
+    refresh: always
+#endif
+
+#endif // _GOS_INCLUDE_BSP_YAML_

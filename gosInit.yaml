@@ -1,0 +1,51 @@
+#if 0
+text_sensor:
+  - platform: template
+    name:  "build test24"
+  - platform: template
+    name:  "build test23"
+#endif
+
+#  yaml style comments are allowed and stripped by $(CPT_HOME)/dehash.sh
+
+// C-style comments are stripped by the C preprocessor
+/* traditional C-ctyle comments are also stripped by the C preprocessor */
+/* #default BLORT ... is a c preprocessor macro that generates:
+ *	#ifndef BLORT
+ *	#define BLORT ...
+ *	#endif
+ * and it is expanded by $(CPT_HOME)/dehash.sh. It is not
+ * supported natively by the C preprocessor.
+ */
+
+#include "gos/gos.h"
+
+#include GOS_STRINGIFY2(GOS_BSP_PATH,/bsp.yaml)
+
+// if BSP yaml did not set these c preprocessor defines, default them
+
+#default GOS_BSP_APP	    apps/grow.yaml
+#default GOS_BSP_SERIAL_NUM 000
+#default GOS_BSP_esphome_name GOS_STRINGIFY2(GOS_PROJECT,GOS_BSP_SERIAL_NUM)
+
+#include "gos/env.yaml"
+#include "gos/gos.yaml"
+#include "gos/debug.yaml"
+#include "gos/network.yaml"
+
+// now include the application 
+
+#default GOS_APP_PATH GOS_BSP_APP_PATH
+#include GOS_STRINGIFY(GOS_APP_PATH)
+
+#if GOS_CONFIG_DISPLAY 
+#ifndef GOS_BSP_HAS_display
+# error GOS_CONFIG_DISPLAY configured but BSP does not declare display:
+#endif
+
+# if GOS_CONFIG_LVGL
+#  include "ui/lvglMain.yaml"
+# else
+#  include "ui/nativeUiInit.yaml"
+# endif // !GOS_CONFIG_LVGL
+#endif // GOS_CONFIG_DISPLAY

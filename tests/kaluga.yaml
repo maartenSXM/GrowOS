@@ -1,0 +1,15 @@
+esphome:
+  name: "kaluga"
+  platformio_options:
+    board_build.mcu: esp32s2
+
+esp32:
+  board: esp32-s2-kaluga-1
+  variant: esp32s2
+  framework:
+    type: esp-idf
+    version: 5.2.1
+    platform_version: "https://github.com/platformio/platform-espressif32.git#v6.7.0"
+
+logger:
+

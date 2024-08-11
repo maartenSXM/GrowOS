@@ -1,0 +1,107 @@
+graphical_display_menu:
+  id: my_menu
+  // no display specified: advanced drawing mode
+  // display: gosBsp_display
+  font: arial
+  on_redraw:
+    then:
+      component.update: gosBsp_display
+  active: true
+  mode: rotary
+  items:
+    - type: Label
+      text: Menu Item 1
+    - type: Label
+      text: Menu Item 2
+
+binary_sensor:
+  - platform: touchscreen
+    name: Left Button
+    id: button_left
+    touchscreen_id: gosBsp_touchScreen
+    x_min: 0
+    x_max: 79
+    y_min: 240
+    y_max: 320
+    on_press:
+      - display.page.show_previous: gosBsp_display
+    // page_id: home_page_id
+  - platform: touchscreen
+    name: Right Button
+    id: button_right
+    touchscreen_id: my_touchScreen
+    x_min: 80
+    x_max: 159
+    y_min: 240
+    y_max: 320
+    on_press:
+      - display.page.show_next: gosBsp_display
+    // page_id: home_page_id
+  - platform: touchscreen
+    name: Up Button
+    id: button_up
+    touchscreen_id: my_touchScreen
+    x_min: 160
+    x_max: 239
+    y_min: 240
+    y_max: 320
+    on_press:
+      if:
+        condition:
+          display_menu.is_active: my_menu
+        then:
+          display_menu.up: my_menu
+        else:
+          display_menu.show: my_menu
+    // page_id: home_page_id
+  - platform: touchscreen
+    name: Down Button
+    id: button_down
+    touchscreen_id: my_touchScreen
+    x_min: 240
+    x_max: 319
+    y_min: 240
+    y_max: 320
+    on_press:
+      if:
+        condition:
+          display_menu.is_active: my_menu
+        then:
+          display_menu.down: my_menu
+        else:
+          display_menu.show: my_menu
+    // page_id: home_page_id
+  - platform: touchscreen
+    name: Select Button
+    id: button_select
+    touchscreen_id: my_touchScreen
+    x_min: 320
+    x_max: 399
+    y_min: 240
+    y_max: 320
+    on_press:
+      if:
+        condition:
+          display_menu.is_active: my_menu
+        then:
+          display_menu.enter: my_menu
+        else:
+          display_menu.show: my_menu
+    // page_id: home_page_id
+  - platform: touchscreen
+    name: Cancel Button
+    id: button_cancel
+    touchscreen_id: my_touchScreen
+    x_min: 400
+    x_max: 479
+    y_min: 240
+    y_max: 320
+    on_press:
+      if:
+        condition:
+          display_menu.is_active: my_menu
+        then:
+          display_menu.up: my_menu
+        else:
+          display_menu.show: my_menu
+    // page_id: home_page_id

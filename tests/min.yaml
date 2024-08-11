@@ -1,0 +1,45 @@
+esphome:
+  name: min
+  platformio_options:
+    upload_speed: 1500000
+    board_build.mcu: esp32s2
+    board_build.flash_mode: dio
+    board_build.f_flash: 40000000L
+    board_build.flash_size: 4MB
+    board_build.f_cpu: 240000000L
+    board_upload.maximum_size: 1500000
+
+esp32:
+  board: esp32-s2-kaluga-1
+  variant: esp32s2
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y
+      CONFIG_ESPTOOLPY_FLASHFREQ_40M: y
+      CONFIG_ESPTOOLPY_OCT_FLASH: y
+      CONFIG_ESPTOOLPY_FLASHMODE_DIO: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB: y
+      // CONFIG_TFT_SPI_FREQUENCY: "20000000"
+      // CONFIG_TFT_SPI_READ_FREQ: "5000000"
+      CONFIG_SOC_MEMSPI_SRC_FREQ_80M_SUPPORTED: n
+      CONFIG_ESP_TASK_WDT_TIMEOUT_S: "20"
+      CONFIG_BOOTLOADER_WDT_TIME_MS: "12000"
+      CONFIG_ESP_INT_WDT_TIMEOUT_MS: "500"
+      CONFIG_ESP32S2_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S2_DEFAULT_CPU_FREQ_MHZ: "240"
+      CONFIG_ESP32S2_DATA_CACHE_16KB: y
+      CONFIG_ESP32S2_INSTRUCTION_CACHE_16KB: y
+      CONFIG_ESP32S2_SPIRAM_SUPPORT: y
+      CONFIG_SPIRAM_USE_MALLOC: y
+
+    advanced:
+      ignore_efuse_mac_crc: false
+
+psram:
+  mode: octal
+  speed: 40Mhz
+
+logger:
+
+debug:

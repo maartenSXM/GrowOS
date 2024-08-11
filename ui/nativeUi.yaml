@@ -1,0 +1,51 @@
+    pages:
+    - id: page1
+      lambda: |-
+        it.print(440, 0, id(arial), id(my_cyan), TextAlign::TOP_RIGHT, "Page 1");
+#if !GOS_CONFIG_DISPLAY_3_BIT
+	# to enable this background, uncomment it in images.yaml also
+        # it.image(0,0,id(image_beansprouts));
+#endif
+        it.filled_circle(140, 120, 20, id(my_red));
+        it.filled_circle(200, 120, 20, id(my_green));
+        it.filled_circle(260, 120, 20, id(my_yellow));
+        it.filled_circle(320, 120, 20, id(my_blue));
+        it.filled_circle(380, 120, 20, id(my_magenta));
+        it.filled_circle(440, 120, 20, id(my_cyan));
+        it.filled_circle(240, 160, 20, id(my_white));
+        it.filled_circle(240, 160, 10, id(my_black));
+
+        it.line(100, 60, 200, 70, id(my_black));
+        it.line(100, 62, 200, 72, id(my_red));
+        it.line(100, 64, 200, 74, id(my_green));
+        it.line(100, 66, 200, 76, id(my_yellow));
+        it.line(100, 68, 200, 78, id(my_blue));
+        it.line(100, 70, 200, 80, id(my_magenta));
+        it.line(100, 72, 200, 82, id(my_cyan));
+        it.line(100, 74, 200, 84, id(my_white));
+
+        it.image(  0,320-75,id(icon_left));
+        it.image( 80,320-75,id(icon_right));
+        it.image(160,320-75,id(icon_up));
+        it.image(240,320-75,id(icon_down));
+        it.image(320,320-75,id(icon_select));
+        it.image(400,320-75,id(icon_cancel));
+        // it.image(0,0,id(image_beansprouts));
+        // menu gets half the display width & height
+        it.menu(0, 0, id(my_menu), 240, 160);
+
+    - id: page2
+      lambda: |-
+        it.print(440, 0, id(arial), id(my_magenta), TextAlign::TOP_RIGHT, "Page 2");
+        it.image(  0,320-75,id(icon_left));
+        it.image( 80,320-75,id(icon_right));
+        it.image(160,320-75,id(icon_up));
+        it.image(240,320-75,id(icon_down));
+        it.image(320,320-75,id(icon_select));
+        it.image(400,320-75,id(icon_cancel));
+
+    //  it.menu(0,0,id(my_menu),0,240);
+    //  it.line(0, 0, 100, 50);
+    // #include "tests/displayBlocks.yaml"
+    // #include "tests/displayCircles.yaml"
+
