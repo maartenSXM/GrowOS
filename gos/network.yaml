@@ -1,13 +1,6 @@
 #if GOS_CONFIG_NET_WIFI
 
 #if GOS_USER_maarten
-  #include "location.pec"
-  // #include "location.sxm"
-#else
-  #include "location.pec"
-#endif
-
-#if GOS_USER_maarten
 #default _NET_WIFI_ADDR_0   192.168.248.20
 #default _NET_WIFI_ADDR_1   192.168.248.21
 #else

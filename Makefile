@@ -28,7 +28,7 @@ ifeq (,$(wildcard $(CPT_HOME)))
 $(MAKECMDGOALS): 
 	@printf "$(MAKEFILE): installing cpptext from $(CPT_URL).\n"
 	mkdir -p $(dir $(CPT_HOME))
-	git -C $(dir CPT_HOME)) clone git@github.com:maartenSXM/cpptext
+	git -C $(dir $(CPT_HOME)) clone git@github.com:maartenSXM/cpptext
 	@printf "$(MAKEFILE): cpptext installed. Restarting make.\n"
 	$(MAKE) $(MAKECMDGOALS)
 else
@@ -111,7 +111,17 @@ GOS_DEPS ?= utils libraries/libtelnet libraries/console
 CPT_ESP_DEPS += $(foreach d,$(GOS_DEPS),$(wildcard $(d)/*.c) \
 		$(wildcard $(d)/*.cpp) $(wildcard $(d)/*.h))
 
-ifneq (,secrets.h)
+# If there is no secrets.h file but there is one in .., copy it
+
+ifeq (,$(wildcard secrets.h))
+  ifeq (,$(wildcard ../secrets.h))
+    $(shell cp -p ../secrets.h .))
+  endif
+endif
+
+# If there is a secrets.h file, tell cpptext about it
+
+ifneq (,$(wildcard secrets.h))
 CPT_EXTRA_FLAGS += -include secrets.h
 endif
 
