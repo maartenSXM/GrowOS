@@ -111,6 +111,10 @@ GOS_DEPS ?= utils libraries/libtelnet libraries/console
 CPT_ESP_DEPS += $(foreach d,$(GOS_DEPS),$(wildcard $(d)/*.c) \
 		$(wildcard $(d)/*.cpp) $(wildcard $(d)/*.h))
 
+ifneq (,secrets.h)
+CPT_EXTRA_FLAGS += -include secrets.h
+endif
+
 # Add GOS_BSP to include paths so that #include "bsp.h" is BSP-specific
 CPT_EXTRA_INCS += -I $(GOS_BSP)
 

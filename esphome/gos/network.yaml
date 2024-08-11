@@ -7,24 +7,37 @@
   #include "location.pec"
 #endif
 
+#if GOS_USER_maarten
+#default _NET_WIFI_ADDR_0   192.168.248.20
+#default _NET_WIFI_ADDR_1   192.168.248.21
+#else
+#default _NET_WIFI_ADDR_0   192.168.248.10
+#default _NET_WIFI_ADDR_1   192.168.248.11
+#endif
+
+#default _NET_WIFI_GATEWAY  192.168.248.1
+#default _NET_WIFI_NETMASK  255.255.255.0
+#default _NET_NTP_TIMEZONE  America/Toronto
+#default _NET_NTP_SERVER    pool.ntp.org
+
 // Enable WiFi and IP stack
 wifi:
   // power_save_mode: none
   reboot_timeout: 0s    // disable reboot every 15 min if no WiFi
 #if GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
   fast_connect: on
-  ssid: _SUB_WIFI_SSID
-  password: _SUB_WIFI_PASSWORD
+  ssid: _SECRET_WIFI_SSID
+  password: _SECRET_WIFI_PASSWORD
 #if GOS_CONFIG_NET_STATIC
   manual_ip:
 #ifdef GOS_BSP_growBoardCpu0 // XXX parameterize 
-    static_ip: _SUB_WIFI_ADDR_0
+    static_ip: _NET_WIFI_ADDR_0
 #else
-    static_ip: _SUB_WIFI_ADDR_1
+    static_ip: _NET_WIFI_ADDR_1
 #endif
-    gateway: _SUB_WIFI_GATEWAY
-    subnet: _SUB_WIFI_NETMASK
-    dns1: _SUB_WIFI_GATEWAY
+    gateway: _NET_WIFI_GATEWAY
+    subnet: _NET_WIFI_NETMASK
+    dns1: _NET_WIFI_GATEWAY
 #endif // GOS_CONFIG_NET_STATIC
 #if 0 && GOS_CONFIG_NET_TELNET_SERVER
   on_connect:
@@ -36,7 +49,7 @@ wifi:
 #if GOS_CONFIG_NET_FALLBACK
   ap:
     ssid: GOS_STRINGIFY3(GOS_PROJECT,-,GOS_BSP_SERIAL_NUM)
-    password: _SUB_WIFI_PASSWORD
+    password: _SECRET_WIFI_PASSWORD
 #endif // GOS_CONFIG_NET_FALLBACK
 
 #if GOS_CONFIG_NET_PORTAL
@@ -53,9 +66,9 @@ globals:
 time:
   - platform: sntp
     id: sntpTime
-    timezone: _SUB_NTP_TIMEZONE
+    timezone: _NET_NTP_TIMEZONE
     servers:
-      - _SUB_NTP_SERVER
+      - _NET_NTP_SERVER
     on_time_sync:
       - lambda: |-
           if (id(sntpBootTime) == 0)
@@ -98,7 +111,7 @@ text_sensor:
 #if GOS_CONFIG_NET_HA
 // Enable Home Assistant API
 api:
-  password: _SUB_HA_PASSWORD
+  password: _SECRET_HA_PASSWORD
 #endif // GOS_CONFIG_NET_OTA
 
 #if GOS_CONFIG_NET_OTA
@@ -106,7 +119,7 @@ api:
 ota:
   version: 2
   platform: esphome
-  password: _SUB_OTA_PASSWORD
+  password: _SECRET_OTA_PASSWORD
   on_begin:
     then:
       - logger.log: "OTA start"
