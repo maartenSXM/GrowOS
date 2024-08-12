@@ -36,14 +36,17 @@ MAKEFILE     := $(lastword $(MAKEFILE_LIST))
 # If cpptext submodule is empty, this must be a fresh clone - so get submodules.
 
 ifeq (,$(wildcard cpptext/.git))
+  ifneq (,$(BAIL))
+    $(error $(MAKEFILE): make loop detected. Bailing out.)
+  endif
 $(MAKECMDGOALS): 
 	@printf "$(MAKEFILE): Retreiving submodule cpptext\n"
 	git submodule init
 	git submodule update
 	@printf "$(MAKEFILE): Adding esphome libary support to libtelnet\n"
-	cp -p libaries/libtelnet.json libraries/libtelnet/library.json
+	-cp -p libraries/libtelnet.json libraries/libtelnet/library.json
 	@printf "$(MAKEFILE): Restarting \"make $(MAKECMDGOALS)\"\n"
-	$(MAKE) $(MAKECMDGOALS)
+	$(MAKE) BAIL=1 $(MAKECMDGOALS)
 else
 
 # The rest of this Makefile is inside the 'ifeq' cpptext check from above.

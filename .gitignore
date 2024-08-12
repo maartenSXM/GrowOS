@@ -17,5 +17,6 @@ utils/webApi
 build
 *.old
 .gosprj
+cpptext
 cpptext/*
 libraries/libtelnet/*

@@ -1,6 +1,7 @@
 [submodule "cpptext"]
 	path = cpptext
 	url = https://github.com/maartenSXM/cpptext
+	branch = main
 	ignore = dirty
 [submodule "libraries/libtelnet"]
 	path = libraries/libtelnet

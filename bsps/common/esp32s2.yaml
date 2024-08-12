@@ -1,9 +1,11 @@
 #ifndef _GOS_INCLUDE_BSP_COMMON_ESP32S2_
 #define _GOS_INCLUDE_BSP_COMMON_ESP32S2_
 
-#default GOS_BSP_esp32_board         esp32-s2-kaluga-1
-#default GOS_BSP_esp32_variant       esp32s2
-#default GOS_BSP_esp32_flash_size    4MB
+#default GOS_BSP_esp32_board        esp32-s2-kaluga-1
+#default GOS_BSP_esp32_variant      esp32s2
+#default GOS_BSP_esp32_flash_size   4MB
+
+#default GOS_BSP_CONFIG_RUN_FAST    1
 
 esp32:
   variant:    GOS_BSP_esp32_variant
