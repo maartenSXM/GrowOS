@@ -3,6 +3,7 @@
 	url = https://github.com/maartenSXM/cpptext
 	branch = main
 	ignore = dirty
+	update = rebase
 [submodule "libraries/libtelnet"]
 	path = libraries/libtelnet
 	url = https://github.com/seanmiddleditch/libtelnet
