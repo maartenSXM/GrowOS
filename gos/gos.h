@@ -20,12 +20,13 @@
 // #default so that project config .h files only have to #define
 // non-default values. Defaults declared with #default are not
 // allowed to be changed since projects are allowed to assume the
-// default values. The "defaults" make target prints the defaults
-// for a project.
+// default values. The "print-defaults" make target prints out
+// project defaults.
 
 #include GOS_STRINGIFY2(GOS_BSP_PATH,/bsp.h)	// declare BSP hardware
 #include GOS_STRINGIFY(GOS_CONFIG_PATH)		// set project configuration
 
-// #include "projects/configAll.h"
+// XXX refactor this file away into yaml files as #defaults
+#include "projects/configAll.h"
 
 #endif // __INCLUDE_GOS_H__

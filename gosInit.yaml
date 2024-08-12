@@ -9,14 +9,14 @@ text_sensor:
 #  yaml style comments are allowed and stripped by $(CPT_HOME)/dehash.sh
 
 // C-style comments are stripped by the C preprocessor
+
 /* traditional C-ctyle comments are also stripped by the C preprocessor */
-/* #default BLORT ... is a c preprocessor macro that generates:
- *	#ifndef BLORT
- *	#define BLORT ...
- *	#endif
- * and it is expanded by $(CPT_HOME)/dehash.sh. It is not
- * supported natively by the C preprocessor.
- */
+
+// "#default X Y" below is a C preprocessor macro that generates:
+//	#ifndef X
+//	#define X Y
+//	#endif
+// and it is expanded by $(CPT_HOME)/dehash.sh. The "Y" is optional.
 
 #include "gos/gos.h"
 
@@ -24,8 +24,8 @@ text_sensor:
 
 // if BSP yaml did not set these c preprocessor defines, default them
 
-#default GOS_BSP_APP	    apps/grow.yaml
 #default GOS_BSP_SERIAL_NUM 000
+#default GOS_BSP_APP	    apps/grow.yaml
 #default GOS_BSP_esphome_name GOS_STRINGIFY2(GOS_PROJECT,GOS_BSP_SERIAL_NUM)
 
 #include "gos/env.yaml"
