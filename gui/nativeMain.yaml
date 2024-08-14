@@ -19,7 +19,7 @@ color:
     hex: 'FFFFFF'
 
 font:
-  - file: 'gui/fonts/arial.ttf'
+  - file: GOS_HOME/gui/fonts/arial.ttf
     id: arial
     size: 24
 

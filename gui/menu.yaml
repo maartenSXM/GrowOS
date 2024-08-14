@@ -18,7 +18,7 @@ binary_sensor:
   - platform: touchscreen
     name: Left Button
     id: button_left
-    touchscreen_id: gosBsp_touchScreen
+    touchscreen_id: gosBsp_touchscreen
     x_min: 0
     x_max: 79
     y_min: 240
@@ -29,7 +29,7 @@ binary_sensor:
   - platform: touchscreen
     name: Right Button
     id: button_right
-    touchscreen_id: my_touchScreen
+    touchscreen_id: gosBsp_touchscreen
     x_min: 80
     x_max: 159
     y_min: 240
@@ -40,7 +40,7 @@ binary_sensor:
   - platform: touchscreen
     name: Up Button
     id: button_up
-    touchscreen_id: my_touchScreen
+    touchscreen_id: gosBsp_touchscreen
     x_min: 160
     x_max: 239
     y_min: 240
@@ -57,7 +57,7 @@ binary_sensor:
   - platform: touchscreen
     name: Down Button
     id: button_down
-    touchscreen_id: my_touchScreen
+    touchscreen_id: gosBsp_touchscreen
     x_min: 240
     x_max: 319
     y_min: 240
@@ -74,7 +74,7 @@ binary_sensor:
   - platform: touchscreen
     name: Select Button
     id: button_select
-    touchscreen_id: my_touchScreen
+    touchscreen_id: gosBsp_touchscreen
     x_min: 320
     x_max: 399
     y_min: 240
@@ -91,7 +91,7 @@ binary_sensor:
   - platform: touchscreen
     name: Cancel Button
     id: button_cancel
-    touchscreen_id: my_touchScreen
+    touchscreen_id: gosBsp_touchscreen
     x_min: 400
     x_max: 479
     y_min: 240
