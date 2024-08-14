@@ -1,15 +1,17 @@
+#if 0
     lambda: |-
-      static int c = 256, x = 0, y = 0, rgb = 0;
-      if (rgb == 0)
-        it.filled_rectangle(x, y, 80, 64, Color(c-1, 0, 0));
-      else
-        if (rgb == 1)
-           it.filled_rectangle(x, y, 80, 64, Color(0, c-1, 0));
+#endif
+        static int c = 256, x = 0, y = 0, rgb = 0; 
+        if (rgb == 0)
+          it.filled_rectangle(x, y, 80, 64, Color(c-1, 0, 0));
         else
-           it.filled_rectangle(x, y, 80, 64, Color(0, 0, c-1));
-      x += 80, c-=8; 
-      if (x == 480) x = 0, y += 64;
-      if (y == 320) y = 0;
-      if (c == 0) c = 256, x=0, y=0, rgb ++;
-      if (rgb == 3) rgb = 0;
+          if (rgb == 1)
+             it.filled_rectangle(x, y, 80, 64, Color(0, c-1, 0));
+          else
+             it.filled_rectangle(x, y, 80, 64, Color(0, 0, c-1));
+        x += 80, c-=8; 
+        if (x == 480) x = 0, y += 64;
+        if (y == 320) y = 0;
+        if (c == 0) c = 256, x=0, y=0, rgb ++;
+        if (rgb == 3) rgb = 0;
 

@@ -10,7 +10,7 @@ esphome:
 display:
     platform: GOS_BSP_HAS_display_platform
     auto_clear_enabled: true
-    update_interval: 1000ms
+    update_interval: 300ms
     pages:
     - id: page1
       lambda: |-
@@ -47,6 +47,7 @@ display:
 
     - id: page2
       lambda: |-
+        #include "tests/displayBlocks.yaml"
         it.print(440, 0, id(arial), id(my_magenta), TextAlign::TOP_RIGHT, "Page 2");
         it.image(  0,320-75,id(icon_left));
         it.image( 80,320-75,id(icon_right));
