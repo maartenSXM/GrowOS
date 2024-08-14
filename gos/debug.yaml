@@ -1,5 +1,5 @@
-#default GOS_CONFIG_logger yes
-#default GOS_CONFIG_debug yes
+#default GOS_CONFIG_logger no
+#default GOS_CONFIG_debug no
 
 #if GOS_CONFIG_logger
 logger:

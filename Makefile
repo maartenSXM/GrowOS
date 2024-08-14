@@ -6,7 +6,7 @@
 # There is also a makeall.sh script that will build all the GOS projects
 # for a specific BSP.
 
-GOS_PROJECT_DIR_DEFAULT := projects/growBoard0/growBoard0.mk
+GOS_PROJECT_DIR_DEFAULT := projects/growBoard0/debug.mk
 
 # A GrowOS project file must defines the following make variables:
 #  - GOS_APP_PATH    to define the project's application yaml file path
@@ -87,12 +87,19 @@ ifeq (,$(GOS_APP_PATH))
   $(error Makefile: $(GOS_PROJECT_FILE) did not define GOS_APP_PATH)
 endif
 
+# This strips the directory and suffix, if any, for further use below
+
+PROJECT_NAME := $(basename $(notdir $(GOS_PROJECT_DIR)))
+MAKE_NAME    := $(basename $(notdir $(GOS_PROJECT_FILE)))
+BSP_NAME     := $(basename $(notdir $(GOS_BSP_DIR)))
+APP_NAME     := $(basename $(notdir $(GOS_APP_PATH)))
+
 # CPT_BUILD_DIR is were GOS projects are built.  It can be changed here. The
 # GOS_HOME C preprocessor definition, set below, may also have to change if
 # the depth of CPT_BUILD_DIR changes. Refer to the GOS_HOME comments below
 # for more details.
 
-CPT_BUILD_DIR := build/$(basename $(notdir $(GOS_PROJECT_DIR)))
+CPT_BUILD_DIR := build/$(PROJECT_NAME)_$(MAKE_NAME)
 
 # CPT_GEN is the set of files that cpptext runs the C preprocessor on.
 # They can include files from CPT_SRCS (defined below) since the cpptext
@@ -151,18 +158,11 @@ endif
 
 CPT_EXTRA_INCS += -I $(GOS_BSP_DIR)
 
-# This strips the directory and suffix, if any, for use creating cpp defines.
-
-PROJECT_NAME := $(basename $(notdir $(GOS_PROJECT_DIR)))
-CONFIG_NAME  := $(basename $(notdir $(GOS_CONFIG_FILE)))
-BSP_NAME     := $(basename $(notdir $(GOS_BSP_DIR)))
-APP_NAME     := $(basename $(notdir $(GOS_APP_PATH)))
-
-# Note that #ifdef GOS_PROJECT_<ppp>   can be used for project-specific code
-#       and #ifdef GOS_BSP_<bbb>       can be used for bsp-specific code
-#       and #ifdef GOS_CONFIG_<ccc>    can be used for config-specific code
-#       and #ifdef GOS_APP_<aaa>       can be used for app-specific code
-#       and #ifdef GOS_USER_<username> can be used for user-specific code
+# Note that #ifdef GOS_PROJECT_<ppp>   is for project adapation anywhere
+#       and #ifdef GOS_BSP_<bbb>       is for bsp adaptation anywhere
+#       and #ifdef GOS_MAKE_<mmm>      is for $(GOS_CONFIG_FILE) adaptation
+#       and #ifdef GOS_APP_<aaa>       is for app adaptation anywhere
+#       and #ifdef GOS_USER_<username> is for user adaptation anywhere
 # where ppp/aaa/ccc/bbb are the basenames from the project, config
 # and app file paths and the bsp directory path, respectively.
 # These are also passed into C/C++ code.  If changed, update gos/env.h.
@@ -174,12 +174,12 @@ CPT_EXTRA_DEFS += -D GOS_HOME=../..				\
 		  -D GOS_BSP_DIR=$(GOS_BSP_DIR)			\
 		  -D GOS_APP_PATH=$(GOS_APP_PATH)		\
 		  -D GOS_PROJECT_NAME=$(PROJECT_NAME)		\
-		  -D GOS_CONFIG_NAME=$(CONFIG_NAME)		\
+		  -D GOS_MAKE_NAME=$(MAKE_NAME)			\
 		  -D GOS_BSP_NAME=$(BSP_NAME)			\
 		  -D GOS_APP_NAME=$(APP_NAME)			\
 		  -D GOS_USER_NAME=$(USER)			\
 		  -D GOS_PROJECT_$(PROJECT_NAME)		\
-		  -D GOS_CONFIG_$(CONFIG_NAME)			\
+		  -D GOS_MAKE_$(MAKE_NAME)			\
 		  -D GOS_BSP_$(BSP_NAME)			\
 		  -D GOS_APP_$(APP_NAME)			\
 		  -D GOS_USER_$(USER)
