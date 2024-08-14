@@ -1,7 +1,10 @@
-// Enable logging
+#default GOS_CONFIG_logger yes
+#default GOS_CONFIG_debug yes
+
+#if GOS_CONFIG_logger
 logger:
-#if GOS_USER_maarten
-#ifdef GOS_BSP_growBoardCpu0
+#ifdef GOS_USER_maarten
+#ifdef GOS_BSP_growBoardCpu0	    // xxx move to growBoardCpu0 BSP
   hardware_uart: USB_CDC
   // deassert_rts_dtr: true
   //baud_rate: 921600
@@ -24,7 +27,9 @@ logger:
     component: DEBUG
     # component: VERBOSE
 
-#if GOS_CONFIG_DEBUG
+#endif // GOS_CONFIG_logger
+
+#if GOS_CONFIG_debug
 debug:
   update_interval: 15s
 
@@ -50,29 +55,5 @@ text_sensor:
     //   name: "System Info"
     reset_reason:
       name: "System Reset Reason"
-#endif // GOS_CONFIG_DEBUG
 
-#if GOS_CONFIG_SERIAL_SERVER
-uart:
-  id: uart_bus
-  tx_pin: GPIO43
-  rx_pin: GPIO44
-  baud_rate: 115200 
-
-stream_server:
-  uart_id: uart_bus
-  port: 1234
-
-binary_sensor: // should be in sensor.yaml
-  - platform: stream_server
-    connected:
-      name: Connected
-
-#if 0	// would have to move this to sensor.yaml
-sensor:
-  - platform: stream_server
-    connection_count:
-      name: Number of connections
-#endif
-#endif // GOS_CONFIG_SERIAL_SERVER
-
+#endif // GOS_CONFIG_debug

@@ -1,5 +1,17 @@
 alias git_diff='git diff HEAD@{1}'
-alias search="find . -type f -print0 | xargs -0 grep -i"
+alias search="find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' ! -path './build/*' -type f -print0 | xargs -0 grep -i"
+
+replace_nohash() {
+ find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git' ! -path '*/build' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s#$1#$2#g"
+}
+replace_nocomma() {
+ find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git' ! -path '*/build' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s,$1,$2,g"
+}
+replace_noslash() {
+ find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git' ! -path '*/build' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s/$1/$2/g"
+}
+alias myreplace=replace_nohash
+
 alias esp='cd ~/git/growOS/esphome'
 alias get_esphome='source ~/git/esphome.git/venv/bin/activate; esp'
 

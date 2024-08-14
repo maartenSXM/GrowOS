@@ -1,6 +1,21 @@
 // If you received a build error regarding secrets.h, you are in
-// the right place. Follow the instructions after this massive
+// the right place. Follow the instructions after secrets.h check below
 // #if ... #endif statment
+
+#default GOS_CONFIG_NET_WIFI		1	// enable WiFI
+#default GOS_CONFIG_NET_WIFI_UTILS	1	// ... display ssid, signal etc
+#default GOS_CONFIG_NET_STATIC          1       // ... using static config?
+#default GOS_CONFIG_NET_DHCP            0       // ... using dhcp?
+#default GOS_CONFIG_NET_FALLBACK        0       // ... Fallback HotSpot?
+#default GOS_CONFIG_NET_PORTAL          0       // ... Provisioning SSID?
+#default GOS_CONFIG_NET_MDNS            1       // ... mDNS service lookup?
+#default GOS_CONFIG_NET_NTP             1       // ... Network Time Protocol?
+#default GOS_CONFIG_NET_HA              0       // ... Home Assistant?
+#default GOS_CONFIG_NET_OTA             1       // ... WiFi update allowed?
+#default GOS_CONFIG_NET_WEB_SERVER      1       // ... Built-in web server?
+#default GOS_CONFIG_NET_TELNET_SERVER	1	// ... telnet server?
+#default GOS_CONFIG_NET_IMPROV_WIFI     0       // ... Improv provisioning?
+#default GOS_CONFIG_NET_STREAM_SERVER   0       // ... enable tty server?
 
 // secrets.h check:
 #if (GOS_CONFIG_NET_WIFI    && (!defined(_SECRET_WIFI_SSID)	    || \
@@ -167,6 +182,7 @@ improv_serial:
 #endif
 #endif // GOS_CONFIG_IMPROV_WIFI
 
+#if GOS_CONFIG_NET_WEB_SERVER
 // xxx test
 http_request:
   useragent: esphome/device
@@ -187,8 +203,51 @@ switch:
                 args:
                   - response->status_code
                   - response->duration_ms
+#endif // GOS_CONFIG_NET_WEB_SERVER
+
+#if GOS_CONFIG_NET_WIFI_UTILS
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      id: wifi_ip_address
+      name: "Net IP Address"
+    ssid:
+      id: wifi_ip_ssid
+      name: "Net WiFi SSID"
+    mac_address:
+      id: wifi_ip_mac
+      name: "Net MAC Address"
+
+sensor:
+  - platform: wifi_signal
+    id: my_wifi_sensor
+    name: "Net WiFi Signal "
+    update_interval: 15s
+
+esphome:
+  includes:
+    - GOS_HOME/utils/idfWifi.h
+    - GOS_HOME/utils/idfWifi.c
+
+text_sensor:
+  - platform: template
+    id: wifi_channel
+    name: "Net WiFi Channel"
+    lambda: |-
+      static char str[3]; // one or two digits (or -1) plus NULL
+      sprintf(str, "%2d", idfWifiGetChannelNum());
+      return (std::string) str;
+
+#endif // GOS_CONFIG_NET_WIFI_UTILS
 
 #if GOS_CONFIG_NET_TELNET_SERVER
+esphome:
+  includes:
+    - GOS_HOME/utils/telnetd.h
+    - GOS_HOME/utils/telnetd.c
+  libraries:
+    - GOS_HOME/../../../libraries/libtelnet
+
 #if 1 // xxx for now auto-initialize the telnet server
 esphome:
   on_boot:
@@ -211,34 +270,36 @@ switch:
             ESP_LOGD("telnetd", "Initializaton by switch failed");
         else
             ESP_LOGD("telnetd", "Initializaton succeeded");
-#endif
+#endif // 1
+
 #endif // GOS_CONFIG_TELNET_SERVER
 
-text_sensor:
-  - platform: template
-    id: wifi_channel
-    name: "Net WiFi Channel"
-    lambda: |-
-      static char str[3]; // one or two digits (or -1) plus NULL
-      sprintf(str, "%2d", idfWifiGetChannelNum());
-      return (std::string) str;
+#if GOS_CONFIG_NET_WEB_SERVER
+esphome:
+  includes:
+    - GOS_HOME/utils/webApi.h
+    - GOS_HOME/utils/webApi.c
+#endif
 
-text_sensor:
-  - platform: wifi_info
-    ip_address:
-      id: wifi_ip_address
-      name: "Net IP Address"
-    ssid:
-      id: wifi_ip_ssid
-      name: "Net WiFi SSID"
-    mac_address:
-      id: wifi_ip_mac
-      name: "Net MAC Address"
+#if GOS_CONFIG_NET_STREAM_SERVER
+external_components:
+  - source: 'github://oxan/esphome-stream-server'
+    refresh: 1000min
+    components: [stream_server]
+
+stream_server:
+  uart_id: uart_bus
+  port: 1234
+
+binary_sensor: // should be in sensor.yaml
+  - platform: stream_server
+    connected:
+      name: Connected
 
 sensor:
-  - platform: wifi_signal
-    id: my_wifi_sensor
-    name: "Net WiFi Signal "
-    update_interval: 15s
+  - platform: stream_server
+    connection_count:
+      name: Number of connections
 
+#endif // GOS_CONFIG_NET_STREAM_SERVER
 #endif // GOS_CONFIG_NET_WIFI

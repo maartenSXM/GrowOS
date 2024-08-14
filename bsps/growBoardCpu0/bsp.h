@@ -10,12 +10,15 @@
 #define GOS_BSP_HAS_backlight_gpio
 #define GOS_BSP_HAS_touchscreen
 #define GOS_BSP_HAS_touchscreen_ft63x6
+#define GOS_BSP_HAS_touchscreen_platform ft63x6
 #define GOS_BSP_HAS_display
+#define GOS_BSP_HAS_display_platform ili9xxx
 #define GOS_BSP_HAS_display_ili9xxx
 #define GOS_BSP_HAS_output_pwm_led
 #define GOS_BSP_HAS_output_buzzer
 #define GOS_BSP_HAS_esp32_camera
 #define GOS_BSP_HAS_sensor_internal_temperature
+#define GOS_BSP_HAS_uart
 
 #define GOS_BSP_HAS_32_KHZ_XTAL
 #define GOS_BSP_HAS_FLASH_4MB

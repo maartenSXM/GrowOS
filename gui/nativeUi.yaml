@@ -1,11 +1,13 @@
+display:
+  - platform: GOS_BSP_HAS_display_platform
+    auto_clear_enabled: true
+    update_interval: 1000ms
     pages:
     - id: page1
       lambda: |-
         it.print(440, 0, id(arial), id(my_cyan), TextAlign::TOP_RIGHT, "Page 1");
-#if !GOS_CONFIG_DISPLAY_3_BIT
 	# to enable this background, uncomment it in images.yaml also
         # it.image(0,0,id(image_beansprouts));
-#endif
         it.filled_circle(140, 120, 20, id(my_red));
         it.filled_circle(200, 120, 20, id(my_green));
         it.filled_circle(260, 120, 20, id(my_yellow));

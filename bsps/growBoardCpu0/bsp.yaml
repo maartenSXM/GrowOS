@@ -8,12 +8,14 @@
 #include "bsps/common/esp32s2.yaml"
 #include "bsps/common/bspAll.yaml"
 
-#if GOS_CONFIG_CAMERA
-#define GOS_BSP_SHAREGOS_BSP_PINS	true
-#else
-#define GOS_BSP_SHAREGOS_BSP_PINS	false
-#endif
+#default GOS_CONFIG_CAMERA no
+#default GOS_BSP_CONFIG_SHARE_PINS  false
 
+#if GOS_CONFIG_CAMERA
+#  redefine GOS_BSP_CONFIG_SHARE_PINS  true
+#endif // GOS_CONFIG_CAMERA
+
+#ifdef GOS_BSP_HAS_psram
 psram:
   id: gosBsp_psram
   mode: octal
@@ -22,31 +24,38 @@ psram:
 #else
   speed: 40MHz
 #endif
+#endif // GOS_BSP_HAS_psram
 
+#ifdef GOS_BSP_HAS_spi
 spi:
   id: gosBsp_spi
   clk_pin:
     number: GOS_BSP_PIN_TFT_SCLK
-    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+    allow_other_uses: GOS_BSP_CONFIG_SHARE_PINS
   mosi_pin:
     number: GOS_BSP_PIN_TFT_MOSI
-    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+    allow_other_uses: GOS_BSP_CONFIG_SHARE_PINS
   miso_pin:
     number: GOS_BSP_PIN_TFT_MISO
-    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+    allow_other_uses: GOS_BSP_CONFIG_SHARE_PINS
   interface: hardware
+#endif // GOS_BSP_HAS_spi
 
+#ifdef GOS_BSP_HAS_i2c
 i2c:
   id: gosBsp_i2c
   sda:
     number: GOS_BSP_PIN_TWI_SDA
-    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+    allow_other_uses: GOS_BSP_CONFIG_SHARE_PINS
   scl:
     number: GOS_BSP_PIN_TWI_SCK
-    allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+    allow_other_uses: GOS_BSP_CONFIG_SHARE_PINS
   frequency: 200kHz
   scan: true
+#endif // GOS_BSP_HAS_i2c
 
+#ifdef GOS_BSP_HAS_display
+#ifdef GOS_BSP_HAS_backlight
 output:
   - platform: gpio
     id: gosBsp_output_gpio_backlight
@@ -60,7 +69,9 @@ light:
     id: gosBsp_light_binary_backlight
     name: "Backlight Enable"
     output: gosBsp_output_gpio_backlight
+#endif // GOS_BSP_HAS_backlight
 
+#ifdef GOS_BSP_HAS_touchscreen
 touchscreen:
   - platform: ft63x6
     id: gosBsp_touchscreen
@@ -78,20 +89,10 @@ touchscreen:
            printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",
                     touch.x, touch.y, touch.x_raw, touch.y_raw);
 #endif
-
-#if GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
-    on_release:
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - logger.log: "LVGL resuming"
-            - lvgl.resume:
-            - lvgl.widget.redraw:
-            - light.turn_on: gosBsp_light_binary_backlight
-#endif // GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
+#endif // GOS_BSP_HAS_touchscreen
 
 display:
-  - platform: ili9xxx
+    platform: ili9xxx
     id: gosBsp_display
     model: ili9488_A
     spi_mode: mode3
@@ -100,9 +101,6 @@ display:
       height: 320
       offset_height: 0
       offset_width: 0
-#if GOS_CONFIG_DISPLAY_3_BIT
-    color_palette: 3_BIT
-#endif // GOS_CONFIG_DISPLAY_3_BIT
     color_order: bgr
     transform:
       mirror_y: false
@@ -112,34 +110,16 @@ display:
     invert_colors: false
     cs_pin:
       number: GOS_BSP_PIN_TFT_CS
-      allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+      allow_other_uses: GOS_BSP_CONFIG_SHARE_PINS
     dc_pin:
       number: GOS_BSP_PIN_TFT_DC
-      allow_other_uses: GOS_BSP_SHAREGOS_BSP_PINS
+      allow_other_uses: GOS_BSP_CONFIG_SHARE_PINS
     reset_pin: GOS_BSP_PIN_TFT_RST
     data_rate: 40MHz
-#if GOS_CONFIG_LVGL
-    auto_clear_enabled: false
-    update_interval: never
-#else // !GOS_CONFIG_LVGL
-    auto_clear_enabled: true
-    update_interval: 1000ms
-    // now define some pages using native esphome graphics
-#include "nativeUi.yaml"
-#endif // !GOS_CONFIG_LVGL
+#endif // GOS_BSP_HAS_display
 
-#if GOS_CONFIG_DISPLAY_3_BIT
-external_components:
-#if GOS_USER_maarten
-  - source:
-      type: local
-      path: ~/git/esphome_components/components
-#else
-  - source: 'github://maartenSXM/esphome_components'
-#endif
-    components: [ili9xxx]
-#endif // GOS_CONFIG_DISPLAY_3_BIT
-
+#default GOS_BSP_CONFIG_PIN_TempData_output_led yes
+#if GOS_BSP_CONFIG_PIN_TempData_output_led
 output:
   - platform: slow_pwm
     id: gosBsp_output_slow_pwm_led
@@ -156,16 +136,9 @@ esphome:
       - output.set_level:
           id: gosBsp_output_slow_pwm_led
           level: "90%"
+#endif // GOS_BSP_CONFIG_PIN_TempData_output_led
 
-#if GOS_CONFIG_BUZZER
-output:
-  - platform: ledc
-    id: gosBsp_output_buzzer
-    pin: GOS_BSP_PIN_BUZZER
-    id: buzzer_out
-    channel: 2 // xxx config item?
-#endif // GOS_CONFIG_BUZZER
-
+#default GOS_BSP_CPU1_DEFAULTS_ON 0
 switch:
   - platform: gpio
     id: switch_H_S_ENABLE
@@ -173,11 +146,11 @@ switch:
     pin:
       number: GOS_BSP_PIN_H_S_ENABLE
       mode: output
-#if GOS_CONFIG_CPU1_DEFAULTS_ON
+#if GOS_BSP_CPU1_DEFAULTS_ON
     restore_mode: ALWAYS_ON
 #else
     restore_mode: ALWAYS_OFF
-#endif // GOS_CONFIG_CPU1_DEFAULTS_ON
+#endif // GOS_BSP_CPU1_DEFAULTS_ON
 
 switch:
   - platform: gpio
@@ -189,7 +162,17 @@ switch:
     inverted: true
     restore_mode: ALWAYS_ON
 
+#default GOS_CONFIG_BUZZER 0
+
 #if GOS_CONFIG_BUZZER
+output:
+  - platform: ledc
+    id: gosBsp_output_buzzer
+    pin: GOS_BSP_PIN_BUZZER
+    id: buzzer_out
+    channel: 2 // xxx config item?
+
+#default GOS_CONFIG_BUZZER_MONOTONE 0
 #if GOS_CONFIG_BUZZER_MONOTONE
 switch:
   - platform: output
@@ -231,7 +214,79 @@ button:
 #endif // !GOS_CONFIG_BUZZER_MONOTONE
 #endif // GOS_CONFIG_BUZZER
 
-#if GOS_CONFIG_ESP32_CAMERA
+#default GOS_BSP_CONFIG_TINYUSB no
+#if GOS_BSP_CONFIG_TINYUSB
+esphome:
+  includes:
+    - GOS_HOME/utils/idfUsb.h
+    - GOS_HOME/utils/idfUsb.c
+  libraries:
+    - "file://components/tinyusb"
+    - "file://components/esp_tinyusb"
+  platformio_options:
+    build_flags:
+      - -I components/tinyusb/src
+      - -I components/esp_tinyusb/device/esp_tinyusb/include
+      - -D CONFIG_TINYUSB_ENABLED=1       // tinyusb doesnt include sdkconfig.h
+      - -D CONFIG_TINYUSB_CDC_ENABLED=1   // tinyusb doesnt include sdkconfig.h
+      - -D CFG_TUSB_MCU=900               // for tinyusb tusb_option.h (ESP32S2)
+      - -D CFG_TUSB_OS_INC_PATH=freertos/ // for tinyusb tusb_compiler.h
+
+esp32:
+  framework:
+    components:
+      - name: tinyusb
+        source: "github://espressif/tinyusb@v0.14.3"
+      - name: esp_tinyusb
+        source: "github://espressif/esp-usb/device/esp_tinyusb"
+    sdkconfig_options:
+      CONFIG_TINYUSB: y
+      CONFIG_TINYUSB_DESC_MANUFACTURER_STRING: "CyberGrow"
+      CONFIG_TINYUSB_DESC_PRODUCT_STRING: "GrowBox v1.0"
+      CONFIG_TINYUSB_DESC_CDC_STRING: "CyberGrow CDC Device"
+      CONFIG_TINYUSB_CDC_ENABLED: y
+      CONFIG_TINYUSB_CDC_COUNT: "2"
+      CONFIG_TINYUSB_MSC_ENABLED: n
+#endif
+
+#default GOS_BSP_CONFIG_USB_ACM no
+#if GOS_BSP_CONFIG_USB_ACM
+esphome:
+  on_boot:
+  - priority: 80
+    then:
+      lambda: idfUsbInit();
+#endif // GOS_BSP_CONFIG_USB_ACM
+
+#default GOS_BSP_CONFIG_CONSOLE no
+#if GOS_BSP_CONFIG_CONSOLE
+esp32:
+  partitions: GOS_BUILD_PATH/partitions.csv
+
+esphome:
+  platformio_options:
+    // Enable FreeRTOS stats formatting functions, needed for 'tasks' command
+    build_flags:
+      - -D CONFIG_FREERTOS_USE_TRACE_FACILITY=1
+      - -D CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS=1
+#endif // GOS_BSP_CONFIG_CONSOLE
+
+#default GOS_BSP_CONFIG_CAMERA no
+
+#if defined(GOS_BSP_CONFIG_CAMERA) && !defined(GOS_BSP_HAS_esp32_camera)
+#  error BSP esp32_camera support is disabled.
+#endif
+
+#if GOS_BSP_CONFIG_CAMERA
+esphome:
+  libraries:
+    - espressif/esp32-camera
+  platformio_options:
+    build_flags:
+      - -D ESP_LWIP_COMPONENT_BUILD
+      - -D CONFIG_SCCB_CLK_FREQ=100000
+      - -I .piolibdeps/GOS_NAME/esp32-camera/target/jpeg_include
+
 esp32:
   framework:
     sdkconfig_options:
@@ -244,9 +299,6 @@ esp32:
       # CONFIG_LCD_CAM_ISR_IRAM_SAFE: y
       // added for GOS_CONFIG_ESP32_CAMERA to build
       // CONFIG_IDF_TARGET_ESP32: "1"
-#endif // GOS_CONFIG_ESP32_CAMERA
-
-#if GOS_CONFIG_CAMERA
 
 switch:
   - platform: gpio
@@ -292,6 +344,14 @@ esp32_camera:
   // Image settings
   name: MyCamera
   // ...
-#endif // GOS_CONFIG_CAMERA
+#endif // GOS_BSP_CONFIG_CAMERA
+
+#ifdef GOS_BSP_HAS_uart
+uart:
+  id: uart_bus
+  tx_pin: GOS_BSP_PIN_H_U0TXD
+  rx_pin: GOS_BSP_PIN_H_U0RXD
+  baud_rate: 115200
+#endif // GOS_BSP_HAS_uart
 
 #endif // _GOS_INCLUDE_BSP_YAML_

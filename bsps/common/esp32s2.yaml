@@ -46,7 +46,7 @@ esp32:
 #default GOS_BSP_esphome_mcu         esp32s2
 #default GOS_BSP_esphome_flash_size  GOS_BSP_esp32_flash_size
 
-#ifdef GOS_BSP_CONFIG_RUN_FAST
+#if GOS_BSP_CONFIG_RUN_FAST
   #default GOS_BSP_esphome_upload_speed 1500000
   #default GOS_BSP_esphome_f_cpu        240000000L
   #default GOS_BSP_esphome_f_flash      40000000L	// xxx 80Mhz?
@@ -66,5 +66,29 @@ esphome:
     board_build.flash_size: GOS_BSP_esphome_flash_size
     board_build.flash_mode: GOS_BSP_esphome_flash_mode
     board_build.f_flash:    GOS_BSP_esphome_f_flash 
+
+#ifdef GOS_BSP_HAS_psram
+esphome:
+  platformio_options:
+    build_flags:
+      - -D CONFIG_SPIRAM_CACHE_WORKAROUND
+      - -D BOARD_HAS_PSRAM
+      - -mfix-esp32-psram-cache-issue
+      - -mfix-esp32-psram-cache-strategy=memw
+
+esp32:
+  framework:
+    sdkconfig_options:
+      CONFIG_ESP32S2_SPIRAM_SUPPORT: y
+      CONFIG_SPIRAM_USE_MALLOC: y
+      CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY: y     // allow bss in PSRAM
+      CONFIG_SPIRAM_ALLOW_NOINIT_SEG_EXTERNAL_MEMORY: y  // same for uninit
+      CONFIG_SPIRAM_ALLOW_STACK_EXTERNAL_MEMORY: y       // allow PSRAM stacks
+      // CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL: "16384" // less than get internal
+
+      // with both of these, cache isn't disabled during SPI1 flash ops
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+#endif // GOS_BSP_HAS_psram
 
 #endif // _GOS_INCLUDE_BSP_COMMON_ESP32S2_

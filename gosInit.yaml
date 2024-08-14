@@ -1,26 +1,6 @@
-#if 0
-text_sensor:
-  - platform: template
-    name:  "build test24"
-  - platform: template
-    name:  "build test23"
-#endif
-
-#  yaml style comments are allowed and stripped by $(CPT_HOME)/dehash.sh
-
-// C-style comments are stripped by the C preprocessor
-
-/* traditional C-ctyle comments are also stripped by the C preprocessor */
-
-// "#default X Y" below is a C preprocessor macro that generates:
-//	#ifndef X
-//	#define X Y
-//	#endif
-// and it is expanded by $(CPT_HOME)/dehash.sh. The "Y" is optional.
-
 #include "gos/gos.h"
 
-#include GOS_STRINGIFY2(GOS_BSP_PATH,/bsp.yaml)
+#include GOS_STRINGIFY2(GOS_BSP_DIR,/bsp.yaml)
 
 // if BSP yaml did not set these c preprocessor defines, default them
 
@@ -37,15 +17,16 @@ text_sensor:
 
 #default GOS_APP_PATH GOS_BSP_APP_PATH
 #include GOS_STRINGIFY(GOS_APP_PATH)
+#include GOS_STRINGIFY2(GOS_PROJECT_DIR,/project.yaml)
 
-#if GOS_CONFIG_DISPLAY 
+#if GOS_CONFIG_GUI 
 #ifndef GOS_BSP_HAS_display
-# error GOS_CONFIG_DISPLAY configured but BSP does not declare display:
+# error GOS_CONFIG_GUI enabled but BSP does not advertise display:
 #endif
 
 # if GOS_CONFIG_LVGL
-#  include "ui/lvglMain.yaml"
+#  include "gui/lvglMain.yaml"
 # else
-#  include "ui/nativeUiInit.yaml"
+#  include "gui/nativeMain.yaml"
 # endif // !GOS_CONFIG_LVGL
-#endif // GOS_CONFIG_DISPLAY
+#endif // GOS_CONFIG_GUI

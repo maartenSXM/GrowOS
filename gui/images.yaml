@@ -1,0 +1,29 @@
+image:
+#  - file: "gui/images/beansprouts.jpg"
+#    id: image_beansprouts
+#    resize: 480 x 320
+#    type: rgb24
+  - file: "gui/images/arrow-left-bold-circle-outline-filled.png"
+    id: icon_left
+    resize: 75 x 75
+    type: rgba
+  - file: "gui/images/arrow-right-bold-circle-outline-filled.png"
+    id: icon_right
+    resize: 75 x 75
+    type: rgba
+  - file: "gui/images/arrow-up-bold-circle-outline-filled.png"
+    id: icon_up
+    resize: 75 x 75
+    type: rgba
+  - file: "gui/images/arrow-down-bold-circle-outline-filled.png"
+    id: icon_down
+    resize: 75 x 75
+    type: rgba
+  - file: "gui/images/check-circle-outline-filled.png"
+    id: icon_select
+    resize: 75 x 75
+    type: rgba
+  - file: "gui/images/close-circle-outline-filled.png"
+    id: icon_cancel
+    resize: 75 x 75
+    type: rgba

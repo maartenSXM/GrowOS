@@ -1,16 +1,17 @@
 # This Makefile uses a git submodule cpptext to build GOS esphome projects
-# from ./projects/*.mk.  Use "make PRJ=projects/project.mk" to select a
-# specific GOS project file otherwise $(GOS_PROJECT_PATH_DEFAULT) is selected.
+# from ./projects/*.mk.  Use "make PRJ=projects/<prj>/<prj>.mk" to
+# select a specific GOS project file otherwise $(GOS_PROJECT_DIR_DEFAULT)
+# is selected.
 #
 # There is also a makeall.sh script that will build all the GOS projects
 # for a specific BSP.
 
-GOS_PROJECT_PATH_DEFAULT := projects/growBoard0.mk
+GOS_PROJECT_DIR_DEFAULT := projects/growBoard0/growBoard0.mk
 
 # A GrowOS project file must defines the following make variables:
 #  - GOS_APP_PATH    to define the project's application yaml file path
-#  - GOS_CONFIG_PATH to define the project's config file header file path
-#  - GOS_BSP_PATH    to define the project's board support package directory path
+#  - GOS_CONFIG_FILE to define the project's config file header file path
+#  - GOS_BSP_DIR    to define the project's board support package directory path
 
 # GOS project files are typically found in ./projects/ but can reside
 # anywhere inside or outside of the GOS file tree as long as the path
@@ -62,31 +63,36 @@ else
   ifneq (,$(wildcard .gosprj))	    # check if a GOS project is remembered
     PRJ := $(shell cat .gosprj)
   else
-    PRJ : = $(GOS_PROJECT_PATH_DEFAULT)
+    ifeq (,$(wildcard $(GOS_PROJECT_DIR_DEFAULT)))
+      $(error $(MAKEFILE): GOS_PROJECT_DIR_DEFAULT not found)
+    endif
+    PRJ := $(GOS_PROJECT_DIR_DEFAULT)
   endif
 endif
 
-GOS_PROJECT_PATH = $(PRJ)
+GOS_PROJECT_FILE = $(PRJ)			    # project make file
+GOS_PROJECT_DIR  = $(patsubst %/,%,$(dir $(PRJ)))   # project directory
 
 # Include the selected GOS project (Makefile fragment).
 
-include $(GOS_PROJECT_PATH)
+include $(GOS_PROJECT_FILE)
 
-ifeq (,$(GOS_CONFIG_PATH))
-  $(error Makefile: $(GOS_PROJECT_PATH) did not define GOS_CONFIG_PATH)
+ifeq (,$(GOS_CONFIG_FILE))
+  $(error Makefile: $(GOS_PROJECT_FILE) did not define GOS_CONFIG_FILE)
 endif
-ifeq (,$(GOS_BSP_PATH))
-  $(error Makefile: $(GOS_PROJECT_PATH) did not define GOS_BSP_PATH)
+ifeq (,$(GOS_BSP_DIR))
+  $(error Makefile: $(GOS_PROJECT_FILE) did not define GOS_BSP_DIR)
 endif
 ifeq (,$(GOS_APP_PATH))
-  $(error Makefile: $(GOS_PROJECT_PATH) did not define GOS_APP_PATH)
+  $(error Makefile: $(GOS_PROJECT_FILE) did not define GOS_APP_PATH)
 endif
 
 # CPT_BUILD_DIR is were GOS projects are built.  It can be changed here. The
 # GOS_HOME C preprocessor definition, set below, may also have to change if
-# CPT_BUILD_DIR changes. Refer to the GOS_HOME comments below for more details.
+# the depth of CPT_BUILD_DIR changes. Refer to the GOS_HOME comments below
+# for more details.
 
-CPT_BUILD_DIR := build/$(basename $(notdir $(GOS_PROJECT_PATH)))
+CPT_BUILD_DIR := build/$(basename $(notdir $(GOS_PROJECT_DIR)))
 
 # CPT_GEN is the set of files that cpptext runs the C preprocessor on.
 # They can include files from CPT_SRCS (defined below) since the cpptext
@@ -94,7 +100,7 @@ CPT_BUILD_DIR := build/$(basename $(notdir $(GOS_PROJECT_PATH)))
 
 CPT_GEN  ?= partitions.csv gosInit.yaml
 
-GOS_DIRS ?= gos apps ui bsps/common $(GOS_BSP)
+GOS_DIRS ?= gos apps gui bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
 
 # CPT_SRCS is the set of files that cpptext will remove hash-style
 # comments from while leaving any C preprocessor directives so that
@@ -102,8 +108,11 @@ GOS_DIRS ?= gos apps ui bsps/common $(GOS_BSP)
 # CPT_GEN files.
 
 # Builds the list of CPT_SRCS by looking for .yaml files in $(GOS_DIRS).
+# Note that any yaml files in the BSP and project directories are
+# added also.
 
-CPT_SRCS += $(foreach d,$(GOS_DIRS),$(wildcard $(d)/*.yaml)) $(CPT_GEN)
+CPT_SRCS += $(foreach d,$(GOS_DIRS),$(wildcard $(d)/*.yaml))	\
+	    $(CPT_GEN)
 
 # The next two defines are used by cpptext/Makefile.esphome.
 
@@ -138,41 +147,42 @@ else
   endif
 endif
 
-# GOS_BSP_PATH is added to include paths so #include "bsp.h" is BSP-specific.
+# GOS_BSP_DIR is added to include paths so #include "bsp.h" is BSP-specific.
 
-CPT_EXTRA_INCS += -I $(GOS_BSP_PATH)
+CPT_EXTRA_INCS += -I $(GOS_BSP_DIR)
 
 # This strips the directory and suffix, if any, for use creating cpp defines.
 
-PROJECT_NAME := $(basename $(notdir $(GOS_PROJECT_PATH)))
-CONFIG_NAME  := $(basename $(notdir $(GOS_CONFIG_PATH)))
-BSP_NAME     := $(basename $(notdir $(GOS_BSP_PATH)))
+PROJECT_NAME := $(basename $(notdir $(GOS_PROJECT_DIR)))
+CONFIG_NAME  := $(basename $(notdir $(GOS_CONFIG_FILE)))
+BSP_NAME     := $(basename $(notdir $(GOS_BSP_DIR)))
 APP_NAME     := $(basename $(notdir $(GOS_APP_PATH)))
 
 # Note that #ifdef GOS_PROJECT_<ppp>   can be used for project-specific code
-#       and #ifdef GOS_CONFIG_<ccc>    can be used for config-specific code
 #       and #ifdef GOS_BSP_<bbb>       can be used for bsp-specific code
+#       and #ifdef GOS_CONFIG_<ccc>    can be used for config-specific code
 #       and #ifdef GOS_APP_<aaa>       can be used for app-specific code
 #       and #ifdef GOS_USER_<username> can be used for user-specific code
 # where ppp/aaa/ccc/bbb are the basenames from the project, config
 # and app file paths and the bsp directory path, respectively.
+# These are also passed into C/C++ code.  If changed, update gos/env.h.
 
 CPT_EXTRA_DEFS += -D GOS_HOME=../..				\
 		  -D GOS_BUILD_PATH=$(CPT_BUILD_DIR)		\
-		  -D GOS_PROJECT_PATH=$(GOS_PROJECT_PATH)	\
-		  -D GOS_PROJECT_NAME=$(PROJECT_NAME)		\
-		  -D GOS_PROJECT_$(PROJECT_NAME)=1		\
-		  -D GOS_CONFIG_PATH=$(GOS_CONFIG_PATH)		\
-		  -D GOS_CONFIG_NAME=$(CONFIG_NAME)		\
-		  -D GOS_CONFIG_$(CONFIG_NAME)=1		\
-		  -D GOS_BSP_PATH=$(GOS_BSP_PATH)		\
-		  -D GOS_BSP_NAME=$(BSP_NAME)			\
-		  -D GOS_BSP_$(BSP_NAME)=1			\
+		  -D GOS_PROJECT_DIR=$(GOS_PROJECT_DIR)		\
+		  -D GOS_CONFIG_FILE=$(GOS_CONFIG_FILE)		\
+		  -D GOS_BSP_DIR=$(GOS_BSP_DIR)			\
 		  -D GOS_APP_PATH=$(GOS_APP_PATH)		\
+		  -D GOS_PROJECT_NAME=$(PROJECT_NAME)		\
+		  -D GOS_CONFIG_NAME=$(CONFIG_NAME)		\
+		  -D GOS_BSP_NAME=$(BSP_NAME)			\
 		  -D GOS_APP_NAME=$(APP_NAME)			\
-		  -D GOS_APP_$(APP_NAME)=1			\
-		  -D GOS_USER=$(USER)				\
-		  -D GOS_USER_$(USER)=1
+		  -D GOS_USER_NAME=$(USER)			\
+		  -D GOS_PROJECT_$(PROJECT_NAME)		\
+		  -D GOS_CONFIG_$(CONFIG_NAME)			\
+		  -D GOS_BSP_$(BSP_NAME)			\
+		  -D GOS_APP_$(APP_NAME)			\
+		  -D GOS_USER_$(USER)
 
 # The reason GOS_HOME is set above to two levels up i.e. ../.. is because
 # the generated esphome.yaml ends up in $(CPT_BUILD_DIR) which is
@@ -187,5 +197,13 @@ CPT_EXTRA_DEFS += -D GOS_HOME=../..				\
 
 include cpptext/Makefile.cpptext
 
+define print_bsp_has_rule
+print-hardware::
+	@printf "BSP hardware definitions for $(1) are:\n"
+	@$(CPT_CPP) -dM $(CPT_TMP_DIR)/$(1) | grep GOS_BSP_HAS
+endef
+
+$(foreach gen,$(patsubst ./%,%,$(CPT_GEN)), \
+    $(eval $(call print_bsp_has_rule,$(gen))))
 endif	# From the git submodule install check at the top of this Makefile.
 
