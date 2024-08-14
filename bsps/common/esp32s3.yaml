@@ -45,7 +45,7 @@ esp32:
 #default GOS_BSP_esphome_mcu         esp32s3
 #default GOS_BSP_esphome_flash_size  GOS_BSP_esp32_flash_size
 
-#ifdef GOS_BSP_CONFIG_RUN_FAST
+#if GOS_BSP_CONFIG_RUN_FAST
   #default GOS_BSP_esphome_upload_speed 1500000
   #default GOS_BSP_esphome_f_cpu        240000000L
   #default GOS_BSP_esphome_f_flash      80000000L

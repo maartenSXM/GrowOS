@@ -1,3 +1,28 @@
+#default GOS_CONFIG_LVGL_BOOT_LOGO yes	// spinning boot logo?
+#default GOS_CONFIG_LVGL_IDLE      yes	// turn off display when idle?
+#default GOS_CONFIG_LVGL_ANTIBURN  yes	// exercise pixels when idle?
+
+display:
+    platform: GOS_BSP_HAS_display_platform
+    auto_clear_enabled: false
+    update_interval: never
+
+#ifdef GOS_BSP_HAS_sensor_internal_temperature
+sensor:
+  - platform: internal_temperature
+    name: "System Temperature"
+    update_interval: 5s
+    on_value:
+      - lvgl.indicator.update:
+          id: temperature_needle
+          value: !lambda return x * 10;
+      - lvgl.label.update:
+          id: temperature_text
+          text:
+            format: "%.1f°C"
+            args: [ 'x' ]
+#endif // GOS_BSP_HAS_sensor_internal_temperature
+
 #if GOS_CONFIG_LVGL_BOOT_LOGO
 image:
   - file: 'https://esphome.io/_images/logo.png'
@@ -6,6 +31,18 @@ image:
     type: RGB565
 #endif // GOS_CONFIG_LVGL_BOOT_LOGO
 
+#if GOS_CONFIG_LVGL_IDLE
+touchscreen:
+  - platform: GOS_BSP_HAS_touchscreen_platform
+    on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - logger.log: "LVGL resuming"
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+            - light.turn_on: gosBsp_light_binary_backlight
+#endif // GOS_CONFIG_LVGL_IDLE
 #define MY_FONT montserrat_18
 
 number:
@@ -44,25 +81,25 @@ lvgl:
       - lvgl.pause:
 #endif
 
-#include "ui/lvglTheme.yaml"
+#include "gui/lvglTheme.yaml"
 
-#include "ui/lvglNavigation.yaml"
+#include "gui/lvglNavigation.yaml"
 #if GOS_CONFIG_LVGL_BOOT_LOGO
-#include "ui/lvglBootLogo.yaml"
+#include "gui/lvglBootLogo.yaml"
 #endif
 
   pages:
-#include "ui/page1.yaml"
-#include "ui/page2.yaml"
-#include "ui/page3.yaml"
-#include "ui/page4.yaml"
+#include "gui/page1.yaml"
+#include "gui/page2.yaml"
+#include "gui/page3.yaml"
+#include "gui/page4.yaml"
 
 // Next are the page extras that are not part of the lvgl: definition
 
-#include "ui/page1add.yaml"
-#include "ui/page2add.yaml"
-#include "ui/page3add.yaml"
-#include "ui/page4add.yaml"
+#include "gui/page1add.yaml"
+#include "gui/page2add.yaml"
+#include "gui/page3add.yaml"
+#include "gui/page4add.yaml"
 
 #ifdef GOS_BSP_HAS_backlight
 esphome:

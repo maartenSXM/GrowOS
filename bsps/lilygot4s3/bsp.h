@@ -8,7 +8,9 @@
 #define GOS_BSP_HAS_spi
 #define GOS_BSP_HAS_i2c
 #define GOS_BSP_HAS_touchscreen
+#define GOS_BSP_HAS_touchscreen_platform cst226
 #define GOS_BSP_HAS_display
+#define GOS_BSP_HAS_display_platform qspi_amoled
 #define GOS_BSP_HAS_sensor_internal_temperature
 #define GOS_BSP_HAS_wifi
 

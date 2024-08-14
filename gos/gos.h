@@ -23,10 +23,10 @@
 // default values. The "print-defaults" make target prints out
 // project defaults.
 
-#include GOS_STRINGIFY2(GOS_BSP_PATH,/bsp.h)	// declare BSP hardware
-#include GOS_STRINGIFY(GOS_CONFIG_PATH)		// set project configuration
+#include GOS_STRINGIFY2(GOS_BSP_DIR,/bsp.h)	// declare BSP hardware
+#include GOS_STRINGIFY(GOS_CONFIG_FILE)		// set project configuration
 
 // XXX refactor this file away into yaml files as #defaults
-#include "projects/configAll.h"
+// #include "projects/configAll.h"
 
 #endif // __INCLUDE_GOS_H__

@@ -20,3 +20,4 @@ build
 cpptext
 cpptext/*
 libraries/libtelnet/*
+*.bak
