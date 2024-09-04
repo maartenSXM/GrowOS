@@ -118,7 +118,7 @@ else
 # They can include files from CPT_SRCS (defined below) since the cpptext
 # tool arranges that de-commented copies are included, not the originals.
 
-CPT_GEN  ?= partitions.csv gosInit.yaml
+CPT_GEN  ?= partitions.csv espinit.yaml
 
 GOS_DIRS ?= gos apps gui bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
 
@@ -131,23 +131,7 @@ GOS_DIRS ?= gos apps gui bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
 # Note that any yaml files in the BSP and project directories are
 # added also.
 
-CPT_SRCS += $(foreach d,$(GOS_DIRS),$(wildcard $(d)/*.yaml))	\
-	    $(CPT_GEN)
-
-# The next two defines are used by cpptext/Makefile.esphome.
-
-# ESP_INIT is the file to run yamlmerge.sh on so that esphome
-# map keys (AKA esphome components) can be repeated.  Otherwise,
-# the yaml spec requires that only one yaml map key, such as
-# esphome's "sensor:", can exist.
-
-ESP_INIT ?= gosInit.yaml
-
-# ESP_YAML is the output of cpptext/yamlmerge.sh which has
-# all the esphome component definitions merged together to form
-# legitimate yaml that esphome tools can parse.
-
-ESP_YAML ?= esphome.yaml
+CPT_SRCS += $(foreach d,$(GOS_DIRS),$(wildcard $(d)/*.yaml)) $(CPT_GEN)
 
 # In addition to updates to $(CPT_SRCS) triggering a rebuild of esphome.yaml,
 # updates to source files in $(ESP_DEPS) are also triggers.
