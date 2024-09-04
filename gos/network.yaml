@@ -13,7 +13,7 @@
 #default GOS_CONFIG_NET_HA              0       // ... Home Assistant?
 #default GOS_CONFIG_NET_OTA             1       // ... WiFi update allowed?
 #default GOS_CONFIG_NET_WEB_SERVER      1       // ... Built-in web server?
-#default GOS_CONFIG_NET_TELNET_SERVER	1	// ... telnet server?
+#default GOS_CONFIG_NET_TCPCMD_SERVER	1	// ... tcpcmd server?
 #default GOS_CONFIG_NET_IMPROV_WIFI     0       // ... Improv provisioning?
 #default GOS_CONFIG_NET_STREAM_SERVER   0       // ... enable tty server?
 
@@ -54,6 +54,14 @@
 #endif // secrets.h check
 
 #if GOS_CONFIG_NET_WIFI
+
+#ifdef GOS_BSP_HAS_psram
+esp32:
+  framework:
+    sdkconfig_options:
+      CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP: n
+#endif // GOS_BSP_HAS_psram
+
 // Enable WiFi and IP stack
 wifi:
   // power_save_mode: none
@@ -69,10 +77,10 @@ wifi:
     subnet: _SECRET_WIFI_NETMASK
     dns1: _SECRET_WIFI_GATEWAY
 #endif // GOS_CONFIG_NET_STATIC
-#if 0 && GOS_CONFIG_NET_TELNET_SERVER
+#if 0 && GOS_CONFIG_NET_TCPCMD_SERVER
   on_connect:
-    lambda: telnetServerInit();
-#endif // GOS_CONFIG_NET_TELNET_SERVER
+    lambda: tcpcmdServerInit();
+#endif // GOS_CONFIG_NET_TCPCMD_SERVER
 #endif // GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
 
 // Enable fallback hotspot (captive portal) in case wifi connection fails
@@ -240,39 +248,59 @@ text_sensor:
 
 #endif // GOS_CONFIG_NET_WIFI_UTILS
 
-#if GOS_CONFIG_NET_TELNET_SERVER
+#if GOS_CONFIG_NET_TCPCMD_SERVER
 esphome:
   includes:
-    - GOS_HOME/utils/telnetd.h
-    - GOS_HOME/utils/telnetd.c
+    - GOS_HOME/utils/tcpcmd.h
+    - GOS_HOME/utils/tcpcmd.c
+#if 0
   libraries:
-    - GOS_HOME/../../../libraries/libtelnet
+    - GOS_HOME/../../../libraries/libtcpcmd
+#endif
 
-#if 1 // xxx for now auto-initialize the telnet server
+#if 0
 esphome:
   on_boot:
   - priority: 200
     then:
       lambda: |-
-        if (telnetServerInit() == ESP_FAIL)
-            ESP_LOGD("telnetd", "Initializaton by switch failed");
+        if (tcpcmdServerInit() == ESP_FAIL)
+            ESP_LOGD("tcpcmdd", "Initializaton by switch failed");
         else
-            ESP_LOGD("telnetd", "Initializaton succeeded");
+            ESP_LOGD("tcpcmdd", "Initializaton succeeded");
 #else
-// enable switch for telnet - xxx make the manual switch the default for
+// enable switch for tcpcmd - xxx make the manual switch the default for
 // security - ideally with a timeout to turn it back off after a while.
 switch:
   - platform: template
-    name: "Net Telnet Server Init"
+    name: "Net Command Server Init"
+    id: gosSwitch_tcpcmdInit
     turn_on_action:
       lambda: |-
-        if (telnetServerInit() == ESP_FAIL)
-            ESP_LOGD("telnetd", "Initializaton by switch failed");
+        if (tcpcmdServerInit() == ESP_FAIL)
+            ESP_LOGD("tcpcmdd", "Initializaton failed");
         else
-            ESP_LOGD("telnetd", "Initializaton succeeded");
+            ESP_LOGD("tcpcmdd", "Initializaton succeeded");
+    turn_off_action:
+      lambda: |-
+        if (tcpcmdServerTerm() == ESP_FAIL)
+            ESP_LOGD("tcpcmdd", "Termination failed");
+        else
+            ESP_LOGD("tcpcmdd", "Termination succeeded");
+#if 0
+    on_turn_on:
+      then:
+        - wait_until:
+            condition:
+              for:
+                time: 1min
+                condition:
+                  - switch.is_on: gosSwitch_tcpcmdInit
+        - switch.turn_off: gosSwitch_tcpcmdInit
+#endif
 #endif // 1
 
-#endif // GOS_CONFIG_TELNET_SERVER
+#endif // GOS_CONFIG_TCPCMD_SERVER
 
 #if GOS_CONFIG_NET_WEB_SERVER
 esphome:

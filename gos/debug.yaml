@@ -4,6 +4,7 @@
 #if GOS_CONFIG_logger
 logger:
 #ifdef GOS_USER_maarten
+#if 0
 #ifdef GOS_BSP_growBoardCpu0	    // xxx move to growBoardCpu0 BSP
   hardware_uart: USB_CDC
   // deassert_rts_dtr: true
@@ -14,6 +15,7 @@ logger:
   // hardware_uart: UART0
   // baud_rate: 115200
 #endif // ! GOS_BSP_growBoardCpu0
+#endif // 0
 #else
   # baud_rate: 115200
   baud_rate: 921600
@@ -55,5 +57,29 @@ text_sensor:
     //   name: "System Info"
     reset_reason:
       name: "System Reset Reason"
+
+text_sensor:
+  - platform: template
+    name: "System version (P/I/E)"
+    update_interval: 1200s // static info - xxx is update once an option?
+    lambda: |-
+      static char *str;
+      if (str == (char *)0)
+          {
+          size_t s = 0;
+          const char * fmt = "%s/%s/%s";
+          int n = snprintf ((char *)0, s, fmt, GOS_STRINGIFY(PIO_VERSION),
+                  GOS_STRINGIFY(IDF_VERSION), ESPHOME_VERSION);
+
+          s = n + 1; /* +1 for end of string */
+          str = (char *) malloc(s);
+
+          if (str == (char *) NULL)
+              str = (char *) "out of memory";
+          else
+              snprintf (str, s, fmt, GOS_STRINGIFY(PIO_VERSION),
+                  GOS_STRINGIFY(IDF_VERSION), ESPHOME_VERSION);
+          }
+      return (std::string) str;
 
 #endif // GOS_CONFIG_debug

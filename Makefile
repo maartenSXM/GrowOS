@@ -20,8 +20,8 @@ GOS_PROJECT_DIR_DEFAULT := projects/growBoard0/debug.mk
 # Makefile variables set below with ?= can be overridden by a project file.
 # Makefile variables set below with += can be prepended  by a project file.
 
-# Makefile variables starting with CPT_     are for cpptext/Makefile.cpptext.
-# Makefile variables starting with CPT_ESP_ are for cpptext/Makefile.esphome.
+# Makefile variables starting with CPT_ are for cpptext/Makefile.cpptext.
+# Makefile variables starting with ESP_ are for cpptext/Makefile.esphome.
 
 # Makefile variables starting with GOS_ are used by this Makefile and
 # by the selected GOS project file.  Some are also available to yaml
@@ -30,7 +30,9 @@ GOS_PROJECT_DIR_DEFAULT := projects/growBoard0/debug.mk
 # of CPT_EXTRA_DEFS below for more comments on exactly which GOS_
 # variables are passed, and how they are defined.
 
-MAKECMDGOALS ?= all
+ifeq (,$(MAKECMDGOALS))
+MAKECMDGOALS := all
+endif
 MAKE         := $(MAKE) --no-print-directory
 MAKEFILE     := $(lastword $(MAKEFILE_LIST))
 
@@ -44,6 +46,8 @@ $(MAKECMDGOALS):
 	@printf "$(MAKEFILE): Retreiving submodule cpptext\n"
 	git submodule init
 	git submodule update
+	cd cpptext && git checkout main
+	cd libraries/libtelnet && git checkout develop
 	@printf "$(MAKEFILE): Adding esphome libary support to libtelnet\n"
 	-cp -p libraries/libtelnet.json libraries/libtelnet/library.json
 	@printf "$(MAKEFILE): Restarting \"make $(MAKECMDGOALS)\"\n"
@@ -100,6 +104,15 @@ APP_NAME     := $(basename $(notdir $(GOS_APP_PATH)))
 # for more details.
 
 CPT_BUILD_DIR := build/$(PROJECT_NAME)_$(MAKE_NAME)
+BUILD_LOG := $(CPT_BUILD_DIR)/makeall.log
+
+# restart 'make all' with logging to $(CPT_BUILD_DIR)/build.log and console
+ifeq (all,$(GOS_AUTOLOG)$(MAKECMDGOALS))
+  SHELL:=bash
+all:
+	@$(MAKE) -k GOS_AUTOLOG=1 $(MAKECMDGOALS) |& tee $(BUILD_LOG)
+	@printf "Makefile: \"make all\" log is $(BUILD_LOG)\n"
+else
 
 # CPT_GEN is the set of files that cpptext runs the C preprocessor on.
 # They can include files from CPT_SRCS (defined below) since the cpptext
@@ -123,25 +136,25 @@ CPT_SRCS += $(foreach d,$(GOS_DIRS),$(wildcard $(d)/*.yaml))	\
 
 # The next two defines are used by cpptext/Makefile.esphome.
 
-# CPT_ESP_INIT is the file to run yamlmerge.sh on so that esphome
+# ESP_INIT is the file to run yamlmerge.sh on so that esphome
 # map keys (AKA esphome components) can be repeated.  Otherwise,
 # the yaml spec requires that only one yaml map key, such as
 # esphome's "sensor:", can exist.
 
-CPT_ESP_INIT ?= gosInit.yaml
+ESP_INIT ?= gosInit.yaml
 
-# CPT_ESP_YAML is the output of cpptext/yamlmerge.sh which has
+# ESP_YAML is the output of cpptext/yamlmerge.sh which has
 # all the esphome component definitions merged together to form
 # legitimate yaml that esphome tools can parse.
 
-CPT_ESP_YAML ?= esphome.yaml
+ESP_YAML ?= esphome.yaml
 
 # In addition to updates to $(CPT_SRCS) triggering a rebuild of esphome.yaml,
-# updates to source files in $(CPT_ESP_DEPS) are also triggers.
+# updates to source files in $(ESP_DEPS) are also triggers.
 
 GOS_DEPS ?= utils libraries/libtelnet libraries/console
 
-CPT_ESP_DEPS += $(foreach d,$(GOS_DEPS),$(wildcard $(d)/*.c) \
+ESP_DEPS += $(foreach d,$(GOS_DEPS),$(wildcard $(d)/*.c) \
 		$(wildcard $(d)/*.cpp) $(wildcard $(d)/*.h))
 
 # If there is a secrets.h file in ./ or ../, use it
@@ -205,5 +218,11 @@ endef
 
 $(foreach gen,$(patsubst ./%,%,$(CPT_GEN)), \
     $(eval $(call print_bsp_has_rule,$(gen))))
-endif	# From the git submodule install check at the top of this Makefile.
+
+# this endif is from the autolog restart
+endif
+
+# This last endif is needed from the git submodule install check way above
+
+endif
 

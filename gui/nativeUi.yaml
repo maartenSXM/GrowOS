@@ -10,7 +10,7 @@ esphome:
 display:
     platform: GOS_BSP_HAS_display_platform
     auto_clear_enabled: true
-    update_interval: 300ms
+    update_interval: 600ms
     pages:
     - id: page1
       lambda: |-

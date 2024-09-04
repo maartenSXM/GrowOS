@@ -477,6 +477,7 @@ static void getids_cb(char *t, char *i, char *n, char *v, char *s)
     printf("\n");
     }
 
+#ifndef WEBAPI_NO_MAIN // this file gets included by tcpcmd.c unix test binary
 int main(int argc, char * argv[])
     {
     char *p, *value, *state, buffer[BUF_SIZE];
@@ -533,4 +534,5 @@ int main(int argc, char * argv[])
 
     exit (-1);
     }
+#endif // !NO_MAIN
 #endif
