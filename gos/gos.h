@@ -26,7 +26,4 @@
 #include GOS_STRINGIFY2(GOS_BSP_DIR,/bsp.h)	// declare BSP hardware
 #include GOS_STRINGIFY(GOS_CONFIG_FILE)		// set project configuration
 
-// XXX refactor this file away into yaml files as #defaults
-// #include "projects/configAll.h"
-
 #endif // __INCLUDE_GOS_H__

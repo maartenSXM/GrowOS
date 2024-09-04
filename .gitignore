@@ -21,3 +21,4 @@ cpptext
 cpptext/*
 libraries/libtelnet/*
 *.bak
+*.md5

@@ -5,7 +5,7 @@
 #default GOS_BSP_esp32_variant      esp32s2
 #default GOS_BSP_esp32_flash_size   4MB
 
-#default GOS_BSP_CONFIG_RUN_FAST    1
+#default GOS_BSP_CONFIG_RUN_FAST    0
 
 esp32:
   variant:    GOS_BSP_esp32_variant
@@ -71,7 +71,7 @@ esphome:
 esphome:
   platformio_options:
     build_flags:
-      - -D CONFIG_SPIRAM_CACHE_WORKAROUND
+      - -D CONFIG_SPIRAM_CACHE_WORKAROUND=1
       - -D BOARD_HAS_PSRAM
       - -mfix-esp32-psram-cache-issue
       - -mfix-esp32-psram-cache-strategy=memw

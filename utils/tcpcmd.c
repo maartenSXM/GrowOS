@@ -1,55 +1,76 @@
-/*
- * Inspired by git@github.com:nkolban/esp32-snippets.git
- * by Neil Kolban <kolban1@kolban.com>, with thanks.
- */
-
-#include <lwip/def.h>
-#include <lwip/sockets.h>
+//  Connect to this using socat like this:
+//	socat FILE:`tty`,onlcr=1 tcp:192.168.248.20:1337
 
 #include <stdio.h>
-#include <errno.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <sys/fcntl.h>
+#include <sys/param.h>
 #include <string.h>
+#include <errno.h>
+
+// #default GOS_CONFIG_TCPCMD_PORT 1337
+#ifndef GOS_CONFIG_TCPCMD_PORT
+#define GOS_CONFIG_TCPCMD_PORT 1337
+#endif
+
+#ifdef unix
+
+#define GOS_CONFIG_UART_MONITOR 0
+#define ESP_LOGE(tag, fmt, ...) printf("%s:" fmt "\n", tag, ##__VA_ARGS__)
+#define ESP_LOGD(tag, fmt, ...) printf("%s:" fmt "\n", tag, ##__VA_ARGS__)
+#define vTaskDelete(x)
+#define GOS_STRINGIFY(x) "unixTcpCmd"
+#define WEBAPI_NO_MAIN
+#include "webApi.c"
+
+#else // !unix
 
 #include "freertos/FreeRTOS.h"
 
 #include "esp_log.h"
 #include "esp_idf_version.h"
 
+#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5,3,0)
+  #include "soc/uart_struct.h"
+  #include "driver/uart.h"
+  #include "esp_vfs.h"
+  #include "esp_vfs_dev.h"
+#else // esp-idf version is >= 5.3.0
+  #include "driver/uart.h"
+  #include "esp_vfs.h"
+  #include "driver/uart_vfs.h"	
+#endif
+
+#include <lwip/sockets.h>
+#include <lwip/netdb.h>
+
 #include "gos.h"
-#include "libtelnet.h"
 #include "webApi.h"
 
-//#default GOS_CONFIG_TELNET_UART_MONITOR no
-#define GOS_CONFIG_TELNET_UART_MONITOR 1
+// #default GOS_CONFIG_UART_MONITOR yes
+#ifndef GOS_CONFIG_UART_MONITOR 
+#define GOS_CONFIG_UART_MONITOR 1
+#endif
 
-// #include "esp_vfs.h"		// 5.2 - also select the vfs calls below
-// #include "esp_vfs_dev.h"	// 5.2
-
-#include "driver/uart_vfs.h"	// 5.3 - also select the vfs calls below
-#include "driver/uart.h"	// 5.3 - also select the vfs calls below
-#include "driver/uart_select.h"	// 5.3 - also select the vfs calls below
-#include "esp_vfs_dev.h"	// 5.3 - Old headers for the aliasing funcs
-
-#if GOS_CONFIG_TELNET_UART_MONITOR
-#include "driver/uart.h"
-
+#if GOS_CONFIG_UART_MONITOR
 #define UART_NAME   "/dev/uart/0"
 #define UART_NUM   UART_NUM_0
-
 static int uart_fd = -1;
-#endif // GOS_CONFIG_TELNET_UART_MONITOR
+#endif // GOS_CONFIG_UART_MONITOR
 
-#define PROMPT	 "%% "
-// #define PROMPT	 "\x1b[92mGrowOS %%\x1b[0m "
+#endif // !unix
+
+#define PROMPT	 "\x1b[92mGrowOS %%\x1b[0m "
 
 static int clientLogout = 0;
 
-static char td_tag[] = "telnetd";
+static char tc_tag[] = "tcpcmdd";
 
-static void myRecvHandler(int sd, uint8_t *buffer, size_t size);
+static void tcpcmdRecv(int sd, uint8_t *buffer, size_t size);
 
-#if 0
-#define MY_STDOUT
+#if 1
+// #define MY_STDOUT
 #ifdef MY_STDOUT
 FILE *_myStdout; // XXX make static
 
@@ -83,127 +104,70 @@ int _myCsock = -1;
    } while (0)
 #endif
 
-static void (*myRecvCallback)(int sd, uint8_t *buffer, size_t size);
-
-static void myTelnetCallback
-    (
-    telnet_t *thisTelnet,
-    telnet_event_t *event,
-    void *userData
-    )
-    {
-    int sd = (int) userData;
-
-    switch (event->type)
-        {
-        case TELNET_EV_SEND:
-    	    if (send(sd, event->data.buffer, event->data.size, 0) < 0)
-    		ESP_LOGE(td_tag, "send: %d (%s)", errno, strerror(errno));
-        break;
-
-        case TELNET_EV_DATA:
-    	    // ESP_LOGD(td_tag, "received data, len=%d", event->data.size);
-    	    if (myRecvCallback != NULL)
-		{
-    	        myRecvCallback (sd, (uint8_t *) (event->data.buffer),
-				     (size_t) (event->data.size));
-		}
-        break;
-    
-        default:
-	break;
-        }
-    }
-
-static void doTelnet(int sd)
+static void doClient(int sd)
     {
     fd_set rfds;
     int s, readBytes;
     size_t sizeBytes;
-#if GOS_CONFIG_TELNET_UART_MONITOR 
+#if GOS_CONFIG_UART_MONITOR 
     int maxFd = (sd >= uart_fd ? sd : uart_fd) + 1;
 #else
     int maxFd = sd + 1;
-#endif // GOS_CONFIG_TELNET_UART_MONITOR 
+#endif // GOS_CONFIG_UART_MONITOR 
     struct timeval tv =
         {
         .tv_sec = 5,
         .tv_usec = 0,
         };
 
-    static const telnet_telopt_t myTelnetOpts[] = {
-	{ TELNET_TELOPT_ECHO,      TELNET_WILL, TELNET_DONT },
-	{ TELNET_TELOPT_TTYPE,     TELNET_WILL, TELNET_DONT },
-	{ TELNET_TELOPT_COMPRESS2, TELNET_WONT, TELNET_DO   },
-	{ TELNET_TELOPT_ZMP,       TELNET_WONT, TELNET_DO   },
-	{ TELNET_TELOPT_MSSP,      TELNET_WONT, TELNET_DO   },
-	{ TELNET_TELOPT_BINARY,    TELNET_WONT, TELNET_DO   },
-	{ TELNET_TELOPT_NAWS,      TELNET_WILL, TELNET_DONT },
-	{ -1, 0, 0 }
-    };
-
     uint8_t buf[128];
-
-    telnet_t *tnHandle;
-
-    tnHandle = telnet_init (myTelnetOpts, myTelnetCallback, 0, (void *) sd);
-
-printf ("sd = %d\n", sd);
-fflush(stdout);
 
     printf ("\n\x1b[92;1mWelcome to %s!\n\n",
 					GOS_STRINGIFY(GOS_PROJECT_NAME));
-fflush(stdout);
-    // printf (PROMPT);
-printf ("%s ","%");
-fflush(stdout);
+    printf (PROMPT);
 
     FD_ZERO (&rfds);
-  
+
     while(1)
 	{
-#if GOS_CONFIG_TELNET_UART_MONITOR 
+#if GOS_CONFIG_UART_MONITOR 
 	if (uart_fd >= 0)
             FD_SET  (uart_fd, &rfds);
-#endif // GOS_CONFIG_TELNET_UART_MONITOR
+#endif // GOS_CONFIG_UART_MONITOR
 
         FD_SET  (sd, &rfds);
 
-/* xxx */ printf ("select()-ing maxFd = %d\n", maxFd);
-fflush(stdout);
-
-        s = select (maxFd, &rfds, NULL, NULL, &tv);
-
-/* xxx */ printf ("select() returned with %d\n", s);
-fflush(stdout);
+        // s = select (maxFd, &rfds, NULL, NULL, &tv);
+        s = select (maxFd, &rfds, NULL, NULL, NULL);
 
         if (s < 0)
             {
             if (errno == EINTR)
                 continue;
-            ESP_LOGE(td_tag, "Select failed: errno %d", errno);
+            ESP_LOGE(tc_tag, "Select failed: errno %d", errno);
             printf("Select failed\n");
-            goto bail;
+            break;
             }
 
 	if (clientLogout)
-	  {
-	  clientLogout = 0;
-  	  myRecvHandler (sd, (uint8_t *)"quit\r", 5);  // force cmd "quit"
-	  goto bail;
-	  }
+	    {
+	    clientLogout = 0;
+  	    tcpcmdRecv (sd, (uint8_t *)"quit\r", 5);  // force cmd "quit"
+	    // xxx - should also tear down tcpcmd daemon
+	    break;
+	    }
 
         if (s == 0) // timeout
             continue;
 
-#if GOS_CONFIG_TELNET_UART_MONITOR 
+#if GOS_CONFIG_UART_MONITOR 
         if (uart_fd >=0 && FD_ISSET(uart_fd, &rfds))
             {
             if (uart_get_buffered_data_len(UART_NUM, &sizeBytes) != ESP_OK)
                 {
-                ESP_LOGE(td_tag, "UART peek error");
+                ESP_LOGE(tc_tag, "UART peek error");
                 printf("UART peek error\n");
-                goto bail;
+                break;
                 }
 
 	    if (sizeBytes == 0)
@@ -214,65 +178,68 @@ fflush(stdout);
 
             if ((readBytes = read (uart_fd, buf, sizeBytes)) <= 0)
                 {
-                ESP_LOGE(td_tag, "UART read error");
+                ESP_LOGE(tc_tag, "UART read error");
                 printf("UART read error\n");
-                goto bail;
+                break;
                 }
 
             if (write (sd, buf, readBytes) < 0)
                 {
-                ESP_LOGE(td_tag, "client disconnected on write");
-                printf("client disconnected on write\n");
-                goto bail;
+                ESP_LOGE(tc_tag, "client disconnected on write");
+                return;
                 }
             }
-#endif // GOS_CONFIG_TELNET_UART_MONITOR 
+#endif // GOS_CONFIG_UART_MONITOR 
 
         if (FD_ISSET(sd, &rfds))
             {
   	    if ((readBytes = recv (sd, (char *)buf, sizeof(buf), 0)) <=0)
                 {
-                ESP_LOGE (td_tag, "client disconnected on read");
-                goto bail;
+                ESP_LOGE (tc_tag, "client disconnected on read");
+                return;
                 }
-/* xxx */ printf ("recv() returned with %d\n", readBytes);
-fflush(stdout);
 
-  	    telnet_recv (tnHandle, (char *)buf, readBytes);
+  	    tcpcmdRecv (sd, buf, readBytes);
 	    }
 	}
-bail:
-    // ESP_LOGD(td_tag, "Telnet client finished");
-
-    telnet_free(tnHandle);
     }
 
-void telnetMyListen
-    (
-    void (*callbackParam)(int sd, uint8_t *buffer, size_t size)
-    )
+void tcpcmdListen()
     {
 
     int csock;
+    const int enable=1;
     struct sockaddr_in saddr, caddr;
     int ssock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    myRecvCallback = callbackParam;
+    if (ssock == -1)
+        {
+    	ESP_LOGE(tc_tag, "socket: %d (%s)", errno, strerror(errno));
+	close (ssock);
+	}
+
+    if (setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+        {
+    	ESP_LOGE(tc_tag, "setsockopt: %d (%s)", errno, strerror(errno));
+	close (ssock);
+	}
 
     saddr.sin_family = AF_INET;
     saddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    saddr.sin_port = htons(23);
+    saddr.sin_port = htons(GOS_CONFIG_TCPCMD_PORT);
 
     if (bind(ssock, (struct sockaddr *)&saddr, sizeof(saddr)) < 0)
 	{
-    	ESP_LOGE(td_tag, "bind: %d (%s)", errno, strerror(errno));
+    	ESP_LOGE(tc_tag, "bind: %d (%s)", errno, strerror(errno));
+	close (ssock);
     	return;
         }
 
-    // only one telnet client at a time, to save resources
+    // only one client at a time, to save resources
     if (listen(ssock, 1) < 0)
 	{
-    	ESP_LOGE(td_tag, "listen: %d (%s)", errno, strerror(errno));
+    	ESP_LOGE(tc_tag, "listen: %d (%s)", errno, strerror(errno));
+	close (ssock);
     	return;
         }
 
@@ -289,12 +256,11 @@ void telnetMyListen
     	socklen_t len = sizeof(caddr);
     	if ((csock = accept(ssock, (struct sockaddr *)&caddr, &len)) < 0)
 	    {
-    	    ESP_LOGE(td_tag, "accept: %d (%s)", errno, strerror(errno));
+    	    ESP_LOGE(tc_tag, "accept: %d (%s)", errno, strerror(errno));
     	    return;
     	    }
 
-    	ESP_LOGD(td_tag, "We have a new client connection!");
-#if 0
+    	ESP_LOGD(tc_tag, "We have a new client connection!");
 
 	saveStdout = *pStdout;
 	*pStdout = fdopen (csock, "w");     // redirect printf() to csock
@@ -304,23 +270,19 @@ void telnetMyListen
 	// enable line buffering didn't work, so turn it off
 	setvbuf(*pStdout, NULL, _IONBF, 0);
 
-    	doTelnet (csock);
+	// _myCsock = csock;
+    	doClient (csock);
+	// _myCsock = -1;
 
 	shutdown(csock, SHUT_RDWR);
 
 	fclose (*pStdout);    // will also call close(csock);
 
 	*pStdout = saveStdout;
-#else
-	_myCsock = csock;
-    	doTelnet (csock);
-	shutdown(csock, SHUT_RDWR);
-	close(csock);
-	_myCsock = -1;
-#endif
         }
     }
 
+#ifndef unix // for unix, we get this from webApi.c
 // called with type, id, name, value, state character strings
 static void getids_cb(char *t, char *i, char *n, char *v, char *s)
     {
@@ -329,6 +291,7 @@ static void getids_cb(char *t, char *i, char *n, char *v, char *s)
         printf(" (%s)", s);                 // state
     printf("\n");
     }
+#endif // !unix
 
 #define HTTP_LINE_SIZE 256
 
@@ -344,15 +307,15 @@ void doEsphomeCmd (int sd, char *cmd)
         if (((pBuf = malloc (HTTP_LINE_SIZE)) == NULL) ||
            ((h = malloc (128)) == NULL))
     	{
-    	printf ("telnet: out of memory\n");
+    	printf ("tcpcmdd: out of memory\n");
     	shutdown (sd, SHUT_RDWR);
-#if GOS_CONFIG_TELNET_UART_MONITOR
+#if GOS_CONFIG_UART_MONITOR
     	if (uart_fd >= 0)
     	    {
     	    close (uart_fd);
     	    uart_fd = -1;
     	    }
-#endif // GOS_CONFIG_TELNET_UART_MONITOR
+#endif // GOS_CONFIG_UART_MONITOR
     	return;
     	}
         // give h, t, i, and m 32 bytes each
@@ -399,7 +362,7 @@ void doEsphomeCmd (int sd, char *cmd)
 	, me, me, me, me, me, me, me);
     }
 
-static void myRecvHandler(int sd, uint8_t *buffer, size_t size)
+static void tcpcmdRecv(int sd, uint8_t *buffer, size_t size)
     {
     char *p, *line = (char *) buffer;
 
@@ -407,7 +370,7 @@ static void myRecvHandler(int sd, uint8_t *buffer, size_t size)
     p = line;
     while (size != 0)
         {
-        if (*p == '\r')
+        if (*p == '\n')
 	    {
 	    *p = '\0';
 	    break;
@@ -428,15 +391,15 @@ static void myRecvHandler(int sd, uint8_t *buffer, size_t size)
 	    "help\n"
 	    "	this help\n"
 	    "quit\n"
-	    "	exit telnet session\n"
+	    "	exit command session\n"
 	    "esphome\n"
 	    "	issue esphome commands\n"
-#if GOS_CONFIG_TELNET_UART_MONITOR
+#if GOS_CONFIG_UART_MONITOR
 	    "set uart_monitor on\n"
 	    "	enable monitoring of UART\n"
 	    "set uart_monitor off\n"
 	    "	disable monitoring of UART\n"
-#endif // GOS_CONFIG_TELNET_UART_MONITOR
+#endif // GOS_CONFIG_UART_MONITOR
 	    );
 	break;
 	}
@@ -444,14 +407,14 @@ static void myRecvHandler(int sd, uint8_t *buffer, size_t size)
       if (strcmp (line, "quit") ==0)
         {
 	printf("Good bye.\n");
-    	shutdown (sd, SHUT_RDWR);
-#if GOS_CONFIG_TELNET_UART_MONITOR
+    	shutdown (sd, SHUT_RDWR);   // causes next select() to error out
+#if GOS_CONFIG_UART_MONITOR
 	if (uart_fd >= 0)
 	    {
 	    close (uart_fd);
 	    uart_fd = -1;
     	    }
-#endif // GOS_CONFIG_TELNET_UART_MONITOR
+#endif // GOS_CONFIG_UART_MONITOR
 	return;
 	}
 
@@ -461,7 +424,7 @@ static void myRecvHandler(int sd, uint8_t *buffer, size_t size)
 	break;
 	}
 
-#if GOS_CONFIG_TELNET_UART_MONITOR
+#if GOS_CONFIG_UART_MONITOR
       if (strcmp (line, "set uart_monitor on") ==0)
         {
 	if (uart_fd >= 0)
@@ -470,7 +433,7 @@ static void myRecvHandler(int sd, uint8_t *buffer, size_t size)
 	    {
 	    if ((uart_fd = open(UART_NAME, O_RDWR)) < 0)
 		{
-		ESP_LOGE(td_tag, "Unable to open UART");
+		ESP_LOGE(tc_tag, "Unable to open UART");
 		printf("Unable to open UART\n");
 		}
 	    else
@@ -491,7 +454,7 @@ static void myRecvHandler(int sd, uint8_t *buffer, size_t size)
             printf ("uart_monitor is not on\n");
 	break;
 	}
-#endif // GOS_CONFIG_TELNET_UART_MONITOR
+#endif // GOS_CONFIG_UART_MONITOR
 
       // if we get here, no legit command was found
 
@@ -503,9 +466,9 @@ static void myRecvHandler(int sd, uint8_t *buffer, size_t size)
     // printf (PROMPT);
     }
 
-static void telnetd(void *data)
+static void tcpcmdd(void *data)
     {
-#if GOS_CONFIG_TELNET_UART_MONITOR
+#if GOS_CONFIG_UART_MONITOR
     uart_config_t uart_config =
         {
         .baud_rate = 115200,
@@ -514,85 +477,98 @@ static void telnetd(void *data)
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
         };
-#endif // GOS_CONFIG_TELNET_UART_MONITOR
+#endif // GOS_CONFIG_UART_MONITOR
 
-    ESP_LOGD (td_tag, ">> telnetTask");
+    ESP_LOGD (tc_tag, ">> tcpcmdTask");
 
-#if GOS_CONFIG_TELNET_UART_MONITOR
+#if GOS_CONFIG_UART_MONITOR
     if (uart_param_config (UART_NUM, &uart_config) != ESP_OK)
         {
-        ESP_LOGE(td_tag, "Uart param config failed");
+        ESP_LOGE(tc_tag, "Uart param config failed");
 	vTaskDelete (NULL);
         }
 
     uart_driver_delete (UART_NUM_0);
     if (uart_driver_install(UART_NUM_0, 256, 0, 0, NULL, 0) != ESP_OK)
         {
-        ESP_LOGE(td_tag, "Uart driver install failed");
+        ESP_LOGE(tc_tag, "Uart driver install failed");
 	vTaskDelete (NULL);
         }
 
-    // esp_vfs_dev_uart_register();	    // 5.2
-    // esp_vfs_dev_uart_use_driver(0);	    // 5.2
+#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5,3,0)
+    esp_vfs_dev_uart_register();
+    esp_vfs_dev_uart_use_driver(0);
+    // uart_vfs_dev_register();
+    // uart_vfs_dev_use_driver(UART_NUM);
+#else
+    esp_vfs_dev_uart_register();
+    esp_vfs_dev_uart_use_driver(0);
+#endif
 
-    uart_vfs_dev_register();		    // 5.3
-    uart_vfs_dev_use_driver(UART_NUM);	    // 5.3
+#endif // GOS_CONFIG_UART_MONITOR
 
-#endif // GOS_CONFIG_TELNET_UART_MONITOR
+    tcpcmdListen ();
 
-    telnetMyListen (myRecvHandler);
-
-    ESP_LOGD (td_tag, "<< telnetTask");
+    ESP_LOGD (tc_tag, "<< tcpcmdTask");
 
     vTaskDelete (NULL);
     }
 
-esp_err_t telnetServerInit (void)
+#define ALLOC_TCB_OPT    (MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)
+#define ALLOC_STACK_OPT	 (MALLOC_CAP_SPIRAM   | MALLOC_CAP_8BIT)
+
+#define STACK_SIZE_BYTES (20 * 1024)
+#define STACK_SIZE_WORDS (STACK_SIZE_BYTES / sizeof(StackType_t))
+
+#ifdef unix
+int main(void)
+    {
+    tcpcmdd((void *)NULL);
+    return(0);
+    }
+#else // ! unix
+esp_err_t tcpcmdServerInit (void)
     {
     static int init = 0;
 
+#if 0
     StaticTask_t * pTcb;
     StackType_t	 * pStack;
+#endif
 
     if (init)
 	return ESP_OK;
 
-    // allocate telnetd stack and scratch space in PSRAM */
-
-#define ALLOC_TCB_OPT    (MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)
-
-#if 0 // PSRAM stacks flakey on some chips - add config option?
-#define ALLOC_STACK_OPT	 (MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)
-#else
-#define ALLOC_STACK_OPT	 (MALLOC_CAP_SPIRAM   | MALLOC_CAP_8BIT)
-#endif
-
-#define STACK_SIZE_BYTES (100 * 1024)
-#define STACK_SIZE_WORDS (STACK_SIZE_BYTES / sizeof(StackType_t))
-
+#if 0
     pTcb =   heap_caps_malloc(sizeof(StaticTask_t), ALLOC_TCB_OPT);
     pStack = heap_caps_malloc(STACK_SIZE_BYTES, ALLOC_STACK_OPT);
 
     // xTaskCreateStatic() returns NULL if pStack or pTcb are NULL
-    if (xTaskCreateStatic (telnetd, "telnetd", STACK_SIZE_WORDS, NULL, 5,
+    if (xTaskCreateStatic (tcpcmdd, "tcpcmdd", STACK_SIZE_WORDS, NULL, 5,
 						pStack, pTcb) == NULL)
 	{
 	free (pTcb);	    // free(NULL) is legit
 	free (pStack);	    // free(NULL) is legit
-
         return ESP_FAIL;
 	}
+#else
+    if (xTaskCreate(tcpcmdd,"tcpcmdd",STACK_SIZE_WORDS,NULL,5,NULL) != pdPASS)
+        return ESP_FAIL;
+#endif
 
     init = 1;
 
-    ESP_LOGI(td_tag, "telnetServerInit() done");
+    ESP_LOGI(tc_tag, "tcpcmdServerInit() done");
 
     return ESP_OK;
     }
 
-esp_err_t telnetServerTerm (void)
+esp_err_t tcpcmdServerTerm (void)
     {
     clientLogout = 1;
 
+    ESP_LOGI(tc_tag, "tcpcmdServerTerm() done");
+
     return ESP_OK;
     }
+#endif // !unix
