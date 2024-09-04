@@ -47,9 +47,6 @@ $(MAKECMDGOALS):
 	git submodule init
 	git submodule update
 	cd cpptext && git checkout main
-	cd libraries/libtelnet && git checkout develop
-	@printf "$(MAKEFILE): Adding esphome libary support to libtelnet\n"
-	-cp -p libraries/libtelnet.json libraries/libtelnet/library.json
 	@printf "$(MAKEFILE): Restarting \"make $(MAKECMDGOALS)\"\n"
 	$(MAKE) BAIL=1 $(MAKECMDGOALS)
 else
@@ -136,7 +133,7 @@ CPT_SRCS += $(foreach d,$(GOS_DIRS),$(wildcard $(d)/*.yaml)) $(CPT_GEN)
 # In addition to updates to $(CPT_SRCS) triggering a rebuild of esphome.yaml,
 # updates to source files in $(ESP_DEPS) are also triggers.
 
-GOS_DEPS ?= utils libraries/libtelnet libraries/console
+GOS_DEPS ?= utils libraries/console
 
 ESP_DEPS += $(foreach d,$(GOS_DEPS),$(wildcard $(d)/*.c) \
 		$(wildcard $(d)/*.cpp) $(wildcard $(d)/*.h))

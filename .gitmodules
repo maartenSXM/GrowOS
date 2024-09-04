@@ -4,8 +4,3 @@
 	branch = main
 	ignore = dirty
 	update = rebase
-[submodule "libraries/libtelnet"]
-	path = libraries/libtelnet
-	url = https://github.com/seanmiddleditch/libtelnet
-	branch = develop
-	ignore = dirty
