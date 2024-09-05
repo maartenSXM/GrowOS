@@ -36,12 +36,13 @@ endif
 MAKE         := $(MAKE) --no-print-directory
 MAKEFILE     := $(lastword $(MAKEFILE_LIST))
 
-# If cpptext submodule is empty, this must be a fresh clone - so get submodules.
+# Fresh clones result in cpptext submodule empty. This gets the submodules.
 
 ifeq (,$(wildcard cpptext/.git))
   ifneq (,$(BAIL))
     $(error $(MAKEFILE): make loop detected. Bailing out.)
   endif
+
 $(MAKECMDGOALS): 
 	@printf "$(MAKEFILE): Retreiving submodule cpptext\n"
 	git submodule init
@@ -196,6 +197,7 @@ print-hardware::
 	@printf "BSP hardware definitions for $(1) are:\n"
 	@$(CPT_CPP) -dM $(CPT_TMP_DIR)/$(1) | grep GOS_BSP_HAS
 endef
+.PHONY: print-hardware
 
 $(foreach gen,$(patsubst ./%,%,$(CPT_GEN)), \
     $(eval $(call print_bsp_has_rule,$(gen))))
@@ -203,7 +205,7 @@ $(foreach gen,$(patsubst ./%,%,$(CPT_GEN)), \
 # this endif is from the autolog restart
 endif
 
-# This last endif is needed from the git submodule install check way above
+# This last endif is needed from the git submodule install check above
 
 endif
 
