@@ -4,8 +4,8 @@
 #include "gos/gos.h"
 
 #define GOS_BSP_HAS_psram
-#define GOS_BSP_HAS_spi
-#define GOS_BSP_HAS_i2c
+// #define GOS_BSP_HAS_spi
+// #define GOS_BSP_HAS_i2c
 #define GOS_BSP_HAS_sensor_internal_temperature
 #define GOS_BSP_HAS_wifi
 

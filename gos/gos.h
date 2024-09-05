@@ -24,6 +24,7 @@
 // project defaults.
 
 #include GOS_STRINGIFY2(GOS_BSP_DIR,/bsp.h)	// declare BSP hardware
-#include GOS_STRINGIFY(GOS_CONFIG_FILE)		// set project configuration
+#include GOS_STRINGIFY(GOS_CONFIG_FILE)		// project config overrides
+#include "projects/common/config.h"		// project config defaults
 
 #endif // __INCLUDE_GOS_H__

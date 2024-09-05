@@ -10,16 +10,21 @@ export GOS_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && p
 # re-alias ~/.bashrc's "gos" alias to simply cd to GrowOS
 alias gos='cd $GOS_HOME'
 
-# set your default GrowOS projects and IP addresses here.
+# set your GrowOS project make aliases and respective IP addresses here.
+# They are indexed by number, as used below.
+
 alias make0='(cd $GOS_HOME && make PRJ=projects/growBoard0/native.mk)'
 alias make1='(cd $GOS_HOME && make PRJ=projects/growBoard1/debug.mk)'
+
 export _GB_IP_CPU0=192.168.248.10
 export _GB_IP_CPU1=192.168.248.11
 
 # For example, user name "maarten" prefers these:
 if [ "$USER" == "maarten" ]; then
-  alias maked='(cd $GOS_HOME && make PRJ=projects/growBoard0/debug.mk)'
+  alias make0='(cd $GOS_HOME && make PRJ=projects/growBoard0/debug.mk)'
+  alias maken='(cd $GOS_HOME && make PRJ=projects/growBoard0/native.mk)'
   alias make1='(cd $GOS_HOME && make PRJ=projects/growBoard1/debug.mk)'
+  
   export _GB_IP_CPU0=192.168.248.20
   export _GB_IP_CPU1=192.168.248.21
 fi

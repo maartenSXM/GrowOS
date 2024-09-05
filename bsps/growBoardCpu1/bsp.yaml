@@ -17,6 +17,7 @@ psram:
   speed: 40MHz
 #endif
 
+#if 0
 spi:
   id: gosBsp_spi
   clk_pin: GOS_BSP_PIN_TFT_SCLK
@@ -30,6 +31,7 @@ i2c:
   scl: GOS_BSP_PIN_TWI_SCK
   frequency: 200kHz
   scan: true
+#endif
 
 switch:
   - platform: gpio
