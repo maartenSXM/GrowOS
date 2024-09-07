@@ -1,47 +1,46 @@
-To install esphome, do this:
+To install esphome, do these steps:
 
-sudo apt install git make python3.10-venv gcc
+sudo apt install git make python3.10-venv gcc yq
+sudo snap install yq
+    (on MacOS brew install git make python3.10-venv gcc yq)
 git clone https://github.com/esphome/esphome.git
 cd esphome
 vi requirements_dev.txt and comment out clang-tidy (takes too long and not needed)
 ./script/setup
+Add this next line to your ~/.bashrc (tweak paths for the git directories on your system):
+alias gos-setup='source ~/git/esphome/venv/bin/activate; cd ~/git/GrowOS; source ./Bashrc'
 
-Then in stall yq tool using:
-sudo snap install yq
-or, on MacOS: brew install yq
+and then issue these two commands:
+source ~/.bashrc 
+gos-setup
 
-Now inspect the alias in ./Bashrc and adjust to the current directory and then:
+Now you are in the GrowOS home directory.  You can build
+the default project (for lilygot4s3) from $GOS_HOME using 'make' or
+from anywhere, using 'gos-make'.  See $GOS_HOME/Bashrc for more
+convenience aliases that are defined at the end of that file.
 
-source Bashrc 
-growOS
-(once only do this: pip install gh-folder-download)
+To change GrowOS projects, you can issue, for example, this:
+  make PRJ=projects/growBoard0
 
-Now it is possible to build and run esphome for CPU 0 like this:
+GrowOS remembers the last project in $GOS_HOME/.goslast so you don't have
+to use PRJ= unless you are changing from one project to another.
 
-To build, just use 'make' to build for CPU0 or 'make1' alias to build
-for CPU1.
+It is also possible to issue esphome commands directly on the generated
+esphome.yaml file from the build directory.  To change to the project's
+build directory, you can use the gos-build alias. Then esphome
+commands such as these can be issued:
 
-The Makefile chooses a board serial number and network location
-based on $USER and generates a full yaml file for esphome.
-For now, only two userids (erik and maarten) are supported.
-The files location.pec and location.sxm have that localization.
-
-Once the yaml files are generated, instead of driving things
-from the Makefile, it is also possible to issue esphome commands
-directly on the generated yaml file, such as:
-
-esphome compile myProj_0.yaml
-esphome upload myProj_0.yaml
-esphome logs myProj_0.yaml
+esphome compile esphome.yaml
+esphome upload esphome.yaml
+esphome logs esphome.yaml
 
 See esphome -h for more details.
 
-aliases for the above are in ./Bashrc. 
+Intermediate C-preprocessed yaml files are stored in the build
+subdirectory "dehashed".  
 
-There are some intermediate C-preprocessed files stored in directories
-./myProj_0 and ./myProj_1
-
-It is possible to connect to the growboard's IP address
+To burn GrowOS to a board, 
+By default, it is possible to connect to GrowOS's IP address
 from a browser to see some published information and flip
 some switches.
 

@@ -72,8 +72,8 @@ else
   endif
 endif
 
-GOS_PROJECT_FILE = $(PRJ)			    # project make file
-GOS_PROJECT_DIR  = $(patsubst %/,%,$(dir $(PRJ)))   # project directory
+GOS_PROJECT_FILE = $(PRJ)
+GOS_PROJECT_DIR  = $(patsubst %/,%,$(dir $(PRJ)))
 
 # Include the selected GOS project (Makefile fragment).
 
