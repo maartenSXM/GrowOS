@@ -102,11 +102,13 @@ display:
       offset_height: 0
       offset_width: 0
     color_order: bgr
+    #if 0
     transform:
       mirror_y: false
       swap_xy: true
       mirror_x: false
     // rotation: 180
+    #endif
     invert_colors: false
     cs_pin:
       number: GOS_BSP_PIN_TFT_CS

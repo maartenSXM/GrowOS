@@ -1,7 +1,6 @@
 # This should work for in-tree or out of tree GrowOS projects
 ifeq (,$(GOS_HOME))
-  $(info environment variable GOS_HOME not found.)
-  $(error Please source sphome/venv/bin/activate *and* GrowOS/Bashrc)
+  $(error GOS_HOME not defined. Did you activate the GrowOS env?)
 endif
 
 TOP = $(shell realpath --relative-to=$(CURDIR)   $(GOS_HOME))

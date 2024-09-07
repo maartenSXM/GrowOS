@@ -1,3 +1,4 @@
+
 // If you received a build error regarding secrets.h, you are in
 // the right place. Follow the instructions after secrets.h check below
 // #if ... #endif statment
@@ -8,12 +9,12 @@
 #default GOS_CONFIG_NET_DHCP            0       // ... using dhcp?
 #default GOS_CONFIG_NET_FALLBACK        0       // ... Fallback HotSpot?
 #default GOS_CONFIG_NET_PORTAL          0       // ... Provisioning SSID?
-#default GOS_CONFIG_NET_MDNS            1       // ... mDNS service lookup?
+#default GOS_CONFIG_NET_MDNS            0       // ... mDNS service lookup?
 #default GOS_CONFIG_NET_NTP             1       // ... Network Time Protocol?
 #default GOS_CONFIG_NET_HA              0       // ... Home Assistant?
 #default GOS_CONFIG_NET_OTA             1       // ... WiFi update allowed?
 #default GOS_CONFIG_NET_WEB_SERVER      1       // ... Built-in web server?
-#default GOS_CONFIG_NET_TCPCMD_SERVER	1	// ... tcpcmd server?
+#default GOS_CONFIG_NET_TCPCMD		1	// ... tcpcmd server?
 #default GOS_CONFIG_NET_IMPROV_WIFI     0       // ... Improv provisioning?
 #default GOS_CONFIG_NET_STREAM_SERVER   0       // ... enable tty server?
 
@@ -77,10 +78,6 @@ wifi:
     subnet: _SECRET_WIFI_NETMASK
     dns1: _SECRET_WIFI_GATEWAY
 #endif // GOS_CONFIG_NET_STATIC
-#if 0 && GOS_CONFIG_NET_TCPCMD_SERVER
-  on_connect:
-    lambda: tcpcmdServerInit();
-#endif // GOS_CONFIG_NET_TCPCMD_SERVER
 #endif // GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
 
 // Enable fallback hotspot (captive portal) in case wifi connection fails
@@ -229,7 +226,7 @@ text_sensor:
 sensor:
   - platform: wifi_signal
     id: my_wifi_sensor
-    name: "Net WiFi Signal "
+    name: "Net WiFi Signal"
     update_interval: 15s
 
 esphome:
@@ -248,29 +245,23 @@ text_sensor:
 
 #endif // GOS_CONFIG_NET_WIFI_UTILS
 
-#if GOS_CONFIG_NET_TCPCMD_SERVER
+#if GOS_CONFIG_NET_TCPCMD
 esphome:
   includes:
     - GOS_HOME/utils/tcpcmd.h
     - GOS_HOME/utils/tcpcmd.c
-#if 0
-  libraries:
-    - GOS_HOME/../../../libraries/libtcpcmd
+
+// The default for the tcpcmd server is off for security since there
+// is no login security.  To connect to it, just connect a socket,
+// like this: socat FILE:`tty`,onlcr=1 tcp:192.168.248.20:1337
+
+#default GOS_CONFIG_NET_TCPCMD_ON 0
+#if GOS_CONFIG_NET_TCPCMD_ON
+wifi:
+  on_connect:
+    - switch.turn_on: gosSwitch_tcpcmdInit
 #endif
 
-#if 0
-esphome:
-  on_boot:
-  - priority: 200
-    then:
-      lambda: |-
-        if (tcpcmdServerInit() == ESP_FAIL)
-            ESP_LOGD("tcpcmdd", "Initializaton by switch failed");
-        else
-            ESP_LOGD("tcpcmdd", "Initializaton succeeded");
-#else
-// enable switch for tcpcmd - xxx make the manual switch the default for
-// security - ideally with a timeout to turn it back off after a while.
 switch:
   - platform: template
     name: "Net Command Server Init"
@@ -288,19 +279,19 @@ switch:
         else
             ESP_LOGD("tcpcmdd", "Termination succeeded");
 #if 0
+    // This timer works but tcpcmd.c needs to cleanly terminate the server,
+    // not just boot off the current logged in user.
     on_turn_on:
       then:
         - wait_until:
             condition:
               for:
-                time: 1min
+                time: 30min
                 condition:
                   - switch.is_on: gosSwitch_tcpcmdInit
         - switch.turn_off: gosSwitch_tcpcmdInit
 #endif
-#endif // 1
-
-#endif // GOS_CONFIG_TCPCMD_SERVER
+#endif // GOS_CONFIG_NET_TCPCMD
 
 #if GOS_CONFIG_NET_WEB_SERVER
 esphome:
@@ -331,3 +322,11 @@ sensor:
 
 #endif // GOS_CONFIG_NET_STREAM_SERVER
 #endif // GOS_CONFIG_NET_WIFI
+
+#if GOS_CONFIG_NET_MDNS
+mdns:
+  disabled: false
+#else
+mdns:
+  disabled: true
+#endif // GOS_CONFIG_NET_MDNS

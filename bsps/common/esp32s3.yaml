@@ -12,6 +12,7 @@ esp32:
   variant:    GOS_BSP_esp32_variant
   flash_size: GOS_BSP_esp32_flash_size
   framework:
+#if 0 // xxx
     sdkconfig_options:
 #if GOS_BSP_CONFIG_RUN_FAST
       CONFIG_SOC_MEMSPI_SRC_FREQ_80M_SUPPORTED: y
@@ -40,6 +41,10 @@ esp32:
       CONFIG_ESP32S3_RTC_CLK_SRC_EXT_CRYS: y
       CONFIG_ESP32S3_RTC_CLK_CAL_CYCLES: "576"
 #endif // GOS_BSP_HAS_32_KHZ_XTAL
+#else
+    sdkconfig_options:
+      CONFIG_ESPTOOLPY_FLASHSIZE_16MB: y
+#endif // 0
 
 #default GOS_BSP_esphome_name        esp32s3
 #default GOS_BSP_esphome_mcu         esp32s3

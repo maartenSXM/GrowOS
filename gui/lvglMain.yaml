@@ -41,8 +41,11 @@ touchscreen:
             - logger.log: "LVGL resuming"
             - lvgl.resume:
             - lvgl.widget.redraw:
+#ifdef GOS_BSP_HAS_backlight
             - light.turn_on: gosBsp_light_binary_backlight
+#endif // GOS_BSP_HAS_backlight
 #endif // GOS_CONFIG_LVGL_IDLE
+
 #define MY_FONT montserrat_18
 
 number:

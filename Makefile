@@ -88,6 +88,15 @@ endif
 ifeq (,$(GOS_APP_PATH))
   $(error Makefile: $(GOS_PROJECT_FILE) did not define GOS_APP_PATH)
 endif
+ifeq (,$(wildcard $(GOS_CONFIG_FILE)))
+  $(error Makefile: GOS_CONFIG_FILE not found)
+endif
+ifeq (,$(wildcard $(GOS_BSP_DIR)))
+  $(error Makefile: GOS_BSP_DIR not found)
+endif
+ifeq (,$(wildcard $(GOS_APP_PATH)))
+  $(error Makefile: GOS_APP_PATH not found)
+endif
 
 # This strips the directory and suffix, if any, for further use below
 
@@ -165,18 +174,18 @@ CPT_EXTRA_INCS += -I $(GOS_BSP_DIR)
 CPT_EXTRA_DEFS += -D GOS_HOME=../..				\
 		  -D GOS_BUILD_PATH=$(CPT_BUILD_DIR)		\
 		  -D GOS_PROJECT_DIR=$(GOS_PROJECT_DIR)		\
+		  -D GOS_PROJECT_NAME=$(PROJECT_NAME)		\
+		  -D GOS_PROJECT_$(PROJECT_NAME)		\
 		  -D GOS_CONFIG_FILE=$(GOS_CONFIG_FILE)		\
 		  -D GOS_BSP_DIR=$(GOS_BSP_DIR)			\
-		  -D GOS_APP_PATH=$(GOS_APP_PATH)		\
-		  -D GOS_PROJECT_NAME=$(PROJECT_NAME)		\
-		  -D GOS_MAKE_NAME=$(MAKE_NAME)			\
 		  -D GOS_BSP_NAME=$(BSP_NAME)			\
-		  -D GOS_APP_NAME=$(APP_NAME)			\
-		  -D GOS_USER_NAME=$(USER)			\
-		  -D GOS_PROJECT_$(PROJECT_NAME)		\
-		  -D GOS_MAKE_$(MAKE_NAME)			\
 		  -D GOS_BSP_$(BSP_NAME)			\
+		  -D GOS_APP_PATH=$(GOS_APP_PATH)		\
+		  -D GOS_APP_NAME=$(APP_NAME)			\
 		  -D GOS_APP_$(APP_NAME)			\
+		  -D GOS_MAKE_NAME=$(MAKE_NAME)			\
+		  -D GOS_MAKE_$(MAKE_NAME)			\
+		  -D GOS_USER_NAME=$(USER)			\
 		  -D GOS_USER_$(USER)
 
 # The reason GOS_HOME is set above to two levels up i.e. ../.. is because
@@ -192,15 +201,26 @@ CPT_EXTRA_DEFS += -D GOS_HOME=../..				\
 
 include cpptext/Makefile.cpptext
 
-define print_bsp_has_rule
-print-hardware::
-	@printf "BSP hardware definitions for $(1) are:\n"
-	@$(CPT_CPP) -dM $(CPT_TMP_DIR)/$(1) | grep GOS_BSP_HAS
-endef
-.PHONY: print-hardware
+print-config:: $(ESP_INIT)
+	@printf "Makefile variables:\n"
+	@printf "  PROJECT_NAME: $(PROJECT_NAME)\n"
+	@printf "  APP_NAME: $(APP_NAME)\n"
+	@printf "  BSP_NAME: $(BSP_NAME)\n"
+	@printf "  ESP_INIT: $(ESP_INIT)\n"
+	@printf "  CPT_GEN:  $(CPT_GEN)\n"
+	@printf "  CPT_SRCS:\n"
+	@$(foreach f,$(CPT_SRCS),printf "    $(f)\n";)
+	@printf "  ESP_DEPS:\n"
+	@$(foreach f,$(ESP_DEPS),printf "    $(f)\n";)
+	@printf "Makefile #defines available to yaml files:"
+	@printf "  $(subst -, ,$(subst -D,#define,$(CPT_EXTRA_DEFS)))\n" | sed -e 's/ #/\n  #/g' -e 's/=/ /g'
+	@printf "bsp.h #defines available to yaml and C/C++ files:\n"
+	@$(CPT_CPP) -dM $(CPT_TMP_DIR)/$(ESP_INIT) | \
+				grep GOS_BSP_HAS | sed 's/^/  /'
+	@printf "For #defaults available to yaml files, "
+	@printf "use: make print-defaults\n"
 
-$(foreach gen,$(patsubst ./%,%,$(CPT_GEN)), \
-    $(eval $(call print_bsp_has_rule,$(gen))))
+.PHONY: print-config
 
 # this endif is from the autolog restart
 endif

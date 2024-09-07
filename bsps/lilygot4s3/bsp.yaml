@@ -30,35 +30,28 @@ i2c:
   sda: GOS_BSP_PIN_II2C_SDA
   scl: GOS_BSP_PIN_II2C_SCL
 
+#ifdef GOS_BSP_HAS_display
+#ifdef GOS_BSP_HAS_touchscreen
 touchscreen:
   - platform: cst226
     id: gosBsp_touchscreen
     interrupt_pin: GOS_BSP_PIN_TP_INT
     reset_pin: GOS_BSP_PIN_TP_RST
+#if 0
     transform:
       mirror_x: true
       mirror_y: true
+#endif
 #if 0
     on_touch:
       - lambda: |-
            printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",
                     touch.x, touch.y, touch.x_raw, touch.y_raw);
 #endif
-#if GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
-    on_release:
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - logger.log: "LVGL resuming"
-            - lvgl.resume:
-            - lvgl.widget.redraw:
-#ifdef GOS_BSP_HAS_backlight // T4 S3 does not have one under sw control
-            - light.turn_on: light_TFT_BACKLIGHT
-#endif
-#endif // GOS_CONFIG_LVGL && GOS_CONFIG_LVGL_IDLE
+#endif // GOS_BSP_HAS_touchscreen
 
 display:
-  - platform: qspi_amoled
+    platform: qspi_amoled
     id: gosBsp_display
     model: RM690B0
     data_rate: 80MHz
@@ -75,6 +68,7 @@ display:
     enable_pin: GOS_BSP_PIN_VDD_EV
     update_interval: never
     auto_clear_enabled: false
+    rotation: 90
 
 #if 0 // XXX merged?
 external_components:
@@ -85,5 +79,6 @@ external_components:
     components: [ qspi_amoled ]
     refresh: always
 #endif
+#endif // GOS_BSP_HAS_display
 
 #endif // _GOS_INCLUDE_BSP_YAML_
