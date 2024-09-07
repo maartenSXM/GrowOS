@@ -462,8 +462,7 @@ static void tcpcmdRecv(int sd, uint8_t *buffer, size_t size)
 
       } while (0); // end of do
 
-    printf ("%s ","%");
-    // printf (PROMPT);
+    printf (PROMPT);
     }
 
 static void tcpcmdd(void *data)
@@ -497,12 +496,10 @@ static void tcpcmdd(void *data)
 
 #if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5,3,0)
     esp_vfs_dev_uart_register();
-    esp_vfs_dev_uart_use_driver(0);
-    // uart_vfs_dev_register();
-    // uart_vfs_dev_use_driver(UART_NUM);
+    esp_vfs_dev_uart_use_driver(UART_NUM);
 #else
-    esp_vfs_dev_uart_register();
-    esp_vfs_dev_uart_use_driver(0);
+    uart_vfs_dev_register();
+    uart_vfs_dev_use_driver(UART_NUM);
 #endif
 
 #endif // GOS_CONFIG_UART_MONITOR

@@ -15,6 +15,7 @@ myProj_1.yaml
 myProj_1/
 Makefile.new
 utils/webApi
+utils/tcpcmd
 build
 *.old
 .gosprj
@@ -23,3 +24,4 @@ cpptext/*
 libraries/libtelnet/*
 *.bak
 *.md5
+smeg/

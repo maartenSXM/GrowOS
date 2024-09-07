@@ -35,7 +35,7 @@
     #else
 	#define GOS_PART_NVS_SIZE 4k
     #endif
-#elif
+#else
     #error "partitions.csv: Unknown flash size"
 #endif
 
