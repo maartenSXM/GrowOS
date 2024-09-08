@@ -1,4 +1,4 @@
-# This Makefile uses a git submodule cpptext to build GOS esphome projects
+# This Makefile uses github repo cpptext to build GOS esphome projects
 # from ./projects/*.mk.  Use "make PRJ=projects/<prj>/<prj>.mk" to
 # select a specific GOS project file otherwise $(GOS_PROJECT_DIR_DEFAULT)
 # is selected.
@@ -36,17 +36,21 @@ endif
 MAKE         := $(MAKE) --no-print-directory
 MAKEFILE     := $(lastword $(MAKEFILE_LIST))
 
-# Fresh clones result in cpptext submodule empty. This gets the submodules.
+ifeq (,$(GOS_HOME))
+  $(info Makefile: please define GOS_HOME to use this Makefile.)
+  $(error Makefile: Refer to $(GOS_HOME)/Bashrc for details.)
+endif
+GOS_HOME := $(shell realpath --relative-to=$(CURDIR) $(GOS_HOME))
 
-ifeq (,$(wildcard cpptext/.git))
+# git clone cpptext if not installed
+ifeq (,$(wildcard $(GOS_HOME)/cpptext/.git))
   ifneq (,$(BAIL))
     $(error $(MAKEFILE): make loop detected. Bailing out.)
   endif
 
 $(MAKECMDGOALS): 
-	@printf "$(MAKEFILE): Retreiving submodule cpptext\n"
-	git submodule init
-	git submodule update
+	@printf "$(MAKEFILE): Retreiving git repo cpptext\n"
+	git clone https://github.com/maartenSXM/cpptext
 	cd cpptext && git checkout main
 	@printf "$(MAKEFILE): Restarting \"make $(MAKECMDGOALS)\"\n"
 	$(MAKE) BAIL=1 $(MAKECMDGOALS)
@@ -57,18 +61,19 @@ else
 # Check if PRJ= was specified on the command line to select a GOS project.
 
 ifneq (,$(PRJ))
-  ifeq (,$(wildcard $(PRJ)))	    # check specified GOS project exists
+  ifeq (,$(wildcard $(PRJ)))
     $(error $(MAKEFILE): $(PRJ) not found)
   endif
-  $(shell echo $(PRJ) >.gosprj)	    # remember the project in .gosprj
+  $(shell echo $(PRJ) >$(GOS_HOME)/.gosprj)
 else
-  ifneq (,$(wildcard .gosprj))	    # check if a GOS project is remembered
-    PRJ := $(shell cat .gosprj)
+  ifneq (,$(wildcard $(GOS_HOME)/.gosprj))
+    PRJ := $(shell cat $(GOS_HOME)/.gosprj)
   else
     ifeq (,$(wildcard $(GOS_PROJECT_DIR_DEFAULT)))
       $(error $(MAKEFILE): GOS_PROJECT_DIR_DEFAULT not found)
     endif
     PRJ := $(GOS_PROJECT_DIR_DEFAULT)
+    $(shell echo $(PRJ) >$(GOS_HOME)/.gosprj)
   endif
 endif
 
@@ -110,7 +115,7 @@ APP_NAME     := $(basename $(notdir $(GOS_APP_PATH)))
 # the depth of CPT_BUILD_DIR changes. Refer to the GOS_HOME comments below
 # for more details.
 
-CPT_BUILD_DIR := build/$(PROJECT_NAME)_$(MAKE_NAME)
+CPT_BUILD_DIR = $(GOS_HOME)/build/$(PROJECT_NAME)_$(MAKE_NAME)
 BUILD_LOG := $(CPT_BUILD_DIR)/makeall.log
 
 # restart 'make all' with logging to $(CPT_BUILD_DIR)/build.log and console
@@ -125,7 +130,7 @@ else
 # They can include files from CPT_SRCS (defined below) since the cpptext
 # tool arranges that de-commented copies are included, not the originals.
 
-CPT_GEN  ?= partitions.csv espinit.yaml
+CPT_GEN  ?= partitions.csv esphome.yaml
 
 GOS_DIRS ?= gos apps gui bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
 
@@ -140,7 +145,7 @@ GOS_DIRS ?= gos apps gui bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
 
 CPT_SRCS += $(foreach d,$(GOS_DIRS),$(wildcard $(d)/*.yaml)) $(CPT_GEN)
 
-# In addition to updates to $(CPT_SRCS) triggering a rebuild of esphome.yaml,
+# In addition to updates to $(CPT_SRCS) triggering a rebuild of espmake.yaml,
 # updates to source files in $(ESP_DEPS) are also triggers.
 
 GOS_DEPS ?= utils libraries/console
@@ -189,7 +194,7 @@ CPT_EXTRA_DEFS += -D GOS_HOME=../..				\
 		  -D GOS_USER_$(USER)
 
 # The reason GOS_HOME is set above to two levels up i.e. ../.. is because
-# the generated esphome.yaml ends up in $(CPT_BUILD_DIR) which is
+# the generated espmake.yaml ends up in $(CPT_BUILD_DIR) which is
 # build/$(PROJECT_NAME) which is two levels down from this directory.
 # GOS_HOME is used in yaml or C/C++ files to refer to files and directories
 # under this directory and is define as a relative so that build trees
@@ -199,9 +204,9 @@ CPT_EXTRA_DEFS += -D GOS_HOME=../..				\
 # In turn, it will include cpptext/Makefile.esphome which handles the esphome
 # file generation and platformio build steps.
 
-include cpptext/Makefile.cpptext
+include $(GOS_HOME)/cpptext/Makefile.cpptext
 
-print-config:: $(ESP_INIT)
+print-config:: $(CPT_TMP_DIR)/$(ESP_INIT)
 	@printf "Makefile variables:\n"
 	@printf "  PROJECT_NAME: $(PROJECT_NAME)\n"
 	@printf "  APP_NAME: $(APP_NAME)\n"
@@ -225,7 +230,7 @@ print-config:: $(ESP_INIT)
 # this endif is from the autolog restart
 endif
 
-# This last endif is needed from the git submodule install check above
+# This last endif is needed from the cpptext install check above
 
 endif
 

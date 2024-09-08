@@ -11,9 +11,9 @@ GrowOS attempts to satisfy these goals together by using a macro processor that 
 
 Spoiler: GrowOS uses the C preprocessor ‘cpp’ as the macros processor, ‘make’ as the build system, an open-source Yaml processor called yq to do the Yaml merging, and a GrowOS-specified directory structure as the project system that separates hardware definition, application implementation and project configuration.
 
-GrowOS leverages a small project called [cpptext](https://github.com/maartenSXM/cpptext) that enables the C preprocessor to be used on esphome yaml. Every large project has a smaller project struggling to get out and for GrowOS that was Cpptext. GrowOS relies on cpptext’s support for [Esphome projects](https://github.com/maartenSXM/cpptext/blob/main/Makefile.esphome) to launch esphome compile commands while avoiding unnecessary rebuilds.  Conveniently, the cpptext author chose to support ‘make’ as its exemplary build system.  Cpptext can be used without GrowOS however GrowOS depends on Cpptext.  Cpptext, in turn, can be used to enable cpp for various text file formats, not just yaml.
+GrowOS leverages a small project called [cpptext](https://github.com/maartenSXM/cpptext) that enables the C preprocessor to be used on espmake.yaml. Every large project has a smaller project struggling to get out and for GrowOS that was Cpptext. GrowOS relies on cpptext’s support for [Esphome projects](https://github.com/maartenSXM/cpptext/blob/main/Makefile.esphome) to launch esphome compile commands while avoiding unnecessary rebuilds.  Conveniently, the cpptext author chose to support ‘make’ as its exemplary build system.  Cpptext can be used without GrowOS however GrowOS depends on Cpptext.  Cpptext, in turn, can be used to enable cpp for various text file formats, not just yaml.
 
-On top of the Esphome build features that Cpptext offers, GrowOS adds GrowOS BSPs (Board Support Packages), GrowOS apps, GrowOS system services, and GrowOS projects.  A GrowOS BSP is the part of Esphome yaml that defines hardware, such as the definition of the Esphome “display:” component.  GrowOS system services are selected generic esphome features that are centralized for optional inclusion and for use in any GrowOS project.  A GrowOS application is the esphome yaml that declares software features such as actions and lambdas -the functionality that the device will provide and how it is exposed to the user.  And, finally, a GrowOS project is a Makefile fragment that connects a GrowOS BSP to a GrowOS app and to a configuration file which is just a header file containing some cpp directives to setup the project. Conveniently, since the project configuration is a cpp header file, it can be included by both Esphome yaml code and by C/C++ code.
+On top of the Esphome build features that Cpptext offers, GrowOS adds GrowOS BSPs (Board Support Packages), GrowOS apps, GrowOS system services, and GrowOS projects.  A GrowOS BSP is the part of Esphome yaml that defines hardware, such as the definition of the Esphome “display:” component.  GrowOS system services are selected generic esphome features that are centralized for optional inclusion and for use in any GrowOS project.  A GrowOS application is the espmake.yaml that declares software features such as actions and lambdas -the functionality that the device will provide and how it is exposed to the user.  And, finally, a GrowOS project is a Makefile fragment that connects a GrowOS BSP to a GrowOS app and to a configuration file which is just a header file containing some cpp directives to setup the project. Conveniently, since the project configuration is a cpp header file, it can be included by both Esphome yaml code and by C/C++ code.
 
 GrowOS was originally named that since the idea was to use Esphome to grow plants. Given how the task at hand grew to attempt to provide a generic integration platform capability for esphome, the name still fits - especially if it does indeed grow to include apps, BSPs and projects from others in the future. Next, the author will try to grow a plant using Esphome by writing a GrowOS app grow.yaml. ;-)
 
@@ -50,11 +50,11 @@ GOS attempts to satisfy the above requirements using these techniques:
 
    GOS extends yq's capability to also allow such declarations to be made
    multiple times in one GOS yaml file even though this technically breaks
-   the yaml specification. However, once the esphome yaml file is constructed
+   the yaml specification. However, once the espmake.yaml file is constructed
    by the GOS build system, the multiple yaml map key declarations are merged
    and the yaml is correct according to the yaml specification.
  
- - GOS has a notion of a board support package (BSP) for esphome yaml.
+ - GOS has a notion of a board support package (BSP) for espmake.yaml.
    Each GOS BSP has a bsp.yaml that declares hardware and advertises
    (using #define) what hardware it supports. Each BSP also has exports a
    pins.h file for C or C++ code to use if needed. That pins.h file is also

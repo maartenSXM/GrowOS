@@ -26,13 +26,13 @@ GrowOS remembers the last project in $GOS_HOME/.goslast so you don't have
 to use PRJ= unless you are changing from one project to another.
 
 It is also possible to issue esphome commands directly on the generated
-esphome.yaml file from the build directory.  To change to the project's
+espmake.yaml file from the build directory.  To change to the project's
 build directory, you can use the gos-build alias. Then esphome
 commands such as these can be issued:
 
-esphome compile esphome.yaml
-esphome upload esphome.yaml
-esphome logs esphome.yaml
+esphome compile espmake.yaml
+esphome upload espmake.yaml
+esphome logs espmake.yaml
 
 See esphome -h for more details.
 

@@ -29,19 +29,19 @@ _GOS_LAST_BUILD() {
 }
 
 # This is a helper function that returns the name of the esphome
-# device as specified in esphome yaml "esphome:" component entry "name:".
+# device as specified in espmake.yaml "esphome:" component entry "name:".
 # Example: growboard0
 _GOS_LAST_ESPNAME() {
-    echo $(yq -r --no-doc .esphome.name $(_GOS_LAST_BUILD)/esphome.yaml | grep -v null)
+    echo $(yq -r --no-doc .esphome.name $(_GOS_LAST_BUILD)/espmake.yaml | grep -v null)
 }
 
 # helper alias that takes an esphome verb and a ACM device number and
 # issues it on the last built project.
-alias _GOS_ESP_USB='function _GOS_ESP_USB { _VERB=${1}; _DEV=${2}; cd $(_GOS_LAST_BUILD); esphome -v ${_VERB} --device /dev/ttyACM${_DEV} esphome.yaml; cd -;}; _GOS_ESP_USB'
+alias _GOS_ESP_USB='function _GOS_ESP_USB { _VERB=${1}; _DEV=${2}; cd $(_GOS_LAST_BUILD); esphome -v ${_VERB} --device /dev/ttyACM${_DEV} espmake.yaml; cd -;}; _GOS_ESP_USB'
 
 # helper alias to upload last project using OTA update to IP _GOS_IP_CPU<arg>
 # Note the indirect variable reference ${!_IP} to choose the _IP 
-alias _GOS_ESP_UPLOAD='function _GOS_ESP_UPLOAD { _IPNUM=${1}; _IP=_GOS_IP_CPU${_IPNUM}; esphome -v upload --device ${!_IP} --file $(_GOS_LAST_BUILD)/.esphome/build/$(_GOS_LAST_ESPNAME)/.pioenvs/$(_GOS_LAST_ESPNAME)/firmware.bin $(_GOS_LAST_BUILD)/esphome.yaml;}; _GOS_ESP_UPLOAD'
+alias _GOS_ESP_UPLOAD='function _GOS_ESP_UPLOAD { _IPNUM=${1}; _IP=_GOS_IP_CPU${_IPNUM}; esphome -v upload --device ${!_IP} --file $(_GOS_LAST_BUILD)/.esphome/build/$(_GOS_LAST_ESPNAME)/.pioenvs/$(_GOS_LAST_ESPNAME)/firmware.bin $(_GOS_LAST_BUILD)/espmake.yaml;}; _GOS_ESP_UPLOAD'
 
 # _GOS_IDF_JTAG uses esp-idf directly to burn firmware to /dev/ttyACM0
 export ESPTOOL_TESTING=1 # as per esptool/esp32s2.py
@@ -78,23 +78,23 @@ alias gos-build='cd $(_GOS_LAST_BUILD)'
 
 # Aliases to view to common GrowOS artifacts
 alias gos-log='view $(_GOS_LAST_BUILD)/makeall.log'
-alias gos-yaml='view $(_GOS_LAST_BUILD)/esphome.yaml'
+alias gos-yaml='view $(_GOS_LAST_BUILD)/espmake.yaml'
 
 # Aliases to find strings including or excluding the build directory
-alias gos-search="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' ! -path './build/*' -type f -print0 | xargs -0 grep -i"
+alias gos-search="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path './build*' ! -path './cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -i"
 alias gos-search-all="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' -type f -print0 | xargs -0 grep -i"
 
 # Aliases to search for arg1 and replace it with arg2 in all files.
 # Backup files are stored in <file>.bak.  There are variants for arg1
 # not containing octothorpe, comma and slash. The default is no slash.
 gos-replace-nohash() {
- find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git' ! -path '*/build' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s#$1#$2#g"
+ find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s#$1#$2#g"
 }
 gos-replace-nocomma() {
- find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git' ! -path '*/build' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s,$1,$2,g"
+ find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s,$1,$2,g"
 }
 gos-replace-noslash() {
- find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git' ! -path '*/build' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s/$1/$2/g"
+ find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s/$1/$2/g"
 }
 alias gos-replace='gos-replace-noslash'
 
