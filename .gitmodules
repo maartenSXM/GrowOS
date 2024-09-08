@@ -1,6 +1,0 @@
-[submodule "cpptext"]
-	path = cpptext
-	url = https://github.com/maartenSXM/cpptext
-	branch = main
-	ignore = dirty
-	update = rebase
