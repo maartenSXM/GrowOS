@@ -20,8 +20,8 @@ GOS_PROJECT_DIR_DEFAULT := projects/growBoard0/debug.mk
 # Makefile variables set below with ?= can be overridden by a project file.
 # Makefile variables set below with += can be prepended  by a project file.
 
-# Makefile variables starting with CPT_ are for cpptext/Makefile.cpptext.
-# Makefile variables starting with ESP_ are for cpptext/Makefile.esphome.
+# Makefile variables starting with CPT_ are for cpptext/cpptext.mk.
+# Makefile variables starting with ESP_ are for cpptext/esphome.mk.
 
 # Makefile variables starting with GOS_ are used by this Makefile and
 # by the selected GOS project file.  Some are also available to yaml
@@ -209,10 +209,10 @@ CPT_EXTRA_DEFS += -D GOS_HOME=$(GOS_TOP)			    \
 # are reproducable regardless of where they are built.
 
 # Now include the cpptext Makefile fragment that will dehash GOS yamls files.
-# In turn, it will include cpptext/Makefile.esphome which handles the esphome
+# In turn, it will include cpptext/esphome.mk which handles the esphome
 # file generation and platformio build steps.
 
-include $(GOS_HOME)/cpptext/Makefile.cpptext
+include $(GOS_HOME)/cpptext/cpptext.mk
 
 print-config:: $(CPT_TMP_DIR)/$(ESP_INIT)
 	@printf "Makefile variables:\n"
