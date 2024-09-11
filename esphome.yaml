@@ -4,21 +4,21 @@
 
 // if BSP yaml did not set these c preprocessor defines, default them
 
-#default GOS_BSP_SERIAL_NUM 000
-#default GOS_BSP_APP	    apps/grow.yaml
-#default GOS_BSP_esphome_name GOS_STRINGIFY2(GOS_PROJECT,GOS_BSP_SERIAL_NUM)
+#default GOS_BSP_SERIAL_NUM	000
+#default GOS_BSP_esphome_name	GOS_STRINGIFY2(GOS_PROJECT,GOS_BSP_SERIAL_NUM)
 
 #include "gos/env.yaml"
 #include "gos/gos.yaml"
 #include "gos/debug.yaml"
 #include "gos/network.yaml"
 
-// now include the application 
+// now include the mandatory application and madatory project.yaml
 
-#default GOS_APP_PATH GOS_BSP_APP_PATH
 #include GOS_STRINGIFY(GOS_APP_PATH)
+
 #include GOS_STRINGIFY2(GOS_PROJECT_DIR,/project.yaml)
 
+# if 0
 #if GOS_CONFIG_GUI 
 #ifndef GOS_BSP_HAS_display
 # error GOS_CONFIG_GUI enabled but BSP does not advertise display:
@@ -30,3 +30,4 @@
 #  include "gui/nativeMain.yaml"
 # endif // !GOS_CONFIG_LVGL
 #endif // GOS_CONFIG_GUI
+#endif
