@@ -39,9 +39,9 @@ _GOS_LAST_ESPNAME() {
 # issues it on the last built project.
 alias _GOS_ESP_USB='function _GOS_ESP_USB { _VERB=${1}; _DEV=${2}; cd $(_GOS_LAST_BUILD); esphome -v ${_VERB} --device /dev/ttyACM${_DEV} espmake.yaml; cd -;}; _GOS_ESP_USB'
 
-# helper alias to upload last project using OTA update to IP _GOS_IP_CPU<arg>
+# helper alias to upload last project using OTA update to IP _GOS_IP<arg>
 # Note the indirect variable reference ${!_IP} to choose the _IP 
-alias _GOS_ESP_UPLOAD='function _GOS_ESP_UPLOAD { _IPNUM=${1}; _IP=_GOS_IP_CPU${_IPNUM}; esphome -v upload --device ${!_IP} --file $(_GOS_LAST_BUILD)/.esphome/build/$(_GOS_LAST_ESPNAME)/.pioenvs/$(_GOS_LAST_ESPNAME)/firmware.bin $(_GOS_LAST_BUILD)/espmake.yaml;}; _GOS_ESP_UPLOAD'
+alias _GOS_ESP_UPLOAD='function _GOS_ESP_UPLOAD { _IPNUM=${1}; _IP=_GOS_IP${_IPNUM}; esphome -v upload --device ${!_IP} --file $(_GOS_LAST_BUILD)/.esphome/build/$(_GOS_LAST_ESPNAME)/.pioenvs/$(_GOS_LAST_ESPNAME)/firmware.bin $(_GOS_LAST_BUILD)/espmake.yaml;}; _GOS_ESP_UPLOAD'
 
 # _GOS_IDF_JTAG uses esp-idf directly to burn firmware to /dev/ttyACM0
 export ESPTOOL_TESTING=1 # as per esptool/esp32s2.py
@@ -49,14 +49,16 @@ alias _GOS_IDF_JTAG='(cd $(_GOS_LAST_BUILD)/.esphome/build/$(_GOS_LAST_ESPNAME)/
 
 # Convenience aliases
 
+alias gos='cd $GOS_HOME'
+
 # Aliases to provide the list of aliases :-)
 alias gos-help='alias | grep gos-'
 alias gos-aliases='alias | grep gos-'
 
 # Aliases to upload for the last project to IP _GOS_IP0 or _GOS_IP1
-alias gos-upload-0="_GOS_ESP_UPLOAD 0"
-alias gos-upload-1="_GOS_ESP_UPLOAD 1"
-alias gos-upload="gos-upload-0"
+alias gos-upload-0='_GOS_ESP_UPLOAD 0'
+alias gos-upload-1='_GOS_ESP_UPLOAD 1'
+alias gos-upload='gos-upload-0'
 
 # Aliases to upload the last project to /dev/ttyACM0 or /dev/ttyACM1
 alias gos-jtag-0="_GOS_ESP_USB upload 0"
@@ -81,8 +83,9 @@ alias gos-log='view $(_GOS_LAST_BUILD)/makeall.log'
 alias gos-yaml='view $(_GOS_LAST_BUILD)/espmake.yaml'
 
 # Aliases to find strings including or excluding the build directory
-alias gos-search="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path './build*' ! -path './cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -i"
+alias gos-search="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -i"
 alias gos-search-all="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' -type f -print0 | xargs -0 grep -i"
+alias gos-search-here="find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' -type f -print0 | xargs -0 grep -i"
 
 # Aliases to search for arg1 and replace it with arg2 in all files.
 # Backup files are stored in <file>.bak.  There are variants for arg1

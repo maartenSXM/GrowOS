@@ -93,21 +93,22 @@ captive_portal:
     
 #if GOS_CONFIG_NET_NTP
 globals:
-  - id: sntpBootTime
+  - id: gosNet_globals_sntpBootTime
     type: time_t
     restore_value: no
     initial_value: "0"
 
 time:
   - platform: sntp
-    id: sntpTime
+    id: gosNet_time_sntp
     timezone: _SECRET_NTP_TIMEZONE
     servers:
       - _SECRET_NTP_SERVER
     on_time_sync:
       - lambda: |-
-          if (id(sntpBootTime) == 0)
-            id(sntpBootTime) = id(sntpTime).now().timestamp;
+          if (id(gosNet_globals_sntpBootTime) == (time_t) 0)
+            id(gosNet_globals_sntpBootTime) = id(gosNet_time_sntp).now().timestamp;
+#if 0 // xxx moved to lvglDemo
 #if GOS_CONFIG_LVGL
       - script.execute: time_update
     on_time:
@@ -116,6 +117,7 @@ time:
         then:
           - script.execute: time_update
 #endif // GOS_CONFIG_LVGL
+#endif // xxx moved to lvglDemo
 
 text_sensor:
   - platform: template
@@ -123,22 +125,21 @@ text_sensor:
     update_interval: 30s
     lambda: |-
       auto time_text = (std::string) "Unknown";
-      if (id(sntpTime).now().is_valid())
-        time_text = id(sntpTime).now().strftime("%d/%m/%Y %H:%M:%S");
+      if (id(gosNet_time_sntp).now().is_valid())
+        time_text = id(gosNet_time_sntp).now().strftime("%d/%m/%Y %H:%M:%S");
       return time_text;
 
 text_sensor:
   - platform: template
-    id: sntpBootTimeText
     name: "System Boot Time"
     // update_interval: never
     lambda: |-
       static char str[25];
 
-      if (id(sntpBootTime) == (time_t) 0)
+      if (id(gosNet_globals_sntpBootTime) == (time_t) 0)
           return ((std::string) "Unknown");
       if (str[0] == '\0')
-        strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&id(sntpBootTime)));
+        strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&id(gosNet_globals_sntpBootTime)));
       return (std::string) str;
 
 #endif // GOS_CONFIG_NET_NTP
@@ -214,18 +215,14 @@ switch:
 text_sensor:
   - platform: wifi_info
     ip_address:
-      id: wifi_ip_address
       name: "Net IP Address"
     ssid:
-      id: wifi_ip_ssid
       name: "Net WiFi SSID"
     mac_address:
-      id: wifi_ip_mac
       name: "Net MAC Address"
 
 sensor:
   - platform: wifi_signal
-    id: my_wifi_sensor
     name: "Net WiFi Signal"
     update_interval: 15s
 
@@ -236,7 +233,6 @@ esphome:
 
 text_sensor:
   - platform: template
-    id: wifi_channel
     name: "Net WiFi Channel"
     lambda: |-
       static char str[3]; // one or two digits (or -1) plus NULL

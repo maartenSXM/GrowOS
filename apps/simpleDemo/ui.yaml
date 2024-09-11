@@ -1,3 +1,5 @@
+#include "simpleDemo.h"
+
 // xxx put in common gui yaml since also in lvglMain.yaml
 #ifdef GOS_BSP_HAS_backlight
 esphome:
@@ -9,8 +11,9 @@ esphome:
 
 display:
     platform: GOS_BSP_HAS_display_platform
-    auto_clear_enabled: true
-    update_interval: 600ms
+    auto_clear_enabled: false
+    update_interval: 1000ms
+    rotation: ROTATION
     pages:
     - id: page1
       lambda: |-
@@ -35,12 +38,12 @@ display:
         it.line(100, 72, 200, 82, id(my_cyan));
         it.line(100, 74, 200, 84, id(my_white));
 
-        it.image(  0,320-75,id(icon_left));
-        it.image( 80,320-75,id(icon_right));
-        it.image(160,320-75,id(icon_up));
-        it.image(240,320-75,id(icon_down));
-        it.image(320,320-75,id(icon_select));
-        it.image(400,320-75,id(icon_cancel));
+        it.image(0*RESIZE,BOTTOM-RESIZE,id(icon_left));
+        it.image(1*RESIZE,BOTTOM-RESIZE,id(icon_right));
+        it.image(2*RESIZE,BOTTOM-RESIZE,id(icon_up));
+        it.image(3*RESIZE,BOTTOM-RESIZE,id(icon_down));
+        it.image(4*RESIZE,BOTTOM-RESIZE,id(icon_select));
+        it.image(5*RESIZE,BOTTOM-RESIZE,id(icon_cancel));
         // it.image(0,0,id(image_beansprouts));
         // menu gets half the display width & height
         it.menu(0, 0, id(my_menu), 240, 160);
@@ -49,12 +52,12 @@ display:
       lambda: |-
         #include "tests/displayBlocks.yaml"
         it.print(440, 0, id(arial), id(my_magenta), TextAlign::TOP_RIGHT, "Page 2");
-        it.image(  0,320-75,id(icon_left));
-        it.image( 80,320-75,id(icon_right));
-        it.image(160,320-75,id(icon_up));
-        it.image(240,320-75,id(icon_down));
-        it.image(320,320-75,id(icon_select));
-        it.image(400,320-75,id(icon_cancel));
+        it.image(0*RESIZE,BOTTOM-RESIZE,id(icon_left));
+        it.image(1*RESIZE,BOTTOM-RESIZE,id(icon_right));
+        it.image(2*RESIZE,BOTTOM-RESIZE,id(icon_up));
+        it.image(3*RESIZE,BOTTOM-RESIZE,id(icon_down));
+        it.image(4*RESIZE,BOTTOM-RESIZE,id(icon_select));
+        it.image(5*RESIZE,BOTTOM-RESIZE,id(icon_cancel));
 
     //  it.menu(0,0,id(my_menu),0,240);
     //  it.line(0, 0, 100, 50);

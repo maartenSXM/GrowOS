@@ -102,20 +102,24 @@ endif
 ifeq (,$(wildcard $(GOS_APP_PATH)))
   $(error Makefile: GOS_APP_PATH not found)
 endif
+GOS_APP_DIR  := $(patsubst %/,%,$(dir $(GOS_APP_PATH)))
 
 # This strips the directory and suffix, if any, for further use below
 
 PROJECT_NAME := $(basename $(notdir $(GOS_PROJECT_DIR)))
 MAKE_NAME    := $(basename $(notdir $(GOS_PROJECT_FILE)))
 BSP_NAME     := $(basename $(notdir $(GOS_BSP_DIR)))
-APP_NAME     := $(basename $(notdir $(GOS_APP_PATH)))
+APP_NAME     := $(basename $(notdir $(GOS_APP_DIR)))
 
-# CPT_BUILD_DIR is were GOS projects are built.  It can be changed here. The
-# GOS_HOME C preprocessor definition, set below, may also have to change if
-# the depth of CPT_BUILD_DIR changes. Refer to the GOS_HOME comments below
-# for more details.
+# CPT_BUILD_DIR is were GOS projects are built.  
 
-CPT_BUILD_DIR = $(GOS_HOME)/build/$(PROJECT_NAME)_$(MAKE_NAME)
+CPT_BUILD_DIR := $(shell realpath --relative-to=$(CURDIR) \
+			    $(GOS_HOME)/build/$(PROJECT_NAME)_$(MAKE_NAME))
+
+# GOS_TOP is to help generated yaml find the root directory of GrowOS
+
+GOS_TOP := $(shell realpath --relative-to=$(CPT_BUILD_DIR) $(GOS_HOME))
+
 BUILD_LOG := $(CPT_BUILD_DIR)/makeall.log
 
 # restart 'make all' with logging to $(CPT_BUILD_DIR)/build.log and console
@@ -132,7 +136,7 @@ else
 
 CPT_GEN  ?= partitions.csv esphome.yaml
 
-GOS_DIRS ?= gos apps gui bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
+GOS_DIRS ?= gos $(dir $(GOS_APP_PATH)) bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
 
 # CPT_SRCS is the set of files that cpptext will remove hash-style
 # comments from while leaving any C preprocessor directives so that
@@ -163,9 +167,12 @@ else
   endif
 endif
 
-# GOS_BSP_DIR is added to include paths so #include "bsp.h" is BSP-specific.
+# cpptext sets up include paths to be the dehashes source directories first,
+# followed by the source directories. Thus, includes of yaml files will
+# include the dehashed variants of the same file and includes of non-yaml
+# files such as images will come from the source tree.
 
-CPT_EXTRA_INCS += -I $(GOS_BSP_DIR)
+CPT_EXTRA_INCS += 
 
 # Note that #ifdef GOS_PROJECT_<ppp>   is for project adapation anywhere
 #       and #ifdef GOS_BSP_<bbb>       is for bsp adaptation anywhere
@@ -176,21 +183,22 @@ CPT_EXTRA_INCS += -I $(GOS_BSP_DIR)
 # and app file paths and the bsp directory path, respectively.
 # These are also passed into C/C++ code.  If changed, update gos/env.h.
 
-CPT_EXTRA_DEFS += -D GOS_HOME=../..				\
-		  -D GOS_BUILD_PATH=$(CPT_BUILD_DIR)		\
-		  -D GOS_PROJECT_DIR=$(GOS_PROJECT_DIR)		\
-		  -D GOS_PROJECT_NAME=$(PROJECT_NAME)		\
-		  -D GOS_PROJECT_$(PROJECT_NAME)		\
-		  -D GOS_CONFIG_FILE=$(GOS_CONFIG_FILE)		\
-		  -D GOS_BSP_DIR=$(GOS_BSP_DIR)			\
-		  -D GOS_BSP_NAME=$(BSP_NAME)			\
-		  -D GOS_BSP_$(BSP_NAME)			\
-		  -D GOS_APP_PATH=$(GOS_APP_PATH)		\
-		  -D GOS_APP_NAME=$(APP_NAME)			\
-		  -D GOS_APP_$(APP_NAME)			\
-		  -D GOS_MAKE_NAME=$(MAKE_NAME)			\
-		  -D GOS_MAKE_$(MAKE_NAME)			\
-		  -D GOS_USER_NAME=$(USER)			\
+CPT_EXTRA_DEFS += -D GOS_HOME=$(GOS_TOP)			    \
+		  -D GOS_BUILD_PATH=$(CPT_BUILD_DIR)		    \
+		  -D GOS_PROJECT_DIR=$(GOS_HOME)/$(GOS_PROJECT_DIR) \
+		  -D GOS_PROJECT_NAME=$(PROJECT_NAME)		    \
+		  -D GOS_PROJECT_$(PROJECT_NAME)		    \
+		  -D GOS_CONFIG_FILE=$(GOS_TOP)/$(GOS_CONFIG_FILE)  \
+		  -D GOS_BSP_DIR=$(GOS_TOP)/$(GOS_BSP_DIR)	    \
+		  -D GOS_BSP_NAME=$(BSP_NAME)			    \
+		  -D GOS_BSP_$(BSP_NAME)			    \
+		  -D GOS_APP_PATH=$(GOS_TOP)/$(GOS_APP_PATH)	    \
+		  -D GOS_APP_DIR=$(GOS_TOP)/$(GOS_APP_DIR)	    \
+		  -D GOS_APP_NAME=$(APP_NAME)			    \
+		  -D GOS_APP_$(APP_NAME)			    \
+		  -D GOS_MAKE_NAME=$(MAKE_NAME)			    \
+		  -D GOS_MAKE_$(MAKE_NAME)			    \
+		  -D GOS_USER_NAME=$(USER)			    \
 		  -D GOS_USER_$(USER)
 
 # The reason GOS_HOME is set above to two levels up i.e. ../.. is because
@@ -208,7 +216,9 @@ include $(GOS_HOME)/cpptext/Makefile.cpptext
 
 print-config:: $(CPT_TMP_DIR)/$(ESP_INIT)
 	@printf "Makefile variables:\n"
-	@printf "  PROJECT_NAME: $(PROJECT_NAME)\n"
+	@printf "  PROJECT_NAME:  $(PROJECT_NAME)\n"
+	@printf "  CPT_BUILD_DIR: $(CPT_BUILD_DIR)\n"
+	@printf "  GOS_TOP:  $(GOS_TOP)\n"
 	@printf "  APP_NAME: $(APP_NAME)\n"
 	@printf "  BSP_NAME: $(BSP_NAME)\n"
 	@printf "  ESP_INIT: $(ESP_INIT)\n"

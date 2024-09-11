@@ -84,25 +84,25 @@ lvgl:
       - lvgl.pause:
 #endif
 
-#include "gui/lvglTheme.yaml"
+#include "theme.yaml"
 
-#include "gui/lvglNavigation.yaml"
+#include "navigation.yaml"
 #if GOS_CONFIG_LVGL_BOOT_LOGO
-#include "gui/lvglBootLogo.yaml"
+#include "bootLogo.yaml"
 #endif
 
   pages:
-#include "gui/page1.yaml"
-#include "gui/page2.yaml"
-#include "gui/page3.yaml"
-#include "gui/page4.yaml"
+#include "page1.yaml"
+#include "page2.yaml"
+#include "page3.yaml"
+#include "page4.yaml"
 
 // Next are the page extras that are not part of the lvgl: definition
 
-#include "gui/page1add.yaml"
-#include "gui/page2add.yaml"
-#include "gui/page3add.yaml"
-#include "gui/page4add.yaml"
+#include "page1add.yaml"
+#include "page2add.yaml"
+#include "page3add.yaml"
+#include "page4add.yaml"
 
 #ifdef GOS_BSP_HAS_backlight
 esphome:

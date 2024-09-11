@@ -19,49 +19,55 @@ binary_sensor:
     name: Left Button
     id: button_left
     touchscreen_id: gosBsp_touchscreen
+#ifdef GOS_BSP_lilygot4s3
+    x_min: 0
+    x_max: 99
+    y_min: 349
+    y_max: 449
+#else // ! GOS_BSP_lilygot4s3
     x_min: 0
     x_max: 79
     y_min: 240
     y_max: 320
+#endif // ! GOS_BSP_lilygot4s3
     on_press:
       - display.page.show_previous: gosBsp_display
     // page_id: home_page_id
+
   - platform: touchscreen
     name: Right Button
     id: button_right
     touchscreen_id: gosBsp_touchscreen
-    x_min: 80
+#ifdef GOS_BSP_lilygot4s3
+    x_min: 100
+    x_max: 199
+    y_min: 349
+    y_max: 449
+#else // !GOS_BSP_lilygot4s3
+    x_min:  80
     x_max: 159
     y_min: 240
     y_max: 320
+#endif // !GOS_BSP_lilygot4s3
     on_press:
       - display.page.show_next: gosBsp_display
     // page_id: home_page_id
+
   - platform: touchscreen
     name: Up Button
     id: button_up
     touchscreen_id: gosBsp_touchscreen
+#ifdef GOS_BSP_lilygot4s3
+    x_min: 200
+    x_max: 299
+    y_min: 349
+    y_max: 449
+#else // !GOS_BSP_lilygot4s3
     x_min: 160
     x_max: 239
     y_min: 240
     y_max: 320
-    on_press:
-      if:
-        condition:
-          display_menu.is_active: my_menu
-        then:
-          display_menu.up: my_menu
-        else:
-          display_menu.show: my_menu
-    // page_id: home_page_id
-  - platform: touchscreen
-    name: Down Button
-    id: button_down
-    touchscreen_id: gosBsp_touchscreen
-    x_min: 240
-    x_max: 319
-    y_min: 240
-    y_max: 320
+#endif // !GOS_BSP_lilygot4s3
     on_press:
       if:
         condition:
@@ -72,13 +78,45 @@ binary_sensor:
           display_menu.show: my_menu
     // page_id: home_page_id
   - platform: touchscreen
+    name: Down Button
+    id: button_down
+    touchscreen_id: gosBsp_touchscreen
+#ifdef GOS_BSP_lilygot4s3
+    x_min: 300
+    x_max: 399
+    y_min: 349
+    y_max: 449
+#else // !GOS_BSP_lilygot4s3
+    x_min: 240
+    x_max: 319
+    y_min: 240
+    y_max: 320
+#endif // !GOS_BSP_lilygot4s3
+    on_press:
+      if:
+        condition:
+          display_menu.is_active: my_menu
+        then:
+          display_menu.down: my_menu
+        else:
+          display_menu.show: my_menu
+    // page_id: home_page_id
+
+  - platform: touchscreen
     name: Select Button
     id: button_select
     touchscreen_id: gosBsp_touchscreen
+#ifdef GOS_BSP_lilygot4s3
+    x_min: 400
+    x_max: 499
+    y_min: 349
+    y_max: 449
+#else // !GOS_BSP_lilygot4s3
     x_min: 320
     x_max: 399
     y_min: 240
     y_max: 320
+#endif // !GOS_BSP_lilygot4s3
     on_press:
       if:
         condition:
@@ -88,14 +126,22 @@ binary_sensor:
         else:
           display_menu.show: my_menu
     // page_id: home_page_id
+
   - platform: touchscreen
     name: Cancel Button
     id: button_cancel
     touchscreen_id: gosBsp_touchscreen
+#ifdef GOS_BSP_lilygot4s3
+    x_min: 500
+    x_max: 599
+    y_min: 349
+    y_max: 449
+#else // !GOS_BSP_lilygot4s3
     x_min: 400
     x_max: 479
     y_min: 240
     y_max: 320
+#endif // !GOS_BSP_lilygot4s3
     on_press:
       if:
         condition:
