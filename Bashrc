@@ -80,7 +80,8 @@ alias gos-build='cd $(_GOS_LAST_BUILD)'
 
 # Aliases to view to common GrowOS artifacts
 alias gos-log='view $(_GOS_LAST_BUILD)/makeall.log'
-alias gos-yaml='view $(_GOS_LAST_BUILD)/espmake.yaml'
+alias gos-esphome='view $(_GOS_LAST_BUILD)/esphome.yaml'
+alias gos-espmake='view $(_GOS_LAST_BUILD)/espmake.yaml'
 
 # Aliases to find strings including or excluding the build directory
 alias gos-search="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -i"

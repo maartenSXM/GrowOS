@@ -122,11 +122,21 @@ GOS_TOP := $(shell realpath --relative-to=$(CPT_BUILD_DIR) $(GOS_HOME))
 
 BUILD_LOG := $(CPT_BUILD_DIR)/makeall.log
 
-# restart 'make all' with logging to $(CPT_BUILD_DIR)/build.log and console
+# Restart 'make all' with logging to $(CPT_BUILD_DIR)/build.log and console.
+
+# Optionally, use GOS_AUTOLOG_STDOUT_ONLY=1 on the make command line if you
+# want stderr to not go to the log.  That is useful for paging through any
+# errors on the command line using:
+#    make GOS_AUTOLOG_STDOUT_ONLY=1 2>&1 >/dev/null | more
+
 ifeq (all,$(GOS_AUTOLOG)$(MAKECMDGOALS))
   SHELL:=bash
 all:
+ifeq (,$(GOS_AUTOLOG_STDOUT_ONLY))
 	@$(MAKE) -k GOS_AUTOLOG=1 $(MAKECMDGOALS) |& tee $(BUILD_LOG)
+else
+	@$(MAKE) -k GOS_AUTOLOG=1 $(MAKECMDGOALS) | tee $(BUILD_LOG)
+endif
 	@printf "Makefile: \"make all\" log is $(BUILD_LOG)\n"
 else
 
