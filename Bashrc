@@ -16,7 +16,7 @@ export _GOS_IP0=192.168.248.10
 export _GOS_IP1=192.168.248.11
 
 # or, by user, if you are sharing this Bashrc, here:
-if [ "$USER" == "maarten" ]; then
+if [[ "$USER" == "maarten" ]]; then
   export _GOS_IP0=192.168.248.20
   export _GOS_IP1=192.168.248.21
 fi

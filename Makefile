@@ -1,6 +1,3 @@
-# Directory of this Makefile
-_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
-
 # This Makefile uses github repo cpptext to build GOS esphome projects
 # from ./projects/*.mk.  Use "make PRJ=projects/<prj>/<prj>.mk" to
 # select a specific GOS project file otherwise $(GOS_PROJECT_DIR_DEFAULT)
@@ -8,6 +5,19 @@ _DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 #
 # There is also a makeall.sh script that will build all the GOS projects
 # for a specific BSP.
+
+ifeq (,$(findstring GNU,$(shell sed --version 2>/dev/null)))
+  ifeq (,$(shell which gsed))
+    $(error "GNU sed not found. Please install it")
+  else
+    SED=gsed
+  endif
+else
+    SED=sed
+endif
+
+# Directory of this Makefile
+_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 GOS_PROJECT_DIR_DEFAULT := projects/lilygot4s3/debug.mk
 
@@ -38,12 +48,14 @@ ifeq (,$(GOS_HOME))
   GOS_HOME:=$(_DIR)
 endif
 
+# By default we will build GrowOS starting from esphome.yaml
+ESP_INIT ?= esphome.yaml
+
 ifeq (,$(MAKECMDGOALS))
 MAKECMDGOALS := all
 endif
 MAKE         := $(MAKE) --no-print-directory GOS_HOME=$(GOS_HOME)
 MAKEFILE     := $(lastword $(MAKEFILE_LIST))
-
 
 # git clone cpptext if not installed
 ifeq (,$(wildcard $(GOS_HOME)/cpptext/.git))
@@ -63,7 +75,7 @@ else
 
 # Record each distint PRJ in .gosprj-all
 define _saveprj
-  $(shell grep -qxF $1 .gosprj-all || echo $1 >> .gosprj-all)
+  $(shell grep -sqxF $1 .gosprj-all || echo $1 >> .gosprj-all)
 endef
 
 # Check if PRJ= was specified on the command line to select a GOS project.
@@ -139,10 +151,10 @@ BUILD_LOG := $(CPT_BUILD_DIR)/makeall.log
 ifeq (all,$(GOS_AUTOLOG)$(MAKECMDGOALS))
   SHELL:=bash
 all:
-ifeq (,$(GOS_AUTOLOG_STDOUT_ONLY))
-	@$(MAKE) -k GOS_AUTOLOG=1 $(MAKECMDGOALS) |& tee $(BUILD_LOG)
-else
+ifneq (,$(GOS_AUTOLOG_STDOUT_ONLY))
 	@$(MAKE) -k GOS_AUTOLOG=1 $(MAKECMDGOALS) | tee $(BUILD_LOG)
+else
+	@$(MAKE) -k GOS_AUTOLOG=1 $(MAKECMDGOALS) 2>&1 | tee $(BUILD_LOG)
 endif
 	@printf "Makefile: \"make all\" log is $(BUILD_LOG)\n"
 else
@@ -244,7 +256,7 @@ print-config:: $(CPT_TMP_DIR)/$(ESP_INIT)
 	@printf "  ESP_DEPS:\n"
 	@$(foreach f,$(ESP_DEPS),printf "    $(f)\n";)
 	@printf "Makefile #defines available to yaml files:"
-	@printf "  $(subst -, ,$(subst -D,#define,$(CPT_EXTRA_DEFS)))\n" | sed -e 's/ #/\n  #/g' -e 's/=/ /g'
+	@printf "  $(subst -, ,$(subst -D,#define,$(CPT_EXTRA_DEFS)))\n" | $(SED) -e 's/ #/\n  #/g' -e 's/=/ /g'
 	@printf "bsp.h #defines available to yaml and C/C++ files:\n"
 	@$(CPT_CPP) -dM $(CPT_TMP_DIR)/$(ESP_INIT) | \
 				grep GOS_BSP_HAS | sed 's/^/  /'

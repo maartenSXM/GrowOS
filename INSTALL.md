@@ -1,57 +1,65 @@
-To install esphome, do these steps:
+To be able to install GrowOS from github, first install git if needed:
+ Linux:
+   sudo apt install git
+  Mac:
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   brew install git
 
-sudo apt install git make python3.10-venv gcc yq
-sudo snap install yq
-    (on MacOS brew install git make python3.10-venv gcc yq)
-git clone https://github.com/esphome/esphome.git
-cd esphome
-vi requirements_dev.txt and comment out clang-tidy (takes too long and not needed)
-./script/setup
-Add this next line to your ~/.bashrc (tweak paths for the git directories on your system):
-alias gos-setup='source ~/git/esphome/venv/bin/activate; cd ~/git/GrowOS; source ./Bashrc'
+Then copy GrowOS from github:
+ git clone https://github.com/maartenSXM/GrowOS.git
 
-and then issue these two commands:
-source ~/.bashrc 
-gos-setup
+Then install esphome:
+  Linux:
+   sudo apt install esphome 
+   sudo apt install yq || sudo snap install yq
+  Mac:
+    pip3 install wheel
+    pip3 install esphome
+    brew install gnu-sed md5sha1sum esphome yq bash libmagic
+    pip install "pillow==10.2.0"
+
+The cd into GrowOS and source ./Bashrc
 
 Now you are in the GrowOS home directory.  You can build
-the default project (for lilygot4s3) from $GOS_HOME using 'make' or
-from anywhere, using 'gos-make'.  See $GOS_HOME/Bashrc for more
+the default project (for lilygot4s3) using 'make' or
+from anywhere, using 'gos_make'. See Bashrc for more
 convenience aliases that are defined at the end of that file.
 
-To change GrowOS projects, you can issue, for example, this:
-  make PRJ=projects/growBoard0
+To select a specific GrowOS projects, for example, do this:
+  make PRJ=projects/growBoard0/debug.mk
 
 GrowOS remembers the last project in $GOS_HOME/.goslast so you don't have
 to use PRJ= unless you are changing from one project to another.
 
 It is also possible to issue esphome commands directly on the generated
-espmake.yaml file from the build directory.  To change to the project's
-build directory, you can use the gos-build alias. Then esphome
-commands such as these can be issued:
+espmake.yaml file from the build directory.  To change to the last
+buily project's build directory, you can use the gos_build alias.
+Then esphome commands such as these can be issued:
 
+gos_build
 esphome compile espmake.yaml
 esphome upload espmake.yaml
 esphome logs espmake.yaml
 
 See esphome -h for more details.
 
-Intermediate C-preprocessed yaml files are stored in the build
-subdirectory "dehashed".  
+To burn GrowOS to a board, try gos_upload or gos_jtag.
 
-To burn GrowOS to a board, 
-By default, it is possible to connect to GrowOS's IP address
-from a browser to see some published information and flip
+Once GrowOS is running on your hardware, It is possible to connect
+to GrowOS's IP address from a browser to see some published information 
+nd flip
 some switches.
 
 Notes:
-On first upload without existing esphome firmware, will have to program over 
-/dev/* will be the path of the serial or USB port, which can be found by
-looking at the output of dmesg after plugging in the growboard.  If running
-in a VM, you may have to connect that port to the VM from the host.
+On first upload without existing esphome firmware or network connectivity,
+you may have to program over jtag/usb. Look in /dev/* for the path of the
+serial or USB port, which can be found by looking at the output of dmesg
+after plugging in your hardware.  If running in a VM, you may have t
+ connect that port to the VM from the host.
 
-To put the ESP32S2 into jtag upload mode, just ground GPIO0 and issue alias
-jtag0 or jtag1, depending on which CPU you are connected to.
+To put the an ESP32 device into jtag upload mode and download GrowOS to it,
+ground GPIO0 (.e. hold the BOOT button) and issue the convenience alias
+gos_jtag.
 
 To erase the flash over JTAG when a CPU is in upload mode, you
 can use the esptool.py script from Espressif like this:
@@ -66,18 +74,20 @@ like this:
 Saving the minimal configuration from the menuconfig will show you what
 settings have been tweaked in esp-idf by esphome and platformio.
 
-If using the GB_CONFIG_CONSOLE options, the UART is accessible over
+If using the GOS_CONFIG_CONSOLE options, the UART is accessible over
 TCP port 1234.  To connect to the UART over TCP, run socat in one
 terminal and minicom in another. Or run socat in the background like this:
 
   socat pty,link=$HOME/ttyV0,waitslave tcp:gb100cpu0.local:1234 &
   minicom --device ~/ttyV0
 
-To compile and run an esp-idf project directly on one of the CPUs of the
-Growboard, it is possible to do that using the esp-idf frameworks stored
-in ~/.platformio:
+Some other miscellaneous notes for developers:
 
-   cd ~/.platformio/plackages/framework-espidf
+Alternatively to GrowOS, to compile and run an esp-idf project directly,
+it is possible to do that using the esp-idf frameworks stored in
+~/.platformio:
+
+   cd ~/.platformio/packages/framework-espidf
    sh ./install.sh
    . ./export.sh
    cd examples/system/console/advanced
@@ -94,7 +104,7 @@ INSTALL_NOTES
 1. If build results in "No module named pip", then run this on thei python
    command with the absolute path shown. For example:
 
-     /home/maarten/.platformio/penv/.espidf-5.2.1/bin/python -m ensurepip
+     ~/.platformio/penv/.espidf-5.2.1/bin/python -m ensurepip
 
 2. To prune old platformio toolchains etc, you can see what will be
    pruned using:

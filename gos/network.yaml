@@ -108,16 +108,6 @@ time:
       - lambda: |-
           if (id(gosNet_globals_sntpBootTime) == (time_t) 0)
             id(gosNet_globals_sntpBootTime) = id(gosNet_time_sntp).now().timestamp;
-#if 0 // xxx moved to lvglDemo
-#if GOS_CONFIG_LVGL
-      - script.execute: time_update
-    on_time:
-      - minutes: '*'
-        seconds: '*'
-        then:
-          - script.execute: time_update
-#endif // GOS_CONFIG_LVGL
-#endif // xxx moved to lvglDemo
 
 text_sensor:
   - platform: template
