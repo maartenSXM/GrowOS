@@ -6,7 +6,7 @@
 # There is also a makeall.sh script that will build all the GOS projects
 # for a specific BSP.
 
-GOS_PROJECT_DIR_DEFAULT := projects/growBoard0/debug.mk
+GOS_PROJECT_DIR_DEFAULT := projects/lilygot4s3/debug.mk
 
 # A GrowOS project file must defines the following make variables:
 #  - GOS_APP_PATH    to define the project's application yaml file path
