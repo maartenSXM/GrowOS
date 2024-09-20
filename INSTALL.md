@@ -1,45 +1,60 @@
-To be able to install GrowOS from github, first install git if needed:
- Linux:
-   sudo apt install git
-  Mac:
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   brew install git
+1. Get git (Linux) brew & git (MacOS)
 
-Then copy GrowOS from github:
- git clone https://github.com/maartenSXM/GrowOS.git
-
-Then install esphome:
   Linux:
-   sudo apt install esphome 
-   sudo apt install yq || sudo snap install yq
+    sudo apt install git
+
+  Mac:
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    brew install git
+
+2. Then clone a copy of GrowOS from github to your machine:
+
+  git clone https://github.com/maartenSXM/GrowOS.git
+  cd GrowOS
+
+3. Then install esphome:
+
+  Linux:
+    python3 -m venv venv
+    source venv/bin/activate
+    pip3 install esphome
+    pip3 install "pillow==10.2.0"
+    pip3 install setuptools
+    sudo apt install yq || sudo snap install yq
+
   Mac:
     pip3 install wheel
     pip3 install esphome
     brew install gnu-sed md5sha1sum esphome yq bash libmagic
-    pip install "pillow==10.2.0"
+    pip3 install "pillow==10.2.0"
+    pip3 install setuptools
 
-The cd into GrowOS and source ./Bashrc
+4. Bash users can do this from the GrowOS home directory to set
+   GOS_HOME and get some GrowOS convenience aliases:
+     source ./Bashrc
+   Non-Bash users csan do this to set GOS_HOME from the GrowOS directory:
+     export GOS_HOME=$(pwd)
 
-Now you are in the GrowOS home directory.  You can build
-the default project (for lilygot4s3) using 'make' or
-from anywhere, using 'gos_make'. See Bashrc for more
+The default project (for lilygot4s3) can be built using 'make' or
+from anywhere, using 'gos_make'. See $GOS_HOME/Bashrc for more
 convenience aliases that are defined at the end of that file.
 
-To select a specific GrowOS projects, for example, do this:
+To select a specific GrowOS projects, for example, do this from GOS_HOME:
+
   make PRJ=projects/growBoard0/debug.mk
 
 GrowOS remembers the last project in $GOS_HOME/.goslast so you don't have
 to use PRJ= unless you are changing from one project to another.
 
 It is also possible to issue esphome commands directly on the generated
-espmake.yaml file from the build directory.  To change to the last
-buily project's build directory, you can use the gos_build alias.
+espmake.yaml file from the build directory. To change to the last
+built project's build directory, you can use the gos_build alias.
 Then esphome commands such as these can be issued:
 
-gos_build
-esphome compile espmake.yaml
-esphome upload espmake.yaml
-esphome logs espmake.yaml
+  gos_build
+  esphome compile espmake.yaml
+  esphome upload espmake.yaml
+  esphome logs espmake.yaml
 
 See esphome -h for more details.
 
@@ -47,10 +62,10 @@ To burn GrowOS to a board, try gos_upload or gos_jtag.
 
 Once GrowOS is running on your hardware, It is possible to connect
 to GrowOS's IP address from a browser to see some published information 
-nd flip
-some switches.
+and flip some switches.
 
-Notes:
+Notes on burning firmware for the first time:
+
 On first upload without existing esphome firmware or network connectivity,
 you may have to program over jtag/usb. Look in /dev/* for the path of the
 serial or USB port, which can be found by looking at the output of dmesg
@@ -85,24 +100,28 @@ Some other miscellaneous notes for developers:
 
 Alternatively to GrowOS, to compile and run an esp-idf project directly,
 it is possible to do that using the esp-idf frameworks stored in
-~/.platformio:
+~/.platformio with commands similar to:
 
-   cd ~/.platformio/packages/framework-espidf
-   sh ./install.sh
-   . ./export.sh
-   cd examples/system/console/advanced
-   idf.py build
-   esptool.py --chip esp32s2 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m 0x1000 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x10000 build/console.bin
-   echo voila!
+  cd ~/.platformio/packages/framework-espidf
+  sh ./install.sh
+  . ./export.sh
+  cd examples/system/console/advanced
+  idf.py build
+  esptool.py --chip esp32s2 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m 0x1000 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x10000 build/console.bin
+
+Note that the chip type and addresses and sizes and start address may vary
+depending on the hardware targetted.
 
 To validate a partition table part.csv, find gen_esp32part.py path to generate
 the .bin and display it using:
- python <path>/gen_esp32part.py part.csv part.bin
- python <path>/gen_esp32part.py part.bin
 
-INSTALL_NOTES
-1. If build results in "No module named pip", then run this on thei python
-   command with the absolute path shown. For example:
+  python <path>/gen_esp32part.py part.csv part.bin
+  python <path>/gen_esp32part.py part.bin
+
+Other Install Notes:
+
+1. If build results in "No module named pip", then run this python
+   command with an absolute path of the form:
 
      ~/.platformio/penv/.espidf-5.2.1/bin/python -m ensurepip
 

@@ -195,7 +195,8 @@ switch:
         on_response:
           then:
             - logger.log:
-                format: "Response status: %d, duration_ms: %lu ms"
+                // format: "Response status: %d, duration_ms: %lu ms"
+                format: "Response status: %d, duration_ms: %u ms"
                 args:
                   - response->status_code
                   - response->duration_ms
