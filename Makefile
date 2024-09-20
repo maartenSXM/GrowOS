@@ -11,7 +11,7 @@ GOS_PROJECT_DIR_DEFAULT := projects/growBoard0/debug.mk
 # A GrowOS project file must defines the following make variables:
 #  - GOS_APP_PATH    to define the project's application yaml file path
 #  - GOS_CONFIG_FILE to define the project's config file header file path
-#  - GOS_BSP_DIR    to define the project's board support package directory path
+#  - GOS_BSP_DIR     to define the project's board support package path
 
 # GOS project files are typically found in ./projects/ but can reside
 # anywhere inside or outside of the GOS file tree as long as the path
@@ -58,13 +58,18 @@ else
 
 # The rest of this Makefile is inside the 'ifeq' cpptext check from above.
 
-# Check if PRJ= was specified on the command line to select a GOS project.
+# Record each distint PRJ in .gosprj-all
+define _saveprj
+  $(shell grep -qxF $1 .gosprj-all || echo $1 >> .gosprj-all)
+endef
 
+# Check if PRJ= was specified on the command line to select a GOS project.
 ifneq (,$(PRJ))
   ifeq (,$(wildcard $(PRJ)))
     $(error $(MAKEFILE): $(PRJ) not found)
   endif
   $(shell echo $(PRJ) >$(GOS_HOME)/.gosprj)
+  $(call _saveprj,$(PRJ))
 else
   ifneq (,$(wildcard $(GOS_HOME)/.gosprj))
     PRJ := $(shell cat $(GOS_HOME)/.gosprj)
@@ -74,6 +79,7 @@ else
     endif
     PRJ := $(GOS_PROJECT_DIR_DEFAULT)
     $(shell echo $(PRJ) >$(GOS_HOME)/.gosprj)
+    $(call _saveprj,$(PRJ))
   endif
 endif
 

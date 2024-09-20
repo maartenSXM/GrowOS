@@ -83,7 +83,7 @@ touchscreen:
       swap_xy: true
       mirror_x: true
       mirror_y: false
-#if 0
+#if 0 // enable for touchscreen debug
     on_touch:
       - lambda: |-
            printf("touch: x=%d, y=%d, x_raw=%d, y_raw=%0d\n",

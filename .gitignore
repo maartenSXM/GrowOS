@@ -19,6 +19,7 @@ utils/tcpcmd
 build
 *.old
 .gosprj
+.gosprj-all
 libraries/libtelnet/*
 *.bak
 *.md5
