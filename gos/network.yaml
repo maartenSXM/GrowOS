@@ -228,8 +228,8 @@ sensor:
 
 esphome:
   includes:
-    - GOS_HOME/utils/idfWifi.h
-    - GOS_HOME/utils/idfWifi.c
+    - GOS_TOP/utils/idfWifi.h
+    - GOS_TOP/utils/idfWifi.c
 
 text_sensor:
   - platform: template
@@ -244,8 +244,8 @@ text_sensor:
 #if GOS_CONFIG_NET_TCPCMD
 esphome:
   includes:
-    - GOS_HOME/utils/tcpcmd.h
-    - GOS_HOME/utils/tcpcmd.c
+    - GOS_TOP/utils/tcpcmd.h
+    - GOS_TOP/utils/tcpcmd.c
 
 // The default for the tcpcmd server is off for security since there
 // is no login security.  To connect to it, just connect a socket,
@@ -292,8 +292,8 @@ switch:
 #if GOS_CONFIG_NET_WEB_SERVER
 esphome:
   includes:
-    - GOS_HOME/utils/webApi.h
-    - GOS_HOME/utils/webApi.c
+    - GOS_TOP/utils/webApi.h
+    - GOS_TOP/utils/webApi.c
 #endif
 
 #if GOS_CONFIG_NET_STREAM_SERVER

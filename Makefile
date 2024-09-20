@@ -1,3 +1,6 @@
+# Directory of this Makefile
+_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+
 # This Makefile uses github repo cpptext to build GOS esphome projects
 # from ./projects/*.mk.  Use "make PRJ=projects/<prj>/<prj>.mk" to
 # select a specific GOS project file otherwise $(GOS_PROJECT_DIR_DEFAULT)
@@ -30,17 +33,17 @@ GOS_PROJECT_DIR_DEFAULT := projects/lilygot4s3/debug.mk
 # of CPT_EXTRA_DEFS below for more comments on exactly which GOS_
 # variables are passed, and how they are defined.
 
+# default GOS_HOME to this directory
+ifeq (,$(GOS_HOME))
+  GOS_HOME:=$(_DIR)
+endif
+
 ifeq (,$(MAKECMDGOALS))
 MAKECMDGOALS := all
 endif
-MAKE         := $(MAKE) --no-print-directory
+MAKE         := $(MAKE) --no-print-directory GOS_HOME=$(GOS_HOME)
 MAKEFILE     := $(lastword $(MAKEFILE_LIST))
 
-ifeq (,$(GOS_HOME))
-  $(info Makefile: please define GOS_HOME to use this Makefile.)
-  $(error Makefile: Refer to $(GOS_HOME)/Bashrc for details.)
-endif
-GOS_HOME := $(shell realpath --relative-to=$(CURDIR) $(GOS_HOME))
 
 # git clone cpptext if not installed
 ifeq (,$(wildcard $(GOS_HOME)/cpptext/.git))
@@ -117,14 +120,12 @@ MAKE_NAME    := $(basename $(notdir $(GOS_PROJECT_FILE)))
 BSP_NAME     := $(basename $(notdir $(GOS_BSP_DIR)))
 APP_NAME     := $(basename $(notdir $(GOS_APP_DIR)))
 
-# CPT_BUILD_DIR is were GOS projects are built.  
+# CPT_BUILD_DIR is were GOS projects are built. If changed, review
+# the definition of GOS_TOP below.  It declares the relative path to
+# GOS_HOME from CPT_BUILD_DIR. This is done manually because realpath
+# does not support the --relative-to option on many non-Linux OSs.
 
-CPT_BUILD_DIR := $(shell realpath --relative-to=$(CURDIR) \
-			    $(GOS_HOME)/build/$(PROJECT_NAME)_$(MAKE_NAME))
-
-# GOS_TOP is to help generated yaml find the root directory of GrowOS
-
-GOS_TOP := $(shell realpath --relative-to=$(CPT_BUILD_DIR) $(GOS_HOME))
+CPT_BUILD_DIR := ./build/$(PROJECT_NAME)_$(MAKE_NAME)
 
 BUILD_LOG := $(CPT_BUILD_DIR)/makeall.log
 
@@ -152,7 +153,9 @@ else
 
 CPT_GEN  ?= partitions.csv esphome.yaml
 
-GOS_DIRS ?= gos $(dir $(GOS_APP_PATH)) bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
+GOS_DIRS ?= gos						    \
+	    $(patsubst %/,%,$(dir $(GOS_APP_PATH)))	    \
+	    bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
 
 # CPT_SRCS is the set of files that cpptext will remove hash-style
 # comments from while leaving any C preprocessor directives so that
@@ -199,30 +202,27 @@ CPT_EXTRA_INCS +=
 # and app file paths and the bsp directory path, respectively.
 # These are also passed into C/C++ code.  If changed, update gos/env.h.
 
-CPT_EXTRA_DEFS += -D GOS_HOME=$(GOS_TOP)			    \
+# Also GOS_TOP is how to get from the build directory back to GOS_HOME
+# and is used by gos/env.h.  It is GOS_HOME relative from CPT_BUILD_DIR.
+
+CPT_EXTRA_DEFS += -D GOS_HOME=$(GOS_HOME)			    \
+		  -D GOS_TOP=../..				    \
 		  -D GOS_BUILD_PATH=$(CPT_BUILD_DIR)		    \
-		  -D GOS_PROJECT_DIR=$(GOS_HOME)/$(GOS_PROJECT_DIR) \
+		  -D GOS_PROJECT_DIR=$(GOS_PROJECT_DIR)		    \
 		  -D GOS_PROJECT_NAME=$(PROJECT_NAME)		    \
 		  -D GOS_PROJECT_$(PROJECT_NAME)		    \
-		  -D GOS_CONFIG_FILE=$(GOS_TOP)/$(GOS_CONFIG_FILE)  \
-		  -D GOS_BSP_DIR=$(GOS_TOP)/$(GOS_BSP_DIR)	    \
+		  -D GOS_CONFIG_FILE=$(GOS_CONFIG_FILE)		    \
+		  -D GOS_BSP_DIR=$(GOS_BSP_DIR)			    \
 		  -D GOS_BSP_NAME=$(BSP_NAME)			    \
 		  -D GOS_BSP_$(BSP_NAME)			    \
-		  -D GOS_APP_PATH=$(GOS_TOP)/$(GOS_APP_PATH)	    \
-		  -D GOS_APP_DIR=$(GOS_TOP)/$(GOS_APP_DIR)	    \
+		  -D GOS_APP_PATH=$(GOS_APP_PATH)		    \
+		  -D GOS_APP_DIR=$(GOS_APP_DIR)			    \
 		  -D GOS_APP_NAME=$(APP_NAME)			    \
 		  -D GOS_APP_$(APP_NAME)			    \
 		  -D GOS_MAKE_NAME=$(MAKE_NAME)			    \
 		  -D GOS_MAKE_$(MAKE_NAME)			    \
 		  -D GOS_USER_NAME=$(USER)			    \
 		  -D GOS_USER_$(USER)
-
-# The reason GOS_HOME is set above to two levels up i.e. ../.. is because
-# the generated espmake.yaml ends up in $(CPT_BUILD_DIR) which is
-# build/$(PROJECT_NAME) which is two levels down from this directory.
-# GOS_HOME is used in yaml or C/C++ files to refer to files and directories
-# under this directory and is define as a relative so that build trees
-# are reproducable regardless of where they are built.
 
 # Now include the cpptext Makefile fragment that will dehash GOS yamls files.
 # In turn, it will include cpptext/esphome.mk which handles the esphome
@@ -234,7 +234,7 @@ print-config:: $(CPT_TMP_DIR)/$(ESP_INIT)
 	@printf "Makefile variables:\n"
 	@printf "  PROJECT_NAME:  $(PROJECT_NAME)\n"
 	@printf "  CPT_BUILD_DIR: $(CPT_BUILD_DIR)\n"
-	@printf "  GOS_TOP:  $(GOS_TOP)\n"
+	@printf "  GOS_HOME: $(GOS_HOME)\n"
 	@printf "  APP_NAME: $(APP_NAME)\n"
 	@printf "  BSP_NAME: $(BSP_NAME)\n"
 	@printf "  ESP_INIT: $(ESP_INIT)\n"

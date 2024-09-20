@@ -217,8 +217,8 @@ button:
 #if GOS_BSP_CONFIG_TINYUSB
 esphome:
   includes:
-    - GOS_HOME/utils/idfUsb.h
-    - GOS_HOME/utils/idfUsb.c
+    - GOS_TOP/utils/idfUsb.h
+    - GOS_TOP/utils/idfUsb.c
   libraries:
     - "file://components/tinyusb"
     - "file://components/esp_tinyusb"

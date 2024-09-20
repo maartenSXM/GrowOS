@@ -1,15 +1,5 @@
-# This should work for in-tree or out of tree GrowOS projects
-ifeq (,$(GOS_HOME))
-  $(info environment variable GOS_HOME not found.)
-  $(error Please source sphome/venv/bin/activate *and* GrowOS/Bashrc)
-endif
-
-TOP = $(shell realpath --relative-to=$(CURDIR)   $(GOS_HOME))
-DIR = $(shell realpath --relative-to=$(GOS_HOME) $(CURDIR))
-PRJ = debug.mk	# default project
-
 MAKECMDGOALS ?= all
-MAKE         := $(MAKE) -C $(TOP) PRJ=$(DIR)/$(PRJ) --no-print-directory
+MAKE := $(MAKE) -C ../.. PRJ=projects/growBoard0/debug.mk --no-print-directory
 
 $(MAKECMDGOALS): 
 	$(MAKE) $(MAKECMDGOALS)

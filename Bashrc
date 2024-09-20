@@ -1,14 +1,14 @@
-# Activate GrowOS under bash using 'gos-setup' and then you will have
+# Activate GrowOS under bash using 'gos_setup' and then you will have
 # GOS_HOME defined correctly and also some GrowOS convenience aliases.
 # See the section below titled "Convenience aliases" to see what they do.
 
 # The directory where this file lives is stashed in GOS_HOME
 export GOS_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-alias gos-setup='cd "$GOS_HOME"; source ./Bashrc'
+alias gos_setup='cd "$GOS_HOME"; source ./Bashrc'
 
 # venv is recommended (needed for the dev environment).  Edit the path.
-alias gos-venv='source ~/git/esphome/venv/bin/activate; gos-setup'
+alias gos_venv='source ~/git/esphome/venv/bin/activate; gos_setup'
 
 # set your GrowOS project IP addresses here in aligment with secrets.h
 
@@ -21,10 +21,10 @@ if [ "$USER" == "maarten" ]; then
   export _GOS_IP1=192.168.248.21
 fi
 
-# This is a helper function that returns the relative path to the build
-# directory of the last project built.  Example: ./build/growBoard0_debug
+# This is a helper function that returns the path to the build directoryx
+# of the last project built. Example: $GOS_HOME/build/lilygot4s3_debug
 _GOS_LAST_BUILD() {
-    echo $(realpath --relative-to=$PWD $GOS_HOME)/build/$(basename $(dirname $(cat $GOS_HOME/.gosprj)))_$(basename $(cat $GOS_HOME/.gosprj) .mk)
+    echo "${GOS_HOME}/build/$(basename $(dirname $(cat $GOS_HOME/.gosprj)))_$(basename $(cat $GOS_HOME/.gosprj) .mk)"
 }
 
 # This is a helper function that returns the name of the esphome
@@ -51,53 +51,53 @@ alias _GOS_IDF_JTAG='(cd $(_GOS_LAST_BUILD)/.esphome/build/$(_GOS_LAST_ESPNAME)/
 alias gos='cd $GOS_HOME'
 
 # Aliases to provide the list of aliases :-)
-alias gos-help='alias | grep gos-'
-alias gos-aliases='alias | grep gos-'
+alias gos_help='alias | grep gos_'
+alias gos_aliases='alias | grep gos_'
 
 # Aliases to upload for the last project to IP _GOS_IP0 or _GOS_IP1
-alias gos-upload-0='_GOS_ESP_UPLOAD 0'
-alias gos-upload-1='_GOS_ESP_UPLOAD 1'
-alias gos-upload='gos-upload-0'
+alias gos_upload0='_GOS_ESP_UPLOAD 0'
+alias gos_upload1='_GOS_ESP_UPLOAD 1'
+alias gos_upload='gos_upload0'
 
 # Aliases to upload the last project to /dev/ttyACM0 or /dev/ttyACM1
-alias gos-jtag-0="_GOS_ESP_USB upload 0"
-alias gos-jtag-1="_GOS_ESP_USB upload 1"
-alias gos-jtag="gos-jtag-0"
+alias gos_jtag0="_GOS_ESP_USB upload 0"
+alias gos_jtag1="_GOS_ESP_USB upload 1"
+alias gos_jtag="gos_jtag0"
 
 # Aliases to monitor logs on /dev/ttyACM0 or /dev/ttyACM1
-alias gos-logs-0="_GOS_ESP_USB logs 0"
-alias gos-logs-1="_GOS_ESP_USB logs 1"
-alias gos-logs="gos-logs-0"
+alias gos_logs0="_GOS_ESP_USB logs 0"
+alias gos_logs1="_GOS_ESP_USB logs 1"
+alias gos_logs="gos_logs0"
 
-# Alias gos-make builds the current GrowOS project
-alias gos-make='make -C $GOS_HOME'
+# Alias gos_make builds the current GrowOS project
+alias gos_make='make -C $GOS_HOME'
 
 # Aliases to cd to common GrowOS directories
-alias gos-home='cd $GOS_HOME'
-alias gos-project='cd $GOS_HOME/$(dirname $(cat $GOS_HOME/.gosprj))'
-alias gos-build='cd $(_GOS_LAST_BUILD)'
+alias gos_home='cd $GOS_HOME'
+alias gos_project='cd $GOS_HOME/$(dirname $(cat $GOS_HOME/.gosprj))'
+alias gos_build='cd $(_GOS_LAST_BUILD)'
 
 # Aliases to view to common GrowOS artifacts
-alias gos-log='view $(_GOS_LAST_BUILD)/makeall.log'
-alias gos-esphome='view $(_GOS_LAST_BUILD)/esphome.yaml'
-alias gos-espmake='view $(_GOS_LAST_BUILD)/espmake.yaml'
+alias gos_log='view $(_GOS_LAST_BUILD)/makeall.log'
+alias gos_esphome='view $(_GOS_LAST_BUILD)/esphome.yaml'
+alias gos_espmake='view $(_GOS_LAST_BUILD)/espmake.yaml'
 
 # Aliases to find strings including or excluding the build directory
-alias gos-search="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -i"
-alias gos-search-all="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' -type f -print0 | xargs -0 grep -i"
-alias gos-search-here="find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' -type f -print0 | xargs -0 grep -i"
+alias gos_search="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -i"
+alias gos_search_all="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' -type f -print0 | xargs -0 grep -i"
+alias gos_search_here="find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' -type f -print0 | xargs -0 grep -i"
 
 # Aliases to search for arg1 and replace it with arg2 in all files.
 # Backup files are stored in <file>.bak.  There are variants for arg1
 # not containing octothorpe, comma and slash. The default is no slash.
-gos-replace-nohash() {
+gos_replace_nohash() {
  find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s#$1#$2#g"
 }
-gos-replace-nocomma() {
+gos_replace_nocomma() {
  find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s,$1,$2,g"
 }
-gos-replace-noslash() {
+gos_replace_noslash() {
  find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s/$1/$2/g"
 }
-alias gos-replace='gos-replace-noslash'
+alias gos_replace='gos_replace_noslash'
 

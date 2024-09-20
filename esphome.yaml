@@ -13,6 +13,9 @@
 #include "gos/network.yaml"
 
 // now include the mandatory application and madatory project.yaml
+// GOS_APP_PATH and GOS_PROJECT_DIR must be relative to GOS_HOME
+// in order to pickup dehashed files. Else there could be cpp errors
+// due to hash-style comments in yaml.
 
 #include GOS_STRINGIFY(GOS_APP_PATH)
 
