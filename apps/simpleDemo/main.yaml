@@ -1,6 +1,19 @@
 #include "simpleDemo.h"
 #include "ui.yaml"
 
+// this app needs touchscreen transformation on this hw
+// XXX TODO: determine if only on this BSP.
+
+#ifdef GOS_BSP_lilygot4s3
+touchscreen:
+  - platform: GOS_BSP_HAS_touchscreen_platform
+    id: gosBsp_touchscreen
+    transform:
+      swap_xy: true
+      mirror_x: false
+      mirror_y: true
+#endif
+
 color:
   - id: my_black
     hex: '000000'
