@@ -1,17 +1,16 @@
-# Place this gos-setup alias ~/.bashrc and adjust the two paths
-# to point to your git repos for esphome and GrowOS. Then issue 
-# "source ~/.bashrc" to define the bash alias gos-setup.
-
-# alias gos-setup='source ~/git/esphome/venv/bin/activate; cd ~/git/GrowOS; source ./Bashrc'
-
-# Once you have done the above, you can activate GrowOS under bash
-# using 'gos-setup' and then you will have some GrowOS convenience aliases.
+# Activate GrowOS under bash using 'gos-setup' and then you will have
+# GOS_HOME defined correctly and also some GrowOS convenience aliases.
 # See the section below titled "Convenience aliases" to see what they do.
 
 # The directory where this file lives is stashed in GOS_HOME
 export GOS_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-# set your GrowOS project IP addresses here.
+alias gos-setup='cd "$GOS_HOME"; source ./Bashrc'
+
+# venv is recommended (needed for the dev environment).  Edit the path.
+alias gos-venv='source ~/git/esphome/venv/bin/activate; gos-setup'
+
+# set your GrowOS project IP addresses here in aligment with secrets.h
 
 export _GOS_IP0=192.168.248.10
 export _GOS_IP1=192.168.248.11
