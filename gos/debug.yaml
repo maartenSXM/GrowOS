@@ -3,32 +3,14 @@
 
 #if GOS_CONFIG_logger
 logger:
-#ifdef GOS_USER_maarten
-#if 0
-#ifdef GOS_BSP_growBoardCpu0	    // xxx move to growBoardCpu0 BSP
-  hardware_uart: USB_CDC
-  // deassert_rts_dtr: true
-  //baud_rate: 921600
-#else // ! GOS_BSP_growBoardCpu0
-  hardware_uart: USB_CDC
-  // XXX setup secondary in env.yaml
-  // hardware_uart: UART0
-  // baud_rate: 115200
-#endif // ! GOS_BSP_growBoardCpu0
-#endif // 0
-#else
-  # baud_rate: 115200
-  baud_rate: 921600
-  hardware_uart: UART0
-#endif
-    # level: ERROR
+  // ERROR, DEBUG, VERBOSE
+#ifdef GOS_MAKE_debug	// defined by Makefile for projects/*/debug.mk
   level: DEBUG
-    # level: VERBOSE
+#else
+  level: ERROR
+#endif // GOS_MAKE_debug
   logs:
-    # ili9xxx.component: VERBOSE
-    component: DEBUG
-    # component: VERBOSE
-
+    component: ERROR
 #endif // GOS_CONFIG_logger
 
 #if GOS_CONFIG_debug
