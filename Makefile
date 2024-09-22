@@ -142,12 +142,15 @@ BUILD_LOG := $(CPT_BUILD_DIR)/makeall.log
 #    make GOS_AUTOLOG_STDOUT_ONLY=1 2>&1 >/dev/null | more
 
 ifeq (all,$(GOS_AUTOLOG)$(MAKECMDGOALS))
+  ifeq (,$(wildcard $(CPT_BUILD_DIR)))
+    $(shell mkdir -p $(CPT_BUILD_DIR))
+  endif
 all:
-ifneq (,$(GOS_AUTOLOG_STDOUT_ONLY))
+  ifneq (,$(GOS_AUTOLOG_STDOUT_ONLY))
 	@$(MAKE) -k GOS_AUTOLOG=1 $(MAKECMDGOALS) | tee $(BUILD_LOG)
-else
+  else
 	@$(MAKE) -k GOS_AUTOLOG=1 $(MAKECMDGOALS) 2>&1 | tee $(BUILD_LOG)
-endif
+  endif
 	@printf "Makefile: \"make all\" log is $(BUILD_LOG)\n"
 else
 
