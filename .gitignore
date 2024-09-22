@@ -18,8 +18,8 @@ utils/webApi
 utils/tcpcmd
 build
 *.old
-.espmake_prj
-.espmake_prj_all
+.cpphash_prj
+.cpphash_prj_all
 libraries/libtelnet/*
 *.bak
 *.md5

@@ -2,12 +2,15 @@
 
 # This script can be re-run as it will only install things if needed.
 
+# Note: cpphash is updated using git pull if it exists.
+# To update GrowOS itself, please do it manuallly using git pull.
+
 set -o nounset
 
 declare -r CDIR="./cpphash"
 declare -r VENV="./build/venv"
 
-# Check that cpphash has been cloned into $CDIR
+# Check that cpphash has been cloned into $CDIR and is up to date
 
 if [ ! -f "$CDIR/cpphash.mk" ]; then
   echo "cd $(dirname $CDIR)"
@@ -18,6 +21,12 @@ if [ ! -f "$CDIR/cpphash.mk" ]; then
     echo "$0: Could not git clone cpphash. Aborting."
     exit 1
   fi
+  echo cd -
+  cd - 
+else
+  cd "$CDIR"
+  echo "git pull"
+  git pull
   echo cd -
   cd - 
 fi
