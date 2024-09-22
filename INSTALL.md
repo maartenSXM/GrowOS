@@ -1,55 +1,37 @@
-1. Get git (Linux) brew & git (MacOS)
+To install GrowOS on Linux or Darwin, clone it from github
+and then cd into GrowOS and run ./install.sh.
 
-  Linux:
-    sudo apt install git
+GrowOS clone cpphash and run cpphash/install.sh as part of its
+install process.  cpphash/install.sh in turn will install its
+dependencies and create a virtual python environment containing the
+latest esphome release.
 
-  Mac:
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    brew install git
+Once installed, GrowOS can be activated using 'source Bashrc',
+which sets GOS_HOME to the GrowOS home directory and, in turn
+sources cpphash/Bashrc specifying $GOS_HOME/build as the build
+directory.  To change the build directory, edit $GOS_HOME/Bashrc
+and also $GOS_HOME/Makefile so that they are in sync.
 
-2. Then clone a copy of GrowOS from github to your machine:
+The default GrowOS project is lilygot4s3.  It can be built using
+'make' with no arguments from $GOS_HOME - or from anywhere
+using 'gos_make'. 
 
-  git clone https://github.com/maartenSXM/GrowOS.git
-  cd GrowOS
-
-3. Then install esphome:
-
-  Linux:
-    python3 -m venv venv
-    source venv/bin/activate
-    pip3 install esphome
-    pip3 install "pillow==10.2.0"
-    pip3 install setuptools
-    sudo apt install yq || sudo snap install yq
-
-  Mac:
-    pip3 install wheel
-    pip3 install esphome
-    brew install gnu-sed md5sha1sum esphome yq bash libmagic
-    pip3 install "pillow==10.2.0"
-    pip3 install setuptools
-
-4. Bash users can do this from the GrowOS home directory to set
-   GOS_HOME and get some GrowOS convenience aliases:
-     source ./Bashrc
-   Non-Bash users csan do this to set GOS_HOME from the GrowOS directory:
-     export GOS_HOME=$(pwd)
-
-The default project (for lilygot4s3) can be built using 'make' or
-from anywhere, using 'gos_make'. See $GOS_HOME/Bashrc for more
-convenience aliases that are defined at the end of that file.
+gos_help will list the convenience aliases defined by $GOS_HOME/Bashrc
+and $GOS_HOME/cpphash/Bashrc.
 
 To select a specific GrowOS projects, for example, do this from GOS_HOME:
 
   make PRJ=projects/growBoard0/debug.mk
 
-GrowOS remembers the last project in $GOS_HOME/.goslast so you don't have
-to use PRJ= unless you are changing from one project to another.
+GrowOS remembers the last project in $GOS_HOME/.espmake so that you
+don't have to specify a PRJ= argument to make unless you are changing
+from one project to another.
 
 It is also possible to issue esphome commands directly on the generated
 espmake.yaml file from the build directory. To change to the last
 built project's build directory, you can use the gos_build alias.
-Then esphome commands such as these can be issued:
+
+Then commands such as these can be issued:
 
   gos_build
   esphome compile espmake.yaml
@@ -59,6 +41,15 @@ Then esphome commands such as these can be issued:
 See esphome -h for more details.
 
 To burn GrowOS to a board, try gos_upload or gos_jtag.
+
+To set serial port names or IP addresses used by convenience aliases,
+set these environment variables.  Otherwise these defaults are
+set by cpphash/Bashrc:
+
+  _ESPMAKE_IP0=192.168.248.10
+  _ESPMAKE_IP1=192.168.248.11
+  _ESPMAKE_DEV0=/dev/ttyACM0
+  _ESPMAKE_DEV0=/dev/ttyACM1
 
 Once GrowOS is running on your hardware, It is possible to connect
 to GrowOS's IP address from a browser to see some published information 

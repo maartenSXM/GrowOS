@@ -1,4 +1,4 @@
-# This Makefile uses github repo cpptext to build GOS esphome projects
+# This Makefile uses github repo cpphash to build GOS esphome projects
 # from ./projects/*.mk.  Use "make PRJ=projects/<prj>/<prj>.mk" to
 # select a specific GOS project file otherwise $(GOS_PROJECT_DIR_DEFAULT)
 # is selected.
@@ -8,7 +8,7 @@
 
 ifeq (,$(findstring GNU,$(shell sed --version 2>/dev/null)))
   ifeq (,$(shell which gsed))
-    $(error "GNU sed not found. Please install it")
+    $(error "GNU sed not found. Did you run install.sh?")
   else
     SED=gsed
   endif
@@ -33,8 +33,8 @@ GOS_PROJECT_DIR_DEFAULT := projects/lilygot4s3/debug.mk
 # Makefile variables set below with ?= can be overridden by a project file.
 # Makefile variables set below with += can be prepended  by a project file.
 
-# Makefile variables starting with CPT_ are for cpptext/cpptext.mk.
-# Makefile variables starting with ESP_ are for cpptext/esphome.mk.
+# Makefile variables starting with CPT_ are for cpphash/cpphash.mk.
+# Makefile variables starting with ESP_ are for cpphash/esphome.mk.
 
 # Makefile variables starting with GOS_ are used by this Makefile and
 # by the selected GOS project file.  Some are also available to yaml
@@ -48,7 +48,16 @@ ifeq (,$(GOS_HOME))
   GOS_HOME:=$(_DIR)
 endif
 
-# By default we will build GrowOS starting from esphome.yaml
+ifeq (,$(wildcard $(GOS_HOME)/cpphash))
+  $(error $GOS_HOME/cpphash not found. Did you run install.sh?)
+endif
+
+ifeq (,$(VIRTUAL_ENV))
+  $(error $$VIRTUAL_ENV not set. Did you source Bashrc?)
+endif
+
+# By default build GrowOS starting from esphome.yaml
+
 ESP_INIT ?= esphome.yaml
 
 ifeq (,$(MAKECMDGOALS))
@@ -57,25 +66,9 @@ endif
 MAKE         := $(MAKE) --no-print-directory GOS_HOME=$(GOS_HOME)
 MAKEFILE     := $(lastword $(MAKEFILE_LIST))
 
-# git clone cpptext if not installed
-ifeq (,$(wildcard $(GOS_HOME)/cpptext/.git))
-  ifneq (,$(BAIL))
-    $(error $(MAKEFILE): make loop detected. Bailing out.)
-  endif
-
-$(MAKECMDGOALS): 
-	@printf "$(MAKEFILE): Retreiving git repo cpptext\n"
-	git clone https://github.com/maartenSXM/cpptext
-	cd cpptext && git checkout main
-	@printf "$(MAKEFILE): Restarting \"make $(MAKECMDGOALS)\"\n"
-	$(MAKE) BAIL=1 $(MAKECMDGOALS)
-else
-
-# The rest of this Makefile is inside the 'ifeq' cpptext check from above.
-
-# Record each distint PRJ in .gosprj-all
+# Record each distinct PRJ in .espmake_prj_all
 define _saveprj
-  $(shell grep -sqxF $1 .gosprj-all || echo $1 >> .gosprj-all)
+  $(shell grep -sqxF $1 .espmake_prj_all || echo $1 >> .espmake_prj_all)
 endef
 
 # Check if PRJ= was specified on the command line to select a GOS project.
@@ -83,17 +76,17 @@ ifneq (,$(PRJ))
   ifeq (,$(wildcard $(PRJ)))
     $(error $(MAKEFILE): $(PRJ) not found)
   endif
-  $(shell echo $(PRJ) >$(GOS_HOME)/.gosprj)
+  $(shell echo $(PRJ) >$(GOS_HOME)/.espmake_prj)
   $(call _saveprj,$(PRJ))
 else
-  ifneq (,$(wildcard $(GOS_HOME)/.gosprj))
-    PRJ := $(shell cat $(GOS_HOME)/.gosprj)
+  ifneq (,$(wildcard $(GOS_HOME)/.espmake_prj))
+    PRJ := $(shell cat $(GOS_HOME)/.espmake_prj)
   else
     ifeq (,$(wildcard $(GOS_PROJECT_DIR_DEFAULT)))
       $(error $(MAKEFILE): GOS_PROJECT_DIR_DEFAULT not found)
     endif
     PRJ := $(GOS_PROJECT_DIR_DEFAULT)
-    $(shell echo $(PRJ) >$(GOS_HOME)/.gosprj)
+    $(shell echo $(PRJ) >$(GOS_HOME)/.espmake_prj)
     $(call _saveprj,$(PRJ))
   endif
 endif
@@ -149,7 +142,6 @@ BUILD_LOG := $(CPT_BUILD_DIR)/makeall.log
 #    make GOS_AUTOLOG_STDOUT_ONLY=1 2>&1 >/dev/null | more
 
 ifeq (all,$(GOS_AUTOLOG)$(MAKECMDGOALS))
-  SHELL:=bash
 all:
 ifneq (,$(GOS_AUTOLOG_STDOUT_ONLY))
 	@$(MAKE) -k GOS_AUTOLOG=1 $(MAKECMDGOALS) | tee $(BUILD_LOG)
@@ -159,8 +151,8 @@ endif
 	@printf "Makefile: \"make all\" log is $(BUILD_LOG)\n"
 else
 
-# CPT_GEN is the set of files that cpptext runs the C preprocessor on.
-# They can include files from CPT_SRCS (defined below) since the cpptext
+# CPT_GEN is the set of files that cpphash runs the C preprocessor on.
+# They can include files from CPT_SRCS (defined below) since the cpphash
 # tool arranges that de-commented copies are included, not the originals.
 
 CPT_GEN  ?= partitions.csv esphome.yaml
@@ -169,7 +161,7 @@ GOS_DIRS ?= gos						    \
 	    $(patsubst %/,%,$(dir $(GOS_APP_PATH)))	    \
 	    bsps/common $(GOS_BSP_DIR) $(GOS_PROJECT_DIR)
 
-# CPT_SRCS is the set of files that cpptext will remove hash-style
+# CPT_SRCS is the set of files that cpphash will remove hash-style
 # comments from while leaving any C preprocessor directives so that
 # the file can subsequently be used as a #include by one of the
 # CPT_GEN files.
@@ -198,7 +190,7 @@ else
   endif
 endif
 
-# cpptext sets up include paths to be the dehashes source directories first,
+# cpphash sets up include paths to be the dehashes source directories first,
 # followed by the source directories. Thus, includes of yaml files will
 # include the dehashed variants of the same file and includes of non-yaml
 # files such as images will come from the source tree.
@@ -236,11 +228,11 @@ CPT_EXTRA_DEFS += -D GOS_HOME=$(GOS_HOME)			    \
 		  -D GOS_USER_NAME=$(USER)			    \
 		  -D GOS_USER_$(USER)
 
-# Now include the cpptext Makefile fragment that will dehash GOS yamls files.
-# In turn, it will include cpptext/esphome.mk which handles the esphome
+# Now include the cpphash Makefile fragment that will dehash GOS yamls files.
+# In turn, it will include cpphash/esphome.mk which handles the esphome
 # file generation and platformio build steps.
 
-include $(GOS_HOME)/cpptext/cpptext.mk
+include $(GOS_HOME)/cpphash/cpphash.mk
 
 print-config:: $(CPT_TMP_DIR)/$(ESP_INIT)
 	@printf "Makefile variables:\n"
@@ -266,9 +258,5 @@ print-config:: $(CPT_TMP_DIR)/$(ESP_INIT)
 .PHONY: print-config
 
 # this endif is from the autolog restart
-endif
-
-# This last endif is needed from the cpptext install check above
-
 endif
 

@@ -1,103 +1,21 @@
-# Activate GrowOS under bash using 'gos_setup' and then you will have
-# GOS_HOME defined correctly and also some GrowOS convenience aliases.
-# See the section below titled "Convenience aliases" to see what they do.
+# Source this file to setup GrowOS aliases and acrtivate build/venv
 
-# The directory where this file lives is stashed in GOS_HOME
-export GOS_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+# See cpphash/Bashrc for convenience aliases.  They can be listed
+# using command 'gos_help'
 
-alias gos_setup='cd "$GOS_HOME"; source ./Bashrc'
-
-# venv is recommended (needed for the dev environment).  Edit the path.
-alias gos_venv='source ~/git/esphome/venv/bin/activate; gos_setup'
-
-# set your GrowOS project IP addresses here in aligment with secrets.h
-
-export _GOS_IP0=192.168.248.10
-export _GOS_IP1=192.168.248.11
-
-# or, by user, if you are sharing this Bashrc, here:
-if [[ "$USER" == "maarten" ]]; then
-  export _GOS_IP0=192.168.248.20
-  export _GOS_IP1=192.168.248.21
-fi
-
-# This is a helper function that returns the path to the build directoryx
-# of the last project built. Example: $GOS_HOME/build/lilygot4s3_debug
-_GOS_LAST_BUILD() {
-    echo "${GOS_HOME}/build/$(basename $(dirname $(cat $GOS_HOME/.gosprj)))_$(basename $(cat $GOS_HOME/.gosprj) .mk)"
-}
-
-# This is a helper function that returns the name of the esphome
-# device as specified in espmake.yaml "esphome:" component entry "name:".
-# Example: growboard0
-_GOS_LAST_ESPNAME() {
-    echo $(yq -r --no-doc .esphome.name $(_GOS_LAST_BUILD)/espmake.yaml | grep -v null)
-}
-
-# helper alias that takes an esphome verb and a ACM device number and
-# issues it on the last built project.
-alias _GOS_ESP_USB='function _GOS_ESP_USB { _VERB=${1}; _DEV=${2}; cd $(_GOS_LAST_BUILD); esphome -v ${_VERB} --device /dev/ttyACM${_DEV} espmake.yaml; cd -;}; _GOS_ESP_USB'
-
-# helper alias to upload last project using OTA update to IP _GOS_IP<arg>
-# Note the indirect variable reference ${!_IP} to choose the _IP 
-alias _GOS_ESP_UPLOAD='function _GOS_ESP_UPLOAD { _IPNUM=${1}; _IP=_GOS_IP${_IPNUM}; esphome -v upload --device ${!_IP} --file $(_GOS_LAST_BUILD)/.esphome/build/$(_GOS_LAST_ESPNAME)/.pioenvs/$(_GOS_LAST_ESPNAME)/firmware.bin $(_GOS_LAST_BUILD)/espmake.yaml;}; _GOS_ESP_UPLOAD'
-
-# _GOS_IDF_JTAG uses esp-idf directly to burn firmware to /dev/ttyACM0
-export ESPTOOL_TESTING=1 # as per esptool/esp32s2.py
-alias _GOS_IDF_JTAG='(cd $(_GOS_LAST_BUILD)/.esphome/build/$(_GOS_LAST_ESPNAME)/.pioenvs/$(_GOS_LAST_ESPNAME) && esptool.py --before default_reset --after no_reset --baud 1500000 --port /dev/ttyACM0 --chip esp32s2 write_flash -z --flash_size detect 0x10000 firmware.bin 0x1000 bootloader.bin 0x8000 partitions.bin 0x9000 ota_data_initial.bin)'
-
-# Convenience aliases
-
+export GOS_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" \
+						&> /dev/null && pwd )
 alias gos='cd $GOS_HOME'
 
-# Aliases to provide the list of aliases :-)
-alias gos_help='alias | grep gos_'
-alias gos_aliases='alias | grep gos_'
+if [ ! -d cpphash ]; then
+  echo "cpphash not found. Did you run $GOS_HOME/install.sh?"
+  exit 1
+fi
 
-# Aliases to upload for the last project to IP _GOS_IP0 or _GOS_IP1
-alias gos_upload0='_GOS_ESP_UPLOAD 0'
-alias gos_upload1='_GOS_ESP_UPLOAD 1'
-alias gos_upload='gos_upload0'
+# Now set cpphash's aliases, prefixed with gos_.
 
-# Aliases to upload the last project to /dev/ttyACM0 or /dev/ttyACM1
-alias gos_jtag0="_GOS_ESP_USB upload 0"
-alias gos_jtag1="_GOS_ESP_USB upload 1"
-alias gos_jtag="gos_jtag0"
+ESPMAKE_PREFIX="gos_"	
+ESPMAKE_PRJ_VENV="$GOS_HOME/build/venv"	
 
-# Aliases to monitor logs on /dev/ttyACM0 or /dev/ttyACM1
-alias gos_logs0="_GOS_ESP_USB logs 0"
-alias gos_logs1="_GOS_ESP_USB logs 1"
-alias gos_logs="gos_logs0"
-
-# Alias gos_make builds the current GrowOS project
-alias gos_make='make -C $GOS_HOME'
-
-# Aliases to cd to common GrowOS directories
-alias gos_home='cd $GOS_HOME'
-alias gos_project='cd $GOS_HOME/$(dirname $(cat $GOS_HOME/.gosprj))'
-alias gos_build='cd $(_GOS_LAST_BUILD)'
-
-# Aliases to view to common GrowOS artifacts
-alias gos_log='view $(_GOS_LAST_BUILD)/makeall.log'
-alias gos_esphome='view $(_GOS_LAST_BUILD)/esphome.yaml'
-alias gos_espmake='view $(_GOS_LAST_BUILD)/espmake.yaml'
-
-# Aliases to find strings including or excluding the build directory
-alias gos_search="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -i"
-alias gos_search_all="find $GOS_HOME ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' -type f -print0 | xargs -0 grep -i"
-alias gos_search_here="find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git/*' -type f -print0 | xargs -0 grep -i"
-
-# Aliases to search for arg1 and replace it with arg2 in all files.
-# Backup files are stored in <file>.bak.  There are variants for arg1
-# not containing octothorpe, comma and slash. The default is no slash.
-gos_replace_nohash() {
- find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s#$1#$2#g"
-}
-gos_replace_nocomma() {
- find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s,$1,$2,g"
-}
-gos_replace_noslash() {
- find . ! -name '*.swp' ! -name '*.bak' ! -path '*/.git*' ! -path '*/build*' ! -path '*/cpptext*' ! -path '*/.esphome*' -type f -print0 | xargs -0 grep -l "$1" | xargs sed --in-place=.bak "s/$1/$2/g"
-}
-alias gos_replace='gos_replace_noslash'
+source $GOS_HOME/cpphash/Bashrc
 
