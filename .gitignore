@@ -1,7 +1,7 @@
 # Gitignore settings for ESPHome
 # This is an example and may include too much for your use-case.
 # You can modify this file to suit your needs.
-cpptext/
+cpphash/
 /.esphome/
 /secrets.yaml
 .dehash
@@ -18,8 +18,8 @@ utils/webApi
 utils/tcpcmd
 build
 *.old
-.gosprj
-.gosprj-all
+.espmake_prj
+.espmake_prj_all
 libraries/libtelnet/*
 *.bak
 *.md5
