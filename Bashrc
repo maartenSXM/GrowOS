@@ -8,7 +8,7 @@ if [ ! -d cpphash ]; then
 fi
 
 export GOS_HOME="$_DIR"
-export CPT_HOME="$GOS_HOME/cpphash"
+export CH_HOME="$GOS_HOME/cpphash"
 
 alias gos='cd $GOS_HOME'
 
@@ -17,7 +17,7 @@ alias gos='cd $GOS_HOME'
 ESPMAKE_PREFIX="gos_"	
 ESPMAKE_PRJ_VENV="$GOS_HOME/build/venv"	
 
-source "$CPT_HOME/Bashrc"
+source "$CH_HOME/Bashrc"
 
 # See cpphash/Bashrc for convenience aliases.  They can be listed
 # using command 'gos_help'
