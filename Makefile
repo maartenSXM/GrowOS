@@ -66,9 +66,9 @@ endif
 MAKE         := $(MAKE) --no-print-directory GOS_HOME=$(GOS_HOME)
 MAKEFILE     := $(lastword $(MAKEFILE_LIST))
 
-# Record each distinct PRJ in .espmake_prj_all
+# Record each distinct PRJ in .cpphash_prj_all
 define _saveprj
-  $(shell grep -sqxF $1 .espmake_prj_all || echo $1 >> .espmake_prj_all)
+  $(shell grep -sqxF $1 .cpphash_prj_all || echo $1 >> .cpphash_prj_all)
 endef
 
 # Check if PRJ= was specified on the command line to select a GOS project.
@@ -76,17 +76,17 @@ ifneq (,$(PRJ))
   ifeq (,$(wildcard $(PRJ)))
     $(error $(MAKEFILE): $(PRJ) not found)
   endif
-  $(shell echo $(PRJ) >$(GOS_HOME)/.espmake_prj)
+  $(shell echo $(PRJ) >$(GOS_HOME)/.cpphash_prj)
   $(call _saveprj,$(PRJ))
 else
-  ifneq (,$(wildcard $(GOS_HOME)/.espmake_prj))
-    PRJ := $(shell cat $(GOS_HOME)/.espmake_prj)
+  ifneq (,$(wildcard $(GOS_HOME)/.cpphash_prj))
+    PRJ := $(shell cat $(GOS_HOME)/.cpphash_prj)
   else
     ifeq (,$(wildcard $(GOS_PROJECT_DIR_DEFAULT)))
       $(error $(MAKEFILE): GOS_PROJECT_DIR_DEFAULT not found)
     endif
     PRJ := $(GOS_PROJECT_DIR_DEFAULT)
-    $(shell echo $(PRJ) >$(GOS_HOME)/.espmake_prj)
+    $(shell echo $(PRJ) >$(GOS_HOME)/.cpphash_prj)
     $(call _saveprj,$(PRJ))
   endif
 endif

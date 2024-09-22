@@ -3,8 +3,9 @@
 # See cpphash/Bashrc for convenience aliases.  They can be listed
 # using command 'gos_help'
 
-export GOS_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" \
-						&> /dev/null && pwd )
+# get current directory using bash or zsh syntax
+export GOS_HOME=$(dirname ${BASH_SOURCE:-$_})
+
 alias gos='cd $GOS_HOME'
 
 if [ ! -d cpphash ]; then
