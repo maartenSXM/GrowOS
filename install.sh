@@ -37,10 +37,14 @@ if [[ "$(uname)" == "Darwin" ]]; then
   if [[ "$(command -v brew)" == "" ]]; then
     echo "$0: brew not found. Aborting."
   fi
-  echo "brew install libmagic"
-  if brew install libmagic; then
-    echo "$0: Could not brew install libmagic. Aborting."
-    exit 1
+  brew list libmagic 2>/dev/null | grep -q libmagic
+  if [ $? -ne 0 ]; then
+    echo "brew install libmagic"
+    brew install libmagic
+    if [ $? -ne 0 ]; then
+      echo "$0: Could not brew install libmagic. Aborting."
+      exit 1
+    fi
   fi
 fi
 
