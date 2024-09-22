@@ -4,6 +4,7 @@
 cpphash/
 /.esphome/
 /secrets.yaml
+/secrets.h
 .dehash
 proj.*/
 proj.*.yaml
