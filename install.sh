@@ -12,7 +12,7 @@ declare -r VENV="./build/venv"
 
 # Check that cpphash has been cloned into $CDIR and is up to date
 
-if [ ! -f "$CDIR/cpphash.mk" ]; then
+if [ ! -f "$CDIR/make/cpphash.mk" ]; then
   echo "cd $(dirname $CDIR)"
   cd $(dirname "$CDIR")
   echo "git clone https://github.com/maartenSXM/cpphash.git"
@@ -21,12 +21,6 @@ if [ ! -f "$CDIR/cpphash.mk" ]; then
     echo "$0: Could not git clone cpphash. Aborting."
     exit 1
   fi
-  echo cd -
-  cd - 
-else
-  cd "$CDIR"
-  echo "git pull"
-  git pull
   echo cd -
   cd - 
 fi
@@ -55,6 +49,39 @@ if [[ "$(uname)" == "Darwin" ]]; then
       exit 1
     fi
   fi
+fi
+
+if [[ ! -f "./secrets.h" && ! -f "../secrets.h" ]]; then
+  while :; do
+    echo "secrets.h not found. Would you like me to create one? [y/n]"
+    read -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[QqNn]$ ]]; then
+      break
+    fi
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      read -re -p "Please enter the SSID GrowOS should connect to: "
+      ssid="$REPLY"
+      while :; do
+        IFS= read -re -p "Please enter the password for SSID $ssid: " 
+        echo
+        pwd="$REPLY"
+        if ((${#pwd} >= 8)); then
+	  break
+	fi
+        echo "SSID passwords must be at least 8 characters."
+      done
+      echo "
+#define _SECRET_WIFI_SSID     $ssid
+#define _SECRET_WIFI_PASSWORD $pwd
+
+// These #defaults are in gos/network.yaml.  Override them here.
+//  #default _SECRET_HA_PASSWORD        _SECRET_WIFI_PASSWORD
+//  #default _SECRET_OTA_PASSWORD       _SECRET_WIFI_PASSWORD
+" > secrets.h
+      break;
+    fi
+  done
 fi
 
 echo "$0: done"
