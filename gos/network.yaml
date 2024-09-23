@@ -1,7 +1,9 @@
+#include "local.yaml"
 
 // If you received a build error regarding secrets.h, you are in
-// the right place. Follow the instructions after secrets.h check below
-// #if ... #endif statment
+// the right place. Follow the instructions below.
+
+// defaults for config files
 
 #default GOS_CONFIG_NET_WIFI		1	// enable WiFI
 #default GOS_CONFIG_NET_WIFI_UTILS	1	// ... display ssid, signal etc
@@ -18,43 +20,11 @@
 #default GOS_CONFIG_NET_IMPROV_WIFI     0       // ... Improv provisioning?
 #default GOS_CONFIG_NET_STREAM_SERVER   0       // ... enable tty server?
 
-// secrets.h check:
-#if (GOS_CONFIG_NET_WIFI    && (!defined(_SECRET_WIFI_SSID)	    || \
-				!defined(_SECRET_WIFI_PASSWORD)))   || \
-    (GOS_CONFIG_NET_STATIC  && (!defined(_SECRET_WIFI_ADDR)	    || \
-				!defined(_SECRET_WIFI_GATEWAY)	    || \
-				!defined(_SECRET_WIFI_NETMASK)))    || \
-    (GOS_CONFIG_NET_NTP	    && (!defined(_SECRET_NTP_TIMEZONE)	    || \
-				!defined(_SECRET_NTP_SERVER)))	    || \
-    (GOS_CONFIG_NET_HA	    && (!defined(_SECRET_HA_PASSWORD)))	    || \
-    (GOS_CONFIG_NET_OTA	    && (!defined(_SECRET_OTA_PASSWORD)))
-
-#error secrets.h incomplete. Refer to gos/network.yaml for details.
-
-#if _YOU_RECEIVED_THE_ABOVE_ERROR_
-
-  To fix this, create a file called secrets.h in the GOS root directory   
-  or immediately above it and copy these lines into it. For each #define,
-  insert your private information immediation before the /* <comment> */
-  text. Make sure to never share secrets.h publicly.
-  
-  To see how these secrets are used, see the yaml code lower in the file.
-<snip>
-#define _SECRET_WIFI_ADDR     /* e.g. 192.168.1.2	*/
-#define _SECRET_WIFI_GATEWAY  /* e.g. 192.168.1.1	*/
-#define _SECRET_WIFI_NETMASK  /* e.g. 255.255.255.0	*/
-#define _SECRET_WIFI_SSID     /* no example provided	*/
-#define _SECRET_WIFI_PASSWORD /* no example provided	*/
-#define _SECRET_NTP_TIMEZONE  /* e.g. America/Toronto	*/
-#define _SECRET_NTP_SERVER    /* e.g. pool.ntp.org	*/
-#define _SECRET_HA_PASSWORD   /* no example provided	*/
-#define _SECRET_OTA_PASSWORD  /* no example provided	*/
-<snip>
-
-#endif // _YOU_RECEIVED_THE_ABOVE_ERROR_
-#endif // secrets.h check
-
 #if GOS_CONFIG_NET_WIFI
+
+#require GOS_BSP_HAS_wifi 
+#require _SECRET_WIFI_SSID
+#require _SECRET_WIFI_PASSWORD
 
 #ifdef GOS_BSP_HAS_psram
 esp32:
@@ -67,31 +37,37 @@ esp32:
 wifi:
   // power_save_mode: none
   reboot_timeout: 0s    // disable reboot every 15 min if no WiFi
-#if GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
+  #if GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
   fast_connect: on
   ssid: _SECRET_WIFI_SSID
   password: _SECRET_WIFI_PASSWORD
-#if GOS_CONFIG_NET_STATIC
+    #if GOS_CONFIG_NET_STATIC
+      #require _LOCAL_NET_ADDR
+      #require _LOCAL_NET_GATEWAY
+      #require _LOCAL_NET_NETMASK
   manual_ip:
-    static_ip: _SECRET_WIFI_ADDR
-    gateway: _SECRET_WIFI_GATEWAY
-    subnet: _SECRET_WIFI_NETMASK
-    dns1: _SECRET_WIFI_GATEWAY
-#endif // GOS_CONFIG_NET_STATIC
-#endif // GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
+    static_ip: _LOCAL_NET_ADDR
+    gateway: _LOCAL_NET_GATEWAY
+    subnet: _LOCAL_NET_NETMASK
+    dns1: _LOCAL_NET_GATEWAY
+    #endif // GOS_CONFIG_NET_STATIC
+  #endif // GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
 
-// Enable fallback hotspot (captive portal) in case wifi connection fails
-#if GOS_CONFIG_NET_FALLBACK
+  // Enable fallback hotspot (captive portal) in case wifi connection fails
+  #if GOS_CONFIG_NET_FALLBACK
   ap:
     ssid: GOS_STRINGIFY3(GOS_PROJECT,-,GOS_BSP_SERIAL_NUM)
     password: _SECRET_WIFI_PASSWORD
-#endif // GOS_CONFIG_NET_FALLBACK
+  #endif // GOS_CONFIG_NET_FALLBACK
 
 #if GOS_CONFIG_NET_PORTAL
 captive_portal:
 #endif // GOS_CONFIG_NET_PORTAL
     
 #if GOS_CONFIG_NET_NTP
+  #require _LOCAL_NTP_TIMEZONE
+  #require _LOCAL_NTP_SERVER
+
 globals:
   - id: gosNet_globals_sntpBootTime
     type: time_t
@@ -101,9 +77,9 @@ globals:
 time:
   - platform: sntp
     id: gosNet_time_sntp
-    timezone: _SECRET_NTP_TIMEZONE
+    timezone: _LOCAL_NTP_TIMEZONE
     servers:
-      - _SECRET_NTP_SERVER
+      - _LOCAL_NTP_SERVER
     on_time_sync:
       - lambda: |-
           if (id(gosNet_globals_sntpBootTime) == (time_t) 0)
@@ -134,14 +110,16 @@ text_sensor:
 
 #endif // GOS_CONFIG_NET_NTP
 
-#if GOS_CONFIG_NET_HA
 // Enable Home Assistant API
+#if GOS_CONFIG_NET_HA
+  #default _SECRET_HA_PASSWORD	_SECRET_WIFI_PASSWORD
 api:
   password: _SECRET_HA_PASSWORD
 #endif // GOS_CONFIG_NET_OTA
 
-#if GOS_CONFIG_NET_OTA
 // Enable over-the-air update
+#if GOS_CONFIG_NET_OTA
+  #default _SECRET_OTA_PASSWORD	_SECRET_WIFI_PASSWORD
 ota:
   version: 2
   platform: esphome
@@ -203,6 +181,7 @@ switch:
 #endif // GOS_CONFIG_NET_WEB_SERVER
 
 #if GOS_CONFIG_NET_WIFI_UTILS
+  #requires GOS_BSP_HAS_wifi GOS_CONFIG_NET_WIFI_UTILS
 text_sensor:
   - platform: wifi_info
     ip_address:

@@ -1,0 +1,9 @@
+#define _LOCAL_NET_GATEWAY	192.168.248.1	// default IP address
+#define _LOCAL_NET_NETMASK	255.255.252.0	// note unusual netmask
+#define _LOCAL_NET_ADDR	192.168.248.20
+#define _LOCAL_NTP_TIMEZONE	America/Toronto
+#define _LOCAL_NTP_SERVER	pool.ntp.org
+
+#ifdef GOS_BSP_growBoardCpu1
+  #redefine _LOCAL_NET_ADDR	192.168.248.21
+#endif

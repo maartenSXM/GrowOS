@@ -19,6 +19,7 @@
 #define GOS_BSP_HAS_esp32_camera
 #define GOS_BSP_HAS_sensor_internal_temperature
 #define GOS_BSP_HAS_uart
+#define GOS_BSP_HAS_wifi
 // #define GOS_BSP_HAS_usb
 
 #define GOS_BSP_HAS_32_KHZ_XTAL
