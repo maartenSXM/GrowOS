@@ -84,6 +84,12 @@ if [[ ! -f "./secrets.h" && ! -f "../secrets.h" ]]; then
   done
 fi
 
+echo ""
+echo "Please update the localization settings in local.yaml before"
+echo "building firmware. The default is static IP addresses"
+echo "and they will invariably be incorrect for your local network."
+echo "If you prefer DHCP, you can change that in your project configuration"
+
 echo "$0: done"
 
 exit 0
