@@ -17,7 +17,7 @@ if [ ! -f "$CDIR/make/cpphash.mk" ]; then
   cd $(dirname "$CDIR")
   echo "git clone https://github.com/maartenSXM/cpphash.git"
   git clone https://github.com/maartenSXM/cpphash.git
-  if [ ! -f "$CDIR/cpphash.mk" ]; then
+  if [ ! -f "$CDIR/make/cpphash.mk" ]; then
     echo "$0: Could not git clone cpphash. Aborting."
     exit 1
   fi
@@ -84,13 +84,20 @@ if [[ ! -f "./secrets.h" && ! -f "../secrets.h" ]]; then
   done
 fi
 
-echo ""
-echo "Please update the localization settings in local.yaml before"
-echo "building firmware. The default is static IP addresses"
-echo "and they will invariably be incorrect for your local network."
-echo "If you prefer DHCP, you can change that in your project configuration"
+echo "
+GrowOS installation succeeded.
 
-echo "$0: done"
+If you change the network configuration from dynamic to static IP addresses,
+please either define static IP addresses in your project's config.h or
+update the default ones found in ./local.yaml.
+
+The timezone can likewise be set on a per-project basis in config.h or 
+defaulted from local.yaml.
+
+Recommend next steps are:
+ source Bashrc
+ make
+"
 
 exit 0
 
