@@ -21,7 +21,7 @@ and $GOS_HOME/cpphash/Bashrc.
 
 To select a specific GrowOS projects, for example, do this from GOS_HOME:
 
-  make PRJ=projects/growBoard0/debug.mk
+  make PRJ=projects/growboard0/debug.mk
 
 GrowOS remembers the last project in $GOS_HOME/.espmake so that you
 don't have to specify a PRJ= argument to make unless you are changing

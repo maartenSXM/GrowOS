@@ -1,4 +1,4 @@
-#define GOS_BSP_CPU1_DEFAULTS_ON    1	  // override bsps/growBoard0 default
+#define GOS_BSP_CPU1_DEFAULTS_ON    1	  // override bsps/growboard0 default
 
 #ifdef GOS_MAKE_native
 #  define GOS_CONFIG_LVGL           0     // use native gui
