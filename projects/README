@@ -1,0 +1,7 @@
+project directories need to be named with lower case if the default
+esphome name is used - since it defaults to the project directory name
+in gos/env.yaml.
+
+If an upper case project directory is created, please be sure to define
+GOS_BSP_esphome_name in the project's project.yaml file to override
+the default name.

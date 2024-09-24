@@ -46,7 +46,6 @@ esp32:
       CONFIG_ESPTOOLPY_FLASHSIZE_16MB: y
 #endif // 0
 
-#default GOS_BSP_esphome_name        esp32s3
 #default GOS_BSP_esphome_mcu         esp32s3
 #default GOS_BSP_esphome_flash_size  GOS_BSP_esp32_flash_size
 

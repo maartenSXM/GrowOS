@@ -1,8 +1,6 @@
 #ifndef _GOS_INCLUDE_BSP_YAML_
 #define _GOS_INCLUDE_BSP_YAML_
 
-#define GOS_BSP_esphome_name	    lilygot4
-
 #include "bsp.h"
 
 #include "bsps/common/esp32s3.yaml"
