@@ -1,10 +1,3 @@
-#define GOS_CONFIG_NET_DHCP         0	  // enable DHCP
-#define GOS_CONFIG_NET_TCPCMD_ON    1	  // override gos/network.yaml default
-#define GOS_CONFIG_logger	    1	  // yes
-#define GOS_CONFIG_debug	    1	  // yes
-
-#define GOS_CONFIG_GUI		    1	  // enable a graphical UI
-
 #ifdef GOS_MAKE_native
 #  define GOS_CONFIG_LVGL           0     // use native gui
 #endif // GOS_MAKE_native

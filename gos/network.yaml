@@ -1,4 +1,5 @@
-#include "local.yaml"
+// #include "config.h"
+// #include "local.yaml"
 
 // If you received a build error regarding secrets.h, you are in
 // the right place. Follow the instructions below.
@@ -7,8 +8,7 @@
 
 #default GOS_CONFIG_NET_WIFI		1	// enable WiFI
 #default GOS_CONFIG_NET_WIFI_UTILS	1	// ... display ssid, signal etc
-#default GOS_CONFIG_NET_STATIC          1       // ... using static config?
-#default GOS_CONFIG_NET_DHCP            0       // ... using dhcp?
+#default GOS_CONFIG_NET_DHCP            1       // ... using dhcp?
 #default GOS_CONFIG_NET_FALLBACK        0       // ... Fallback HotSpot?
 #default GOS_CONFIG_NET_PORTAL          0       // ... Provisioning SSID?
 #default GOS_CONFIG_NET_MDNS            0       // ... mDNS service lookup?
@@ -16,7 +16,6 @@
 #default GOS_CONFIG_NET_HA              0       // ... Home Assistant?
 #default GOS_CONFIG_NET_OTA             1       // ... WiFi update allowed?
 #default GOS_CONFIG_NET_WEB_SERVER      1       // ... Built-in web server?
-#default GOS_CONFIG_NET_TCPCMD		1	// ... tcpcmd server?
 #default GOS_CONFIG_NET_IMPROV_WIFI     0       // ... Improv provisioning?
 #default GOS_CONFIG_NET_STREAM_SERVER   0       // ... enable tty server?
 
@@ -37,21 +36,21 @@ esp32:
 wifi:
   // power_save_mode: none
   reboot_timeout: 0s    // disable reboot every 15 min if no WiFi
-  #if GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
+#if GOS_CONFIG_NET_DHCP
   fast_connect: on
   ssid: _SECRET_WIFI_SSID
   password: _SECRET_WIFI_PASSWORD
-    #if GOS_CONFIG_NET_STATIC
-      #require _LOCAL_NET_ADDR
-      #require _LOCAL_NET_GATEWAY
-      #require _LOCAL_NET_NETMASK
+   #if !GOS_CONFIG_NET_DHCP
+      #require GOS_CONFIG_NET_ADDR
+      #require GOS_CONFIG_NET_GATEWAY
+      #require GOS_CONFIG_NET_NETMASK
   manual_ip:
-    static_ip: _LOCAL_NET_ADDR
-    gateway: _LOCAL_NET_GATEWAY
-    subnet: _LOCAL_NET_NETMASK
-    dns1: _LOCAL_NET_GATEWAY
-    #endif // GOS_CONFIG_NET_STATIC
-  #endif // GOS_CONFIG_NET_DHCP || GOS_CONFIG_NET_STATIC
+    static_ip: GOS_CONFIG_NET_ADDR
+    gateway: GOS_CONFIG_NET_GATEWAY
+    subnet: GOS_CONFIG_NET_NETMASK
+    dns1: GOS_CONFIG_NET_GATEWAY
+   #endif // !GOS_CONFIG_NET_DHCP
+#endif // GOS_CONFIG_NET_DHCP 
 
   // Enable fallback hotspot (captive portal) in case wifi connection fails
   #if GOS_CONFIG_NET_FALLBACK
@@ -65,8 +64,8 @@ captive_portal:
 #endif // GOS_CONFIG_NET_PORTAL
     
 #if GOS_CONFIG_NET_NTP
-  #require _LOCAL_NTP_TIMEZONE
-  #require _LOCAL_NTP_SERVER
+  #require GOS_CONFIG_NTP_TIMEZONE
+  #require GOS_CONFIG_NTP_SERVER
 
 globals:
   - id: gosNet_globals_sntpBootTime
@@ -77,9 +76,9 @@ globals:
 time:
   - platform: sntp
     id: gosNet_time_sntp
-    timezone: _LOCAL_NTP_TIMEZONE
+    timezone: GOS_CONFIG_NTP_TIMEZONE
     servers:
-      - _LOCAL_NTP_SERVER
+      - GOS_CONFIG_NTP_SERVER
     on_time_sync:
       - lambda: |-
           if (id(gosNet_globals_sntpBootTime) == (time_t) 0)
@@ -156,13 +155,12 @@ improv_serial:
 #endif
 #endif // GOS_CONFIG_IMPROV_WIFI
 
-#if GOS_CONFIG_NET_WEB_SERVER
-// xxx test
+#default GOS_CONFIG_NET_WEB_SERVER_TEST	no
+#if GOS_CONFIG_NET_WEB_SERVER_TEST
 http_request:
   useragent: esphome/device
   timeout: 10s
 
-// xxx test
 switch:
   - platform: template
     name: "http request get test"
@@ -178,7 +176,7 @@ switch:
                 args:
                   - response->status_code
                   - response->duration_ms
-#endif // GOS_CONFIG_NET_WEB_SERVER
+#endif // GOS_CONFIG_NET_WEB_SERVER_TEST
 
 #if GOS_CONFIG_NET_WIFI_UTILS
   #requires GOS_BSP_HAS_wifi GOS_CONFIG_NET_WIFI_UTILS
@@ -211,6 +209,7 @@ text_sensor:
 
 #endif // GOS_CONFIG_NET_WIFI_UTILS
 
+#default GOS_CONFIG_NET_TCPCMD		no	// ... tcpcmd server?
 #if GOS_CONFIG_NET_TCPCMD
 esphome:
   includes:
@@ -226,7 +225,7 @@ esphome:
 wifi:
   on_connect:
     - switch.turn_on: gosSwitch_tcpcmdInit
-#endif
+#endif //  GOS_CONFIG_NET_TCPCMD_ON
 
 switch:
   - platform: template
@@ -256,7 +255,7 @@ switch:
                 condition:
                   - switch.is_on: gosSwitch_tcpcmdInit
         - switch.turn_off: gosSwitch_tcpcmdInit
-#endif
+#endif // 0
 #endif // GOS_CONFIG_NET_TCPCMD
 
 #if GOS_CONFIG_NET_WEB_SERVER

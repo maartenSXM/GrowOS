@@ -1,36 +1,19 @@
-#include "gos/gos.h"
+#include "gos/gos.h"		// GrowOS header
 
-#include GOS_STRINGIFY2(GOS_BSP_DIR,/bsp.yaml)
+#include GOS_STRINGIFY2(GOS_BSP_DIR,/bsp.yaml)	// GrowOS BSP header
 
-// if BSP yaml did not set these c preprocessor defines, default them
+#include "local.yaml"		// local defaults for any defaults
 
-#default GOS_BSP_SERIAL_NUM	000
-#default GOS_BSP_esphome_name	GOS_STRINGIFY2(GOS_PROJECT,GOS_BSP_SERIAL_NUM)
+#include "gos/env.yaml"		// GrowOS build environment
+#include "gos/gos.yaml"		// GrowOS system services
+#include "gos/debug.yaml"	// GrowOS debug services
+#include "gos/network.yaml"	// GrowOS network services
 
-#include "gos/env.yaml"
-#include "gos/gos.yaml"
-#include "gos/debug.yaml"
-#include "gos/network.yaml"
-
-// now include the mandatory application and mandatory project.yaml
-// GOS_APP_PATH and GOS_PROJECT_DIR must be relative to GOS_HOME
-// in order to pickup dehashed files. Else there could be cpp errors
-// due to hash-style comments in yaml.
+// now include the GrowOS application and GrowOS project yaml files.
+// GOS_APP_PATH and GOS_PROJECT_DIR are relative to GOS_HOME  in order
+// to pickup the generated versions that don't have hash-style comments.
 
 #include GOS_STRINGIFY(GOS_APP_PATH)
 
 #include GOS_STRINGIFY2(GOS_PROJECT_DIR,/project.yaml)
 
-# if 0
-#if GOS_CONFIG_GUI 
-#ifndef GOS_BSP_HAS_display
-# error GOS_CONFIG_GUI enabled but BSP does not advertise display:
-#endif
-
-# if GOS_CONFIG_LVGL
-#  include "gui/lvglMain.yaml"
-# else
-#  include "gui/nativeMain.yaml"
-# endif // !GOS_CONFIG_LVGL
-#endif // GOS_CONFIG_GUI
-#endif
