@@ -42,7 +42,6 @@ esp32:
       CONFIG_ESP32S2_RTC_CLK_CAL_CYCLES: "576"
 #endif // GOS_BSP_HAS_32_KHZ_XTAL
 
-#default GOS_BSP_esphome_name        esp32s2
 #default GOS_BSP_esphome_mcu         esp32s2
 #default GOS_BSP_esphome_flash_size  GOS_BSP_esp32_flash_size
 
