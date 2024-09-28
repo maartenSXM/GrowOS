@@ -5,7 +5,12 @@
 #default GOS_BSP_esp32_variant      esp32s2
 #default GOS_BSP_esp32_flash_size   4MB
 
-#default GOS_BSP_CONFIG_RUN_FAST    1
+#default GOS_BSP_CONFIG_RUN_FAST    0
+
+#ifdef GOS_CONFIG_logger
+logger:
+  hardware_uart: USB_CDC
+#endif
 
 esp32:
   variant:    GOS_BSP_esp32_variant

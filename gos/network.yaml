@@ -11,7 +11,7 @@
 #default GOS_CONFIG_NET_DHCP            1       // ... using dhcp?
 #default GOS_CONFIG_NET_FALLBACK        0       // ... Fallback HotSpot?
 #default GOS_CONFIG_NET_PORTAL          0       // ... Provisioning SSID?
-#default GOS_CONFIG_NET_MDNS            0       // ... mDNS service lookup?
+#default GOS_CONFIG_NET_MDNS            1       // ... mDNS service lookup?
 #default GOS_CONFIG_NET_NTP             1       // ... Network Time Protocol?
 #default GOS_CONFIG_NET_HA              0       // ... Home Assistant?
 #default GOS_CONFIG_NET_OTA             1       // ... WiFi update allowed?
