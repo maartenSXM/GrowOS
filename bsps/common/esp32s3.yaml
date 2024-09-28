@@ -7,6 +7,11 @@
 
 #default GOS_BSP_CONFIG_RUN_FAST    1
 
+#ifdef GOS_CONFIG_logger
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+#endif
+
 esp32:
   board:      GOS_BSP_esp32_board
   variant:    GOS_BSP_esp32_variant
