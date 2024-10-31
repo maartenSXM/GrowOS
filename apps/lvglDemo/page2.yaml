@@ -1,0 +1,101 @@
+    - id: page_2
+      widgets:
+        // first we define the status bar with a page title
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "GrowOS Page 2"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0x00FF00
+
+#if 0
+        - label:
+            align: CENTER
+            text: 'Hello Page 2!'
+            text_color: 0x00FF00
+#endif
+
+        - obj: # clock container
+            height: SIZE_CONTENT
+            width: 460
+            align: CENTER
+            pad_all: 0
+            border_width: 0
+            bg_color: 0xFFFFFF
+            widgets:
+              - meter: # clock face
+                  height: 240
+                  width: 240
+                  align: CENTER
+                  bg_opa: TRANSP
+                  border_width: 0
+                  text_color: 0x000000
+                  scales:
+                    - range_from: 0 # seconds scale
+                      range_to: 60
+                      angle_range: 360
+                      rotation: 270
+                      indicators:
+                        - line:
+                            id: second_hand
+                            width: 3
+                            color: 0x6a6a6a
+                            r_mod: -4
+                            value: 0
+                    - range_from: 0 # minutes scale
+                      range_to: 60
+                      angle_range: 360
+                      rotation: 270
+                      ticks:
+                        width: 1
+                        count: 61
+                        length: 10
+                        color: 0x000000
+                      indicators:
+                        - line:
+                            id: minute_hand
+                            width: 3
+                            color: 0xa6a6a6
+                            r_mod: -4
+                            value: 0
+                    - range_from: 1 # hours scale for labels
+                      range_to: 12
+                      angle_range: 330
+                      rotation: 300
+                      ticks:
+                        width: 1
+                        count: 12
+                        length: 1
+                        major:
+                          stride: 1
+                          width: 4
+                          length: 10
+                          color: 0xC0C0C0
+                          label_gap: 12
+                    - range_from: 0 # hi-res hours scale for hand
+                      range_to: 720
+                      angle_range: 360
+                      rotation: 270
+                      ticks:
+                        count: 0
+                      indicators:
+                        - line:
+                            id: hour_hand
+                            width: 5
+                            color: 0xa6a6a6
+                            r_mod: -30
+                            value: 0
+              - label:
+                  // styles: date_style
+                  id: day_label
+                  align: TOP_LEFT
+                  # y: -30
+              - label:
+                  id: date_label
+                  align: TOP_RIGHT
+                  // styles: date_style
+                  # y: 30
+

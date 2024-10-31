@@ -1,0 +1,65 @@
+    - id: page_4
+      widgets:
+        // first we define the status bar with a page title
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "GrowOS Page 4"
+                  align: CENTER
+                  text_align: CENTER
+                  // text_color: 0xFFFFFF
+
+#if 0
+        - label:
+            align: CENTER
+            text: 'Hello Page 4!'
+#endif
+        - meter:
+            align: CENTER
+            height: 240
+            width: 240
+            scales:
+              - range_from: -100 # scale for the needle value
+                range_to: 650
+                angle_range: 240
+                rotation: 150
+                indicators:
+                  - line:
+                      id: temperature_needle
+                      width: 2
+                      color: 0xFF0000
+                      r_mod: -4
+                  - tick_style:
+                      start_value: -10
+                      end_value: 65
+                      color_start: 0x0000bd
+                      color_end: 0xbd0000
+                      width: 1
+              - range_from: -10 # scale for the value labels
+                range_to: 65
+                angle_range: 240
+                rotation: 150
+                ticks:
+                  width: 1
+                  count: 76
+                  length: 10
+                  color: 0x000000
+                  major:
+                    stride: 5
+                    width: 2
+                    length: 10
+                    color: 0x404040
+                    label_gap: 10
+            widgets:
+              - label:
+                  id: temperature_text
+                  text: "-.-°C"
+                  align: CENTER
+                  y: 45
+              - label:
+                  text: "CPU Temp"
+                  align: CENTER
+                  y: 65
+
