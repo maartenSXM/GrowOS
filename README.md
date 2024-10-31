@@ -38,36 +38,16 @@ REQ5. Shall be intuitive and natural for old school C programmers, including
 
 GOS attempts to satisfy the above requirements using these techniques:
 
- - GOS uses make and a tool called cpphash to construct a yaml file using
-   the C preprocessor in such a way that it can be processed by esphome.
-   This enables #define and #ifdef etc to co-exist with yaml # comments.
+ - GOS uses make and a tool called cpphash to construct a yaml file using the C preprocessor in such a way that it can be processed by esphome.  This enables #define and #ifdef etc to co-exist with yaml # comments.
 
- - GOS uses a tool called yq for its yaml  merge feature which enables
-   yaml map keys to be declared multiple times in separate files.  This
-   enables, for example, a system level reboot switch: to be declared
-   in a system level yaml file and an application switch: to be declared
-   separately in a yaml file specific to an application.
+ - GOS uses a tool called yq for its yaml  merge feature which enables yaml map keys to be declared multiple times in separate files.  This enables, for example, a system level reboot switch: to be declared in a system level yaml file and an application switch: to be declared separately in a yaml file specific to an application.
 
-   GOS extends yq's capability to also allow such declarations to be made
-   multiple times in one GOS yaml file even though this technically breaks
-   the yaml specification. However, once the espmake.yaml file is constructed
-   by the GOS build system, the multiple yaml map key declarations are merged
-   and the yaml is correct according to the yaml specification.
+   GOS extends yq's capability to also allow such declarations to be made multiple times in one GOS yaml file even though this technically breaks the yaml specification. However, once the espmake.yaml file is constructed by the GOS build system, the multiple yaml map key declarations are merged and the yaml is correct according to the yaml specification.
  
- - GOS has a notion of a board support package (BSP) for espmake.yaml.
-   Each GOS BSP has a bsp.yaml that declares hardware and advertises
-   (using #define) what hardware it supports. Each BSP also has exports a
-   pins.h file for C or C++ code to use if needed. That pins.h file is also
-   used by bsp.yaml so that hardware pins are only defined in one file.
+ - GOS has a notion of a board support package (BSP) for espmake.yaml.  Each GOS BSP has a bsp.yaml that declares hardware and advertises (using #define) what hardware it supports. Each BSP also has exports a pins.h file for C or C++ code to use if needed. That pins.h file is also used by bsp.yaml so that hardware pins are only defined in one file.
 
- - GOS has a notion of a project. A GOS project is a configuration that
-   connects an application to a BSP.  The configuration mechanism uses
-   C preprocessor #defines and make variables to allow a project to
-   configure BSP, application and system-level features at build time. 
+ - GOS has a notion of a project. A GOS project is a configuration that connects an application to a BSP.  The configuration mechanism uses C preprocessor #defines and make variables to allow a project to configure BSP, application and system-level features at build time. 
 
- - GOS applications, configurations and system services attempt to
-   adapt to the hardware or available and/or provide error messages
-   such as indicating that it is not possible to run on such a BSP
+ - GOS applications, configurations and system services attempt to adapt to the hardware or available and/or provide error messages such as indicating that it is not possible to run on such a BSP
 
- - GOS provides mechanisms for C, C++ and yaml code to adapt to the
-   current project, BSP, application and username.
+ - GOS provides mechanisms for C, C++ and yaml code to adapt to the current project, BSP, application and username.
