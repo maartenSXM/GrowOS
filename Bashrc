@@ -1,0 +1,24 @@
+_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$_}" )" &> /dev/null && pwd )
+
+# Source this file to setup GrowOS aliases and activate build/venv
+
+if [ ! -d cpphash ]; then
+  echo "cpphash not found. Did you run $GOS_HOME/install.sh?"
+  exit 1
+fi
+
+export GOS_HOME="$_DIR"
+export CH_HOME="$GOS_HOME/cpphash"
+
+alias gos='cd $GOS_HOME'
+
+# Now set cpphash's aliases, prefixed with gos_.
+
+ESPMAKE_PREFIX="gos_"	
+ESPMAKE_PRJ_VENV="$GOS_HOME/build/venv"	
+
+source "$CH_HOME/Bashrc"
+
+# See cpphash/Bashrc for convenience aliases.  They can be listed
+# using command 'gos_help'
+

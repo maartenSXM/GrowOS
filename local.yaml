@@ -1,0 +1,23 @@
+// project configurations defined in project/<project>/config.h
+// override these defaults.
+
+#default GOS_CONFIG_NTP_TIMEZONE	America/Toronto
+#default GOS_CONFIG_NTP_SERVER		pool.ntp.org
+
+#default GOS_CONFIG_NET_DHCP		1	// Use dynamic IP addresses
+
+#if !GOS_CONFIG_NET_DHCP
+
+  // These default static IP addresses are from the authors home network.
+  // If you are changing one of these for the first time, you likely
+  // need to change all three.
+
+  #default GOS_CONFIG_NET_ADDR		192.168.248.20	// IP address
+  #default GOS_CONFIG_NET_GATEWAY	192.168.248.1	// router address
+  #default GOS_CONFIG_NET_NETMASK	255.255.252.0	// note netmask 
+					//      ^^^     // 255 for your net?
+#endif // !GOS_CONFIG_NET_DHCP
+
+// #ifdef GOS_BSP_myBoard
+//   #redefine GOS_CONFIG_NET_ADDR	192.168.248.21
+// #endif
