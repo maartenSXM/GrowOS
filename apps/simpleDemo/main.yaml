@@ -33,7 +33,7 @@ color:
     hex: 'FFFFFF'
 
 font:
-  - file: GOS_APP_DIR/fonts/arial.ttf
+  - file: GOS_TOP/GOS_APP_DIR/fonts/arial.ttf
     id: arial
     size: FONT_SIZE
 

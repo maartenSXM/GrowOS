@@ -1,31 +1,31 @@
 #include "simpleDemo.h"
 
 image:
-#  - file: GOS_APP_DIR/images/beansprouts.jpg
+#  - file: GOS_TOP/GOS_APP_DIR/images/beansprouts.jpg
 #    id: image_beansprouts
 #    resize: 480 x 320
 #    type: rgb24
-  - file: GOS_APP_DIR/images/arrow-left-bold-circle-outline-filled.png
+  - file: GOS_TOP/GOS_APP_DIR/images/arrow-left-bold-circle-outline-filled.png
     id: icon_left
     resize: RESIZE x RESIZE
     type: rgba
-  - file: GOS_APP_DIR/images/arrow-right-bold-circle-outline-filled.png
+  - file: GOS_TOP/GOS_APP_DIR/images/arrow-right-bold-circle-outline-filled.png
     id: icon_right
     resize: RESIZE x RESIZE
     type: rgba
-  - file: GOS_APP_DIR/images/arrow-up-bold-circle-outline-filled.png
+  - file: GOS_TOP/GOS_APP_DIR/images/arrow-up-bold-circle-outline-filled.png
     id: icon_up
     resize: RESIZE x RESIZE
     type: rgba
-  - file: GOS_APP_DIR/images/arrow-down-bold-circle-outline-filled.png
+  - file: GOS_TOP/GOS_APP_DIR/images/arrow-down-bold-circle-outline-filled.png
     id: icon_down
     resize: RESIZE x RESIZE
     type: rgba
-  - file: GOS_APP_DIR/images/check-circle-outline-filled.png
+  - file: GOS_TOP/GOS_APP_DIR/images/check-circle-outline-filled.png
     id: icon_select
     resize: RESIZE x RESIZE
     type: rgba
-  - file: GOS_APP_DIR/images/close-circle-outline-filled.png
+  - file: GOS_TOP/GOS_APP_DIR/images/close-circle-outline-filled.png
     id: icon_cancel
     resize: RESIZE x RESIZE
     type: rgba
