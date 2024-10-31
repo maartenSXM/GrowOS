@@ -1,0 +1,67 @@
+#default GOS_CONFIG_logger no
+#default GOS_CONFIG_debug no
+
+#if GOS_CONFIG_logger
+logger:
+  // ERROR, DEBUG, VERBOSE
+#ifdef GOS_MAKE_debug	// defined by Makefile for projects/*/debug.mk
+  level: DEBUG
+#else
+  level: ERROR
+#endif // GOS_MAKE_debug
+  logs:
+    component: ERROR
+#endif // GOS_CONFIG_logger
+
+#if GOS_CONFIG_debug
+debug:
+  update_interval: 15s
+
+sensor:
+  - platform: uptime
+    name: System Uptime
+    update_interval: 15s
+
+sensor:
+  - platform: debug
+    free:
+      name: "System Heap Free"
+    block:
+      name: "System Heap Max Block"
+    loop_time:
+      name: "System Loop Time"
+    psram:
+      name: "System Free PSRAM"
+
+text_sensor:
+  - platform: debug
+    // device:
+    //   name: "System Info"
+    reset_reason:
+      name: "System Reset Reason"
+
+text_sensor:
+  - platform: template
+    name: "System version (P/I/E)"
+    update_interval: 1200s // static info - xxx is update once an option?
+    lambda: |-
+      static char *str;
+      if (str == (char *)0)
+          {
+          size_t s = 0;
+          const char * fmt = "%s/%s/%s";
+          int n = snprintf ((char *)0, s, fmt, GOS_STRINGIFY(PIO_VERSION),
+                  GOS_STRINGIFY(IDF_VERSION), ESPHOME_VERSION);
+
+          s = n + 1; /* +1 for end of string */
+          str = (char *) malloc(s);
+
+          if (str == (char *) NULL)
+              str = (char *) "out of memory";
+          else
+              snprintf (str, s, fmt, GOS_STRINGIFY(PIO_VERSION),
+                  GOS_STRINGIFY(IDF_VERSION), ESPHOME_VERSION);
+          }
+      return (std::string) str;
+
+#endif // GOS_CONFIG_debug

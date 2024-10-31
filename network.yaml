@@ -1,0 +1,297 @@
+// #include "config.h"
+// #include "local.yaml"
+
+// If you received a build error regarding secrets.h, you are in
+// the right place. Follow the instructions below.
+
+// defaults for config files
+
+#default GOS_CONFIG_NET_WIFI		1	// enable WiFI
+#default GOS_CONFIG_NET_WIFI_UTILS	1	// ... display ssid, signal etc
+#default GOS_CONFIG_NET_DHCP            1       // ... using dhcp?
+#default GOS_CONFIG_NET_FALLBACK        0       // ... Fallback HotSpot?
+#default GOS_CONFIG_NET_PORTAL          0       // ... Provisioning SSID?
+#default GOS_CONFIG_NET_MDNS            1       // ... mDNS service lookup?
+#default GOS_CONFIG_NET_NTP             1       // ... Network Time Protocol?
+#default GOS_CONFIG_NET_HA              0       // ... Home Assistant?
+#default GOS_CONFIG_NET_OTA             1       // ... WiFi update allowed?
+#default GOS_CONFIG_NET_WEB_SERVER      1       // ... Built-in web server?
+#default GOS_CONFIG_NET_IMPROV_WIFI     0       // ... Improv provisioning?
+#default GOS_CONFIG_NET_STREAM_SERVER   0       // ... enable tty server?
+
+#if GOS_CONFIG_NET_WIFI
+
+#require GOS_BSP_HAS_wifi 
+#require _SECRET_WIFI_SSID
+#require _SECRET_WIFI_PASSWORD
+
+#ifdef GOS_BSP_HAS_psram
+esp32:
+  framework:
+    sdkconfig_options:
+      CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP: n
+#endif // GOS_BSP_HAS_psram
+
+// Enable WiFi and IP stack
+wifi:
+  // power_save_mode: none
+  reboot_timeout: 0s    // disable reboot every 15 min if no WiFi
+#if GOS_CONFIG_NET_DHCP
+  fast_connect: on
+  ssid: _SECRET_WIFI_SSID
+  password: _SECRET_WIFI_PASSWORD
+   #if !GOS_CONFIG_NET_DHCP
+      #require GOS_CONFIG_NET_ADDR
+      #require GOS_CONFIG_NET_GATEWAY
+      #require GOS_CONFIG_NET_NETMASK
+  manual_ip:
+    static_ip: GOS_CONFIG_NET_ADDR
+    gateway: GOS_CONFIG_NET_GATEWAY
+    subnet: GOS_CONFIG_NET_NETMASK
+    dns1: GOS_CONFIG_NET_GATEWAY
+   #endif // !GOS_CONFIG_NET_DHCP
+#endif // GOS_CONFIG_NET_DHCP 
+
+  // Enable fallback hotspot (captive portal) in case wifi connection fails
+  #if GOS_CONFIG_NET_FALLBACK
+  ap:
+    ssid: GOS_STRINGIFY3(GOS_PROJECT,-,GOS_BSP_SERIAL_NUM)
+    password: _SECRET_WIFI_PASSWORD
+  #endif // GOS_CONFIG_NET_FALLBACK
+
+#if GOS_CONFIG_NET_PORTAL
+captive_portal:
+#endif // GOS_CONFIG_NET_PORTAL
+    
+#if GOS_CONFIG_NET_NTP
+  #require GOS_CONFIG_NTP_TIMEZONE
+  #require GOS_CONFIG_NTP_SERVER
+
+globals:
+  - id: gosNet_globals_sntpBootTime
+    type: time_t
+    restore_value: no
+    initial_value: "0"
+
+time:
+  - platform: sntp
+    id: gosNet_time_sntp
+    timezone: GOS_CONFIG_NTP_TIMEZONE
+    servers:
+      - GOS_CONFIG_NTP_SERVER
+    on_time_sync:
+      - lambda: |-
+          if (id(gosNet_globals_sntpBootTime) == (time_t) 0)
+            id(gosNet_globals_sntpBootTime) = id(gosNet_time_sntp).now().timestamp;
+
+text_sensor:
+  - platform: template
+    name: "Network Time"
+    update_interval: 30s
+    lambda: |-
+      auto time_text = (std::string) "Unknown";
+      if (id(gosNet_time_sntp).now().is_valid())
+        time_text = id(gosNet_time_sntp).now().strftime("%d/%m/%Y %H:%M:%S");
+      return time_text;
+
+text_sensor:
+  - platform: template
+    name: "System Boot Time"
+    // update_interval: never
+    lambda: |-
+      static char str[25];
+
+      if (id(gosNet_globals_sntpBootTime) == (time_t) 0)
+          return ((std::string) "Unknown");
+      if (str[0] == '\0')
+        strftime(str, sizeof(str), "%d/%m/%Y %H:%M:%S", localtime(&id(gosNet_globals_sntpBootTime)));
+      return (std::string) str;
+
+#endif // GOS_CONFIG_NET_NTP
+
+// Enable Home Assistant API
+#if GOS_CONFIG_NET_HA
+  #default _SECRET_HA_PASSWORD	_SECRET_WIFI_PASSWORD
+api:
+  password: _SECRET_HA_PASSWORD
+#endif // GOS_CONFIG_NET_OTA
+
+// Enable over-the-air update
+#if GOS_CONFIG_NET_OTA
+  #default _SECRET_OTA_PASSWORD	_SECRET_WIFI_PASSWORD
+ota:
+  version: 2
+  platform: esphome
+  password: _SECRET_OTA_PASSWORD
+  on_begin:
+    then:
+      - logger.log: "OTA start"
+  on_progress:
+    then:
+      - logger.log:
+          format: "OTA progress %0.1f%%"
+          args: ["x"]
+  on_end:
+    then:
+      - logger.log: "OTA end"
+#endif // GOS_CONFIG_NET_OTA
+
+#if GOS_CONFIG_NET_WEB_SERVER
+// Enable web server
+web_server:
+  port: 80
+  version: 3
+  include_internal: true
+#endif // GOS_CONFIG_NET_WEB_SERVER
+
+#if GOS_CONFIG_NET_IMPROV_WIFI
+#ifdef GOS_BSP_HAS_esp32_ble
+esp32_improv:
+  authorizer: none
+#else
+// Enable Improv WiFi component
+improv_serial:
+  next_url: "http://example.com/?device_name={{device_name}}&ip_address={{ip_address}}&esphome_version={{esphome_version}}"
+#endif
+#endif // GOS_CONFIG_IMPROV_WIFI
+
+#default GOS_CONFIG_NET_WEB_SERVER_TEST	no
+#if GOS_CONFIG_NET_WEB_SERVER_TEST
+http_request:
+  useragent: esphome/device
+  timeout: 10s
+
+switch:
+  - platform: template
+    name: "http request get test"
+    restore_mode: ALWAYS_OFF
+    turn_on_action:
+    - http_request.get:
+        url: "http://127.0.0.1/sensor/net_wifi_signal_"
+        on_response:
+          then:
+            - logger.log:
+                // format: "Response status: %d, duration_ms: %lu ms"
+                format: "Response status: %d, duration_ms: %u ms"
+                args:
+                  - response->status_code
+                  - response->duration_ms
+#endif // GOS_CONFIG_NET_WEB_SERVER_TEST
+
+#if GOS_CONFIG_NET_WIFI_UTILS
+  #requires GOS_BSP_HAS_wifi GOS_CONFIG_NET_WIFI_UTILS
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "Net IP Address"
+    ssid:
+      name: "Net WiFi SSID"
+    mac_address:
+      name: "Net MAC Address"
+
+sensor:
+  - platform: wifi_signal
+    name: "Net WiFi Signal"
+    update_interval: 15s
+
+esphome:
+  includes:
+    - GOS_TOP/utils/idfWifi.h
+    - GOS_TOP/utils/idfWifi.c
+
+text_sensor:
+  - platform: template
+    name: "Net WiFi Channel"
+    lambda: |-
+      static char str[3]; // one or two digits (or -1) plus NULL
+      sprintf(str, "%2d", idfWifiGetChannelNum());
+      return (std::string) str;
+
+#endif // GOS_CONFIG_NET_WIFI_UTILS
+
+#default GOS_CONFIG_NET_TCPCMD		no	// ... tcpcmd server?
+#if GOS_CONFIG_NET_TCPCMD
+esphome:
+  includes:
+    - GOS_TOP/utils/tcpcmd.h
+    - GOS_TOP/utils/tcpcmd.c
+
+// The default for the tcpcmd server is off for security since there
+// is no login security.  To connect to it, just connect a socket,
+// like this: socat FILE:`tty`,onlcr=1 tcp:192.168.248.20:1337
+
+#default GOS_CONFIG_NET_TCPCMD_ON 0
+#if GOS_CONFIG_NET_TCPCMD_ON
+wifi:
+  on_connect:
+    - switch.turn_on: gosSwitch_tcpcmdInit
+#endif //  GOS_CONFIG_NET_TCPCMD_ON
+
+switch:
+  - platform: template
+    name: "Net Command Server Init"
+    id: gosSwitch_tcpcmdInit
+    turn_on_action:
+      lambda: |-
+        if (tcpcmdServerInit() == ESP_FAIL)
+            ESP_LOGD("tcpcmdd", "Initializaton failed");
+        else
+            ESP_LOGD("tcpcmdd", "Initializaton succeeded");
+    turn_off_action:
+      lambda: |-
+        if (tcpcmdServerTerm() == ESP_FAIL)
+            ESP_LOGD("tcpcmdd", "Termination failed");
+        else
+            ESP_LOGD("tcpcmdd", "Termination succeeded");
+#if 0
+    // This timer works but tcpcmd.c needs to cleanly terminate the server,
+    // not just boot off the current logged in user.
+    on_turn_on:
+      then:
+        - wait_until:
+            condition:
+              for:
+                time: 30min
+                condition:
+                  - switch.is_on: gosSwitch_tcpcmdInit
+        - switch.turn_off: gosSwitch_tcpcmdInit
+#endif // 0
+#endif // GOS_CONFIG_NET_TCPCMD
+
+#if GOS_CONFIG_NET_WEB_SERVER
+esphome:
+  includes:
+    - GOS_TOP/utils/webApi.h
+    - GOS_TOP/utils/webApi.c
+#endif
+
+#if GOS_CONFIG_NET_STREAM_SERVER
+external_components:
+  - source: 'github://oxan/esphome-stream-server'
+    refresh: 1000min
+    components: [stream_server]
+
+stream_server:
+  uart_id: uart_bus
+  port: 1234
+
+binary_sensor: // should be in sensor.yaml
+  - platform: stream_server
+    connected:
+      name: Connected
+
+sensor:
+  - platform: stream_server
+    connection_count:
+      name: Number of connections
+
+#endif // GOS_CONFIG_NET_STREAM_SERVER
+#endif // GOS_CONFIG_NET_WIFI
+
+#if GOS_CONFIG_NET_MDNS
+mdns:
+  disabled: false
+#else
+mdns:
+  disabled: true
+#endif // GOS_CONFIG_NET_MDNS
